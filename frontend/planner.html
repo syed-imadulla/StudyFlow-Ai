@@ -5055,7 +5055,8 @@
       // Fetch events for active week via existing LOAD_RANGE action
       if (window.SF_STORE && _weeklyStartDate) {
         const startIso = typeof _toLocalDateStr === 'function' ? _toLocalDateStr(_weeklyStartDate) : _weeklyStartDate.toISOString().split('T')[0];
-        const sunDate = new Date(_weeklyStartDate.getTime() + 6 * 86400000);
+        const sunDate = new Date(_weeklyStartDate);
+        sunDate.setDate(sunDate.getDate() + 6);
         const endIso = typeof _toLocalDateStr === 'function' ? _toLocalDateStr(sunDate) : sunDate.toISOString().split('T')[0];
         window.SF_STORE.dispatch('planner/LOAD_RANGE', { start: startIso, end: endIso, view: 'weekly' });
       }
@@ -5109,7 +5110,8 @@
       }
       if (window.SF_STORE && _weeklyStartDate) {
         const startIso = typeof _toLocalDateStr === 'function' ? _toLocalDateStr(_weeklyStartDate) : _weeklyStartDate.toISOString().split('T')[0];
-        const sunDate = new Date(_weeklyStartDate.getTime() + 6 * 86400000);
+        const sunDate = new Date(_weeklyStartDate);
+        sunDate.setDate(sunDate.getDate() + 6);
         const endIso = typeof _toLocalDateStr === 'function' ? _toLocalDateStr(sunDate) : sunDate.toISOString().split('T')[0];
         window.SF_STORE.dispatch('planner/LOAD_RANGE', { start: startIso, end: endIso, view: 'weekly' });
       }
@@ -5123,7 +5125,8 @@
       const headerEl = document.getElementById('weeklyDateRangeHeader');
       const compactEl = document.getElementById('weeklyCompactDateRange');
       if (headerEl || compactEl) {
-        const sunDate = new Date(_weeklyStartDate.getTime() + 6 * 86400000);
+        const sunDate = new Date(_weeklyStartDate);
+        sunDate.setDate(sunDate.getDate() + 6);
         const options = { month: 'long', day: 'numeric' };
         const startStr = _weeklyStartDate.toLocaleDateString('en-US', options);
         const endStr = sunDate.toLocaleDateString('en-US', { ...options, year: 'numeric' });
@@ -5568,14 +5571,18 @@
         let untilDate = new Date(8640000000000000);
         if (rule && rule.untilDate) {
           const u = new Date(rule.untilDate);
-          if (!isNaN(u.getTime())) untilDate = u;
+          if (!isNaN(u.getTime())) {
+            u.setHours(23, 59, 59, 999);
+            untilDate = u;
+          }
         }
 
         const freq = (rule && rule.frequency ? rule.frequency : (ev.frequency || 'DAILY')).toUpperCase();
         const daysOfWeek = rule && rule.daysOfWeek ? rule.daysOfWeek : (ev.daysOfWeek || (rule && rule.repeatDays) || []);
 
         for (let i = 0; i < 7; i++) {
-          const cellDate = new Date(startOfMon.getTime() + i * 86400000);
+          const cellDate = new Date(startOfMon);
+          cellDate.setDate(cellDate.getDate() + i);
           const cellDateStr = cellDate.toLocaleDateString('en-CA');
           
           if (cellDate < seriesStartDate || cellDate > untilDate) continue;
@@ -5595,7 +5602,7 @@
               const dayNamesShort = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
               const dayNamesLong = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
               occurs = daysOfWeek.some(d => {
-                if (typeof d === 'number' && d === dayNum) return true;
+                if (typeof d === 'number' && (d === dayNum || (d === 7 && dayNum === 0))) return true;
                 if (typeof d === 'string') {
                   const upper = d.toUpperCase();
                   return upper === dayNamesShort[dayNum] || upper === dayNamesLong[dayNum] || upper.slice(0, 3) === dayNamesShort[dayNum];
@@ -5664,7 +5671,8 @@
       
       const startOfMon = new Date(_weeklyStartDate);
       startOfMon.setHours(0, 0, 0, 0);
-      const endOfSun = new Date(_weeklyStartDate.getTime() + 6 * 86400000);
+      const endOfSun = new Date(startOfMon);
+      endOfSun.setDate(endOfSun.getDate() + 6);
       endOfSun.setHours(23, 59, 59, 999);
 
       // Expand recurring instances into individual occurrences FIRST across the week before filtering (so master/exceptions match perfectly)
@@ -5674,6 +5682,7 @@
 
       // 1. Group by actual calendar date (0..6 corresponding to Mon..Sun)
       const dayGroups = groupEventsByDay(weekEvents, startOfMon, endOfSun);
+
 
       // 2. For each day separately: calculateOverlapGroups(dayEvents) & assign width
       const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];

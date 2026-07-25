@@ -604,6 +604,11 @@ export class PlannerService {
   static async _expandRecurrencesInRange(userId, startIso, endIso, query = {}) {
     const startDateObj = new Date(startIso);
     const endDateObj = new Date(endIso);
+    
+    // If endIso only specifies a date (e.g. YYYY-MM-DD) or represents exactly midnight UTC, span the entire day
+    if (endIso.length === 10 || (endDateObj.getUTCHours() === 0 && endDateObj.getUTCMinutes() === 0 && endDateObj.getUTCSeconds() === 0)) {
+      endDateObj.setUTCHours(23, 59, 59, 999);
+    }
 
     const baseFilter = { user: userId };
     if (query.type && typeof query.type === 'string') {

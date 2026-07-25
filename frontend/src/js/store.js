@@ -227,7 +227,6 @@ window.SF_STORE = (function () {
 
   function _deriveDailyBlocks(events, dateStr) {
     if (!events || !Array.isArray(events)) return [];
-    if (_state.planner.selectedView === 'day') return events;
     return events.filter(e => {
       const eDate = window.getPlannerBlockDate(e);
       return eDate === dateStr;
@@ -479,9 +478,10 @@ window.SF_STORE = (function () {
             const diffToMon = dayNum === 0 ? -6 : 1 - dayNum;
             const mon = new Date(baseDate);
             mon.setDate(baseDate.getDate() + diffToMon);
-            const sun = new Date(mon.getTime() + 6 * 86400000);
-            start = mon.toISOString().split('T')[0];
-            end = sun.toISOString().split('T')[0];
+            const sun = new Date(mon);
+            sun.setDate(sun.getDate() + 6);
+            start = mon.toLocaleDateString('en-CA');
+            end = sun.toLocaleDateString('en-CA');
           }
           await dispatch('planner/LOAD_RANGE', { start, end, view: activeView });
         } else {
@@ -531,9 +531,10 @@ window.SF_STORE = (function () {
             const diffToMon = dayNum === 0 ? -6 : 1 - dayNum;
             const mon = new Date(baseDate);
             mon.setDate(baseDate.getDate() + diffToMon);
-            const sun = new Date(mon.getTime() + 6 * 86400000);
-            start = mon.toISOString().split('T')[0];
-            end = sun.toISOString().split('T')[0];
+            const sun = new Date(mon);
+            sun.setDate(sun.getDate() + 6);
+            start = mon.toLocaleDateString('en-CA');
+            end = sun.toLocaleDateString('en-CA');
           }
           await dispatch('planner/LOAD_RANGE', { start, end, view: activeView });
         } else {
@@ -569,9 +570,10 @@ window.SF_STORE = (function () {
             const diffToMon = dayNum === 0 ? -6 : 1 - dayNum;
             const mon = new Date(baseDate);
             mon.setDate(baseDate.getDate() + diffToMon);
-            const sun = new Date(mon.getTime() + 6 * 86400000);
-            start = mon.toISOString().split('T')[0];
-            end = sun.toISOString().split('T')[0];
+            const sun = new Date(mon);
+            sun.setDate(sun.getDate() + 6);
+            start = mon.toLocaleDateString('en-CA');
+            end = sun.toLocaleDateString('en-CA');
           }
           await dispatch('planner/LOAD_RANGE', { start, end, view: activeView });
         } else {
@@ -606,9 +608,10 @@ window.SF_STORE = (function () {
             const diffToMon = dayNum === 0 ? -6 : 1 - dayNum;
             const mon = new Date(baseDate);
             mon.setDate(baseDate.getDate() + diffToMon);
-            const sun = new Date(mon.getTime() + 6 * 86400000);
-            start = mon.toISOString().split('T')[0];
-            end = sun.toISOString().split('T')[0];
+            const sun = new Date(mon);
+            sun.setDate(sun.getDate() + 6);
+            start = mon.toLocaleDateString('en-CA');
+            end = sun.toLocaleDateString('en-CA');
           }
           await dispatch('planner/LOAD_RANGE', { start, end, view: activeView });
         } else {
