@@ -16,6 +16,41 @@ const attachDynamicProgress = (goalDoc) => {
   return goal;
 };
 
+/**
+ * Process the structured deadline request object into persistence fields
+ */
+const processDeadline = (data) => {
+  if (data.deadline && typeof data.deadline === 'object') {
+    const { mode, date, time, value, unit } = data.deadline;
+    
+    if (mode === 'NONE') {
+      data.deadline = null;
+      data.deadlineTime = null;
+    } else if (mode === 'SPECIFIC_DATE') {
+      data.deadline = date;
+      data.deadlineTime = time || null;
+    } else if (mode === 'DURATION') {
+      const targetDate = new Date();
+      
+      if (unit === 'days') {
+        targetDate.setDate(targetDate.getDate() + value);
+      } else if (unit === 'weeks') {
+        targetDate.setDate(targetDate.getDate() + (value * 7));
+      } else if (unit === 'months') {
+        targetDate.setMonth(targetDate.getMonth() + value);
+      }
+      
+      const yyyy = targetDate.getFullYear();
+      const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(targetDate.getDate()).padStart(2, '0');
+      
+      data.deadline = `${yyyy}-${mm}-${dd}`;
+      data.deadlineTime = null;
+    }
+  }
+  return data;
+};
+
 export class GoalService {
   /**
    * Fetch all goals belonging to user with sorting, filtering, and pagination
@@ -57,7 +92,8 @@ export class GoalService {
    * Create new goal
    */
   static async createGoal(userId, payload) {
-    const data = { ...payload };
+    let data = { ...payload };
+    data = processDeadline(data);
     if (data.status && typeof data.status === 'string') {
       data.status = data.status.toUpperCase().trim();
     }
@@ -79,7 +115,8 @@ export class GoalService {
    * Update existing goal
    */
   static async updateGoal(userId, goalId, patch) {
-    const data = { ...patch };
+    let data = { ...patch };
+    data = processDeadline(data);
     if (data.status && typeof data.status === 'string') {
       data.status = data.status.toUpperCase().trim();
     }

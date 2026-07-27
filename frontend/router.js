@@ -327,7 +327,7 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
   if (!modalEl) {
     modalEl = document.createElement('div');
     modalEl.id = 'globalAddModal';
-    modalEl.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4';
+    modalEl.className = 'fixed inset-0 z-[999999999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4';
     modalEl.innerHTML = `
       <div class="bg-[#0D0D0D] border border-[#2A2A2A] p-6 rounded-[20px] w-full max-w-md shadow-saas space-y-5">
         <div class="flex items-center justify-between pb-3 border-b border-[#1C1C1C]">
@@ -339,19 +339,33 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
             <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5" id="modalInput1Label">Title</label>
             <input id="modalInputTitle" type="text" placeholder="e.g. Complete Database Normalization" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" required />
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5" id="modalInput2Label">Final Deadline / Time</label>
-            <input id="modalInputSub" type="text" placeholder="e.g. 10 days or 14:00 - 15:30" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" required />
+          <div id="modalDeadlineSection">
+            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Deadline</label>
+            <div id="modalAddDeadlineContainer"></div>
           </div>
-          <div>
+          <div id="modalTimeBlockSection" style="display: none;">
+            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Time Range (e.g. 18:00 - 19:30)</label>
+            <input id="modalInputSub" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" />
+          </div>
+          <div class="relative sf-custom-select-container">
             <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Priority / Urgency</label>
-            <select id="modalInputTag" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]">
+            <select id="modalInputTag" class="hidden">
               <option value="High">High / Urgent</option>
               <option value="Focus">Focus</option>
               <option value="Review">Review</option>
               <option value="Study">Study</option>
               <option value="Medium">Medium</option>
             </select>
+            <button type="button" onclick="document.getElementById('sf-menu-modalInputTag').classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
+              <span id="sf-display-modalInputTag" class="flex items-center gap-2 text-white">High / Urgent</span>
+              <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="sf-menu-modalInputTag" class="hidden absolute left-0 right-0 mt-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5 max-h-40 overflow-y-auto">
+              ${['High / Urgent', 'Focus', 'Review', 'Study', 'Medium'].map(t => {
+                const val = t.split(' / ')[0];
+                return `<div onclick="document.getElementById('modalInputTag').value='${val}'; document.getElementById('sf-display-modalInputTag').innerText='${t}'; document.getElementById('sf-menu-modalInputTag').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">${t}</div>`;
+              }).join('')}
+            </div>
           </div>
           <div id="aiBreakdownToggleWrapper" class="pt-2 border-t border-[#1C1C1C]">
             <label class="flex items-center space-x-3 cursor-pointer">
@@ -371,29 +385,58 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
   }
 
   const aiWrapper = document.getElementById('aiBreakdownToggleWrapper');
+  const deadlineSection = document.getElementById('modalDeadlineSection');
+  const timeBlockSection = document.getElementById('modalTimeBlockSection');
+
   if (isTimeBlock) {
     aiWrapper.style.display = 'none';
+    deadlineSection.style.display = 'none';
+    timeBlockSection.style.display = 'block';
   } else {
     aiWrapper.style.display = 'block';
+    deadlineSection.style.display = 'block';
+    timeBlockSection.style.display = 'none';
   }
 
   document.getElementById('modalTitle').textContent = isTimeBlock ? 'Add Time Block' : 'Create AI Goal / Task';
   document.getElementById('modalInput1Label').textContent = isTimeBlock ? 'Block Activity' : 'Main Goal / Task Name';
-  document.getElementById('modalInput2Label').textContent = isTimeBlock ? 'Time Range (e.g. 18:00 - 19:30)' : 'Final Deadline (e.g. 12 days or July 15)';
   document.getElementById('modalInputTitle').value = '';
   document.getElementById('modalInputSub').value = '';
   document.getElementById('modalBraindumpText').value = '';
+  
+  if (!isTimeBlock && window.createDeadlineSelector) {
+    if (!window.addDeadlineSelector) {
+      window.addDeadlineSelector = window.createDeadlineSelector(document.getElementById('modalAddDeadlineContainer'));
+    }
+    window.addDeadlineSelector.reset();
+  }
+
   modalEl.style.display = 'flex';
   document.getElementById('modalInputTitle').focus();
 
   window.submitGlobalAdd = async function () {
     const title = document.getElementById('modalInputTitle').value.trim();
-    const sub = document.getElementById('modalInputSub').value.trim();
     const tag = document.getElementById('modalInputTag').value;
     const autoBreakdown = !isTimeBlock && document.getElementById('modalAiBreakdownCheck').checked;
     const braindump = document.getElementById('modalBraindumpText').value.trim();
 
-    if (!title || !sub) return;
+    let sub = '';
+    let deadlinePayload = null;
+
+    if (isTimeBlock) {
+      sub = document.getElementById('modalInputSub').value.trim();
+      if (!title || !sub) return;
+    } else {
+      if (!title) return;
+      const validation = window.addDeadlineSelector.validate();
+      if (!validation.valid) {
+        if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
+          window.SF_COMPONENTS.showToast(validation.error, 'error');
+        }
+        return;
+      }
+      deadlinePayload = window.addDeadlineSelector.getValue();
+    }
 
     if (!isTimeBlock) {
       modalEl.style.display = 'none';
@@ -404,7 +447,7 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
             title,
             urgency,
             description: 'Created via AI Goal Breakdown Modal',
-            finalDeadlineDaysStr: sub,
+            deadline: deadlinePayload,
             rawDump: braindump
           });
           if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
@@ -415,8 +458,7 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
             title,
             urgency,
             description: 'Created via Add Item Modal',
-            finalDeadlineDisplay: sub,
-            finalDeadline: sub
+            deadline: deadlinePayload
           });
           if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
             window.SF_COMPONENTS.showToast(`Goal "${title}" created successfully!`, 'success');
@@ -483,7 +525,7 @@ window.openEditGoalModal = function (goalId) {
   if (!modalEl) {
     modalEl = document.createElement('div');
     modalEl.id = 'globalEditGoalModal';
-    modalEl.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4';
+    modalEl.className = 'fixed inset-0 z-[999999999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4';
     modalEl.innerHTML = `
       <div class="bg-[#0D0D0D] border border-[#2A2A2A] p-6 rounded-[20px] w-full max-w-md shadow-saas space-y-5">
         <div class="flex items-center justify-between pb-3 border-b border-[#1C1C1C]">
@@ -500,19 +542,26 @@ window.openEditGoalModal = function (goalId) {
             <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Description</label>
             <input id="editGoalDesc" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" />
           </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Urgency</label>
-              <select id="editGoalUrgency" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]">
-                <option value="URGENT">URGENT</option>
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="UPCOMING">UPCOMING</option>
-              </select>
+          <div class="relative sf-custom-select-container">
+            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Urgency</label>
+            <select id="editGoalUrgency" class="hidden">
+              <option value="URGENT">URGENT</option>
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="UPCOMING">UPCOMING</option>
+            </select>
+            <button type="button" onclick="document.getElementById('sf-menu-editGoalUrgency').classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
+              <span id="sf-display-editGoalUrgency" class="flex items-center gap-2 text-white">ACTIVE</span>
+              <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="sf-menu-editGoalUrgency" class="hidden absolute left-0 right-0 mt-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5 max-h-40 overflow-y-auto">
+              ${['URGENT', 'ACTIVE', 'UPCOMING'].map(t => {
+                return `<div onclick="document.getElementById('editGoalUrgency').value='${t}'; document.getElementById('sf-display-editGoalUrgency').innerText='${t}'; document.getElementById('sf-menu-editGoalUrgency').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">${t}</div>`;
+              }).join('')}
             </div>
-            <div>
-              <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Final Deadline</label>
-              <input id="editGoalDeadline" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" required />
-            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Deadline</label>
+            <div id="modalEditDeadlineContainer"></div>
           </div>
           <div>
             <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Subtasks (One per line)</label>
@@ -531,9 +580,18 @@ window.openEditGoalModal = function (goalId) {
   document.getElementById('editGoalIdHidden').value = goal.id;
   document.getElementById('editGoalTitle').value = goal.title || '';
   document.getElementById('editGoalDesc').value = goal.description || '';
-  document.getElementById('editGoalUrgency').value = goal.urgency || 'ACTIVE';
-  document.getElementById('editGoalDeadline').value = goal.finalDeadlineDisplay || goal.finalDeadline || '';
+  const eInput = document.getElementById('editGoalUrgency');
+  eInput.value = goal.urgency || 'ACTIVE';
+  document.getElementById('sf-display-editGoalUrgency').innerText = goal.urgency || 'ACTIVE';
   document.getElementById('editGoalSubtasks').value = (goal.subtasks || []).map(s => s.title).join('\n');
+  
+  if (window.createDeadlineSelector) {
+    if (!window.editDeadlineSelector) {
+      window.editDeadlineSelector = window.createDeadlineSelector(document.getElementById('modalEditDeadlineContainer'));
+    }
+    window.editDeadlineSelector.setValue(goal.deadline || goal.finalDeadlineDisplay || goal.finalDeadline || null);
+  }
+
   modalEl.style.display = 'flex';
 };
 
@@ -542,10 +600,18 @@ window.submitEditGoal = async function () {
   const title = document.getElementById('editGoalTitle').value.trim();
   const description = document.getElementById('editGoalDesc').value.trim();
   const urgency = document.getElementById('editGoalUrgency').value;
-  const deadline = document.getElementById('editGoalDeadline').value.trim();
   const subtasksText = document.getElementById('editGoalSubtasks').value;
 
   if (!title || !goalId) return;
+
+  const validation = window.editDeadlineSelector.validate();
+  if (!validation.valid) {
+    if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
+      window.SF_COMPONENTS.showToast(validation.error, 'error');
+    }
+    return;
+  }
+  const deadlinePayload = window.editDeadlineSelector.getValue();
 
   const existing = window.SF_STORE?.getSlice('goals')?.items?.find(g => g.id === goalId);
   const lines = subtasksText.split('\n').map(l => l.trim()).filter(Boolean);
@@ -569,7 +635,7 @@ window.submitEditGoal = async function () {
         title,
         description,
         urgency,
-        finalDeadlineDisplay: deadline,
+        deadline: deadlinePayload,
         subtasks
       }
     });
@@ -624,9 +690,13 @@ window.selectCustomDropdownItem = function (menuId, arrowId, textId, displayValu
 };
 
 document.addEventListener('click', function (e) {
-  if (!e.target || typeof e.target.closest !== 'function' || !e.target.closest('.custom-dropdown-container')) {
+  if (!e.target || typeof e.target.closest !== 'function') return;
+  if (!e.target.closest('.custom-dropdown-container')) {
     document.querySelectorAll('.custom-dropdown-menu').forEach(m => m.classList.add('hidden'));
     document.querySelectorAll('.custom-dropdown-arrow').forEach(a => a.style.transform = 'rotate(0deg)');
+  }
+  if (!e.target.closest('.sf-custom-select-container')) {
+    document.querySelectorAll('.sf-custom-select-container .absolute').forEach(m => m.classList.add('hidden'));
   }
 });
 

@@ -47,6 +47,34 @@ window.goalsService = (function () {
     return goal;
   }
 
+  function processDeadlineLocal(data) {
+    if (data.deadline && typeof data.deadline === 'object') {
+      const { mode, date, time, value, unit } = data.deadline;
+      if (mode === 'NONE') {
+        data.deadline = null;
+        data.deadlineTime = null;
+      } else if (mode === 'SPECIFIC_DATE') {
+        data.deadline = date;
+        data.deadlineTime = time || null;
+      } else if (mode === 'DURATION') {
+        const targetDate = new Date();
+        if (unit === 'days') {
+          targetDate.setDate(targetDate.getDate() + value);
+        } else if (unit === 'weeks') {
+          targetDate.setDate(targetDate.getDate() + (value * 7));
+        } else if (unit === 'months') {
+          targetDate.setMonth(targetDate.getMonth() + value);
+        }
+        const yyyy = targetDate.getFullYear();
+        const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(targetDate.getDate()).padStart(2, '0');
+        data.deadline = `${yyyy}-${mm}-${dd}`;
+        data.deadlineTime = null;
+      }
+    }
+    return data;
+  }
+
   // ─── Service Methods ──────────────────────────────────────────────────────
 
   async function getGoals() {
@@ -58,12 +86,14 @@ window.goalsService = (function () {
   async function createGoal(payload) {
     await _ensureSeed();
     const goals = _readLS() || [];
+    const processedPayload = window.SF_CONFIG?.USE_MOCK_API ? processDeadlineLocal({ ...payload }) : { ...payload };
+
     const newGoal = {
       id: 'goal-' + Date.now(),
       urgency: 'ACTIVE',
       progress: 0,
       subtasks: [],
-      ...payload
+      ...processedPayload
     };
     if (window.SF_CONFIG?.USE_MOCK_API) {
       goals.unshift(newGoal);
@@ -79,10 +109,16 @@ window.goalsService = (function () {
    * Create a goal with auto-generated subtasks from a braindump string.
    * Mirrors the previous StudyFlowDB.createGoalWithSubtasks() API exactly.
    */
-  async function createGoalWithSubtasks(title, urgency, description, finalDeadlineDaysStr, rawDump) {
+  async function createGoalWithSubtasks(title, urgency, description, deadlinePayload, rawDump) {
     let totalDays = 7;
-    const match = finalDeadlineDaysStr ? String(finalDeadlineDaysStr).match(/\d+/) : null;
-    if (match) totalDays = parseInt(match[0], 10) || 7;
+    if (deadlinePayload?.mode === 'DURATION') {
+      totalDays = deadlinePayload.value || 7;
+      if (deadlinePayload.unit === 'weeks') totalDays *= 7;
+      if (deadlinePayload.unit === 'months') totalDays *= 30; // Approx
+    } else if (deadlinePayload?.mode === 'SPECIFIC_DATE' && deadlinePayload.date) {
+      const ms = new Date(deadlinePayload.date) - new Date();
+      totalDays = Math.max(1, Math.round(ms / 86400000));
+    }
 
     let lines = rawDump
       ? rawDump.split('\n').map(l => l.replace(/^[-*•\d.]+\s*/, '').trim()).filter(Boolean)
@@ -113,8 +149,7 @@ window.goalsService = (function () {
       title: title || 'New AI Academic Goal',
       urgency: urgency || 'ACTIVE',
       description: description || 'AI generated study plan with spaced backward deadline assignment.',
-      finalDeadline: new Date(Date.now() + totalDays * 86400000).toISOString().split('T')[0],
-      finalDeadlineDisplay: `In ${totalDays} days`,
+      deadline: deadlinePayload,
       subtasks
     };
     return createGoal(payload);
@@ -151,7 +186,8 @@ window.goalsService = (function () {
       const goals = _readLS() || [];
       const idx = goals.findIndex(g => g.id === goalId);
       if (idx !== -1) {
-        goals[idx] = { ...goals[idx], ...patch };
+        const processedPatch = processDeadlineLocal({ ...patch });
+        goals[idx] = { ...goals[idx], ...processedPatch };
         _recalcProgress(goals[idx]);
         _writeLS(goals);
         return window.SF_HTTP.request(`/goals/${goalId}`, goals[idx], {

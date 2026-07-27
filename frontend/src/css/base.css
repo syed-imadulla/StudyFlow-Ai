@@ -263,3 +263,13 @@ select option:checked, select option:hover {
 div[id="sf-toast-container"] {
   z-index: 2147483647 !important;
 }
+
+/* Hide number input spinners for custom +/- UI */
+.no-spinners::-webkit-inner-spin-button, 
+.no-spinners::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+.no-spinners { 
+  -moz-appearance: textfield; 
+}

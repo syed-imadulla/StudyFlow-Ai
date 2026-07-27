@@ -70,6 +70,10 @@ const goalSchema = new mongoose.Schema(
       type: String, // Stored as YYYY-MM-DD or ISO string for frontend compatibility
       required: false
     },
+    deadlineTime: {
+      type: String, // Stored as HH:MM
+      required: false
+    },
     subtasks: [subtaskSchema],
     completed: {
       type: Boolean,

@@ -777,7 +777,7 @@ window.ScheduleModal = {
     if (!modalEl) {
       modalEl = document.createElement('div');
       modalEl.id = 'globalScheduleModal';
-      modalEl.className = 'fixed inset-0 z-[600000] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fadeIn p-4 transition-all duration-200 ease-out';
+      modalEl.className = 'fixed inset-0 z-[999999999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4';
       document.body.appendChild(modalEl);
       
       modalEl.addEventListener('click', e => {
@@ -814,98 +814,98 @@ window.ScheduleModal = {
     const badgeColor = this.milestonePriority === 'High' ? 'text-red-400 bg-red-500/10 border-red-500/20' : this.milestonePriority === 'Medium' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' : 'text-green-400 bg-green-500/10 border-green-500/20';
 
     return `
-      <div class="modal-content-box bg-[#0A0A0B] border border-[#20202A] p-6 rounded-[24px] w-full max-w-[440px] shadow-[0_40px_80px_rgba(0,0,0,0.8),0_0_40px_rgba(168,85,247,0.15)] relative animate-scaleIn flex flex-col gap-6">
+      <div class="modal-content-box bg-[#0D0D0D] border border-[#2A2A2A] p-[22px] rounded-[20px] w-full max-w-[420px] shadow-saas relative animate-scaleIn flex flex-col gap-[18px]">
         
         <!-- Header -->
         <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <div class="w-10 h-10 rounded-[14px] bg-gradient-to-br from-[#A855F7]/20 to-[#A855F7]/5 border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7] shadow-[0_0_20px_rgba(168,85,247,0.25)]">
-              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
+          <div class="flex items-center space-x-3.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#A855F7]/20 to-[#A855F7]/5 border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7] shadow-[0_0_15px_rgba(168,85,247,0.25)]">
+              <svg class="w-[18px] h-[18px] fill-current" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
             </div>
-            <h3 class="text-[18px] font-bold text-[#FAFAFA] tracking-tight">Schedule to Planner</h3>
+            <h3 class="text-[17px] font-bold text-[#FAFAFA] tracking-tight">Schedule to Planner</h3>
           </div>
-          <button onclick="window.ScheduleModal.close()" class="w-8 h-8 flex items-center justify-center rounded-full text-[#6B7280] hover:bg-[#1A1A24] hover:text-[#FAFAFA] transition duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
+          <button onclick="window.ScheduleModal.close()" class="w-7 h-7 flex items-center justify-center rounded-full text-[#6B7280] hover:bg-[#1A1A24] hover:text-[#FAFAFA] transition duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
           </button>
         </div>
 
         <!-- Premium Context Card -->
-        <div class="bg-gradient-to-br from-[#121218] to-[#0D0D12] border border-[#22222E] rounded-[16px] p-4 flex flex-col shadow-inner">
-          <div class="flex items-center space-x-2 text-[#A1A1AA] mb-3 border-b border-[#22222E] pb-2.5">
-            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+        <div class="bg-gradient-to-br from-[#121218] to-[#0D0D12] border border-[#22222E] rounded-[14px] p-3.5 flex flex-col shadow-inner">
+          <div class="flex items-center space-x-1.5 text-[#A1A1AA] mb-2.5 border-b border-[#22222E] pb-2">
+            <svg class="w-[14px] h-[14px] fill-current" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
             <span class="text-[10px] font-bold tracking-widest uppercase">Goal</span>
             <span class="text-[12px] font-medium text-[#D4D4D8] truncate ml-1">${this.goalTitle}</span>
           </div>
-          <div class="flex flex-col gap-1.5">
-            <div class="flex items-center space-x-2 text-[#A855F7] mb-0.5">
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center space-x-1.5 text-[#A855F7]">
+              <svg class="w-[14px] h-[14px] fill-current" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
               <span class="text-[10px] font-bold tracking-widest uppercase">Milestone</span>
             </div>
             <div class="text-[15px] font-bold text-[#FAFAFA] truncate">${this.milestoneTitle}</div>
             <div class="flex items-center space-x-2 mt-1">
-              <span class="px-2 py-0.5 rounded-full text-[9px] font-bold border ${badgeColor}">${this.milestonePriority} Priority</span>
+              <span class="px-2 py-[3px] rounded-full text-[9px] font-bold border ${badgeColor}">${this.milestonePriority} Priority</span>
               <span class="text-[10px] font-medium text-[#6B7280]">Est. ${this.milestoneEstimate}</span>
             </div>
           </div>
         </div>
         
         <!-- Pickers Row -->
-        <div class="grid grid-cols-2 gap-5">
+        <div class="grid grid-cols-2 gap-4">
           
           <!-- Date Picker -->
           <div id="sm-date-wrapper" class="relative">
-            <label class="block text-[11px] font-bold text-[#8A8A98] uppercase tracking-wider mb-2.5">Date</label>
-            <div onclick="window.ScheduleModal.toggleDatePicker()" class="w-full bg-[#111116] border border-[#2A2A35] hover:border-[#A855F7]/50 rounded-[14px] p-4 flex items-center justify-between cursor-pointer transition-all duration-200 ease-out group shadow-sm">
+            <label class="block text-[11px] font-bold text-[#8A8A98] uppercase tracking-wider mb-2">Date</label>
+            <div onclick="window.ScheduleModal.toggleDatePicker()" class="w-full bg-[#111116] border border-[#2A2A35] hover:border-[#A855F7]/50 rounded-[12px] px-[15px] py-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 ease-out group shadow-sm">
               <span id="sm-date-display" class="text-[14px] font-semibold text-[#A1A1AA]">Choose a date</span>
-              <svg class="w-4.5 h-4.5 text-[#6B7280] group-hover:text-[#A855F7] transition duration-200 ease-out" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
+              <svg class="w-[18px] h-[18px] text-[#6B7280] group-hover:text-[#A855F7] transition duration-200 ease-out" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
             </div>
             
-            <div id="sm-date-dropdown" class="hidden absolute top-[calc(100%+8px)] left-0 w-[280px] bg-[#111116] border border-[#2A2A35] rounded-[20px] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-50 animate-scaleIn origin-top">
-              <div class="flex items-center justify-between mb-5">
-                <button type="button" onclick="window.ScheduleModal.changeMonth(-1); event.stopPropagation();" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#1A1A24] hover:text-[#FAFAFA] text-[#A1A1AA] transition-all duration-200 ease-out">&lsaquo;</button>
-                <div id="sm-calendar-title" class="text-[13px] font-bold text-[#FAFAFA] tracking-wide"></div>
-                <button type="button" onclick="window.ScheduleModal.changeMonth(1); event.stopPropagation();" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[#1A1A24] hover:text-[#FAFAFA] text-[#A1A1AA] transition-all duration-200 ease-out">&rsaquo;</button>
+            <div id="sm-date-dropdown" class="hidden absolute top-[calc(100%+8px)] left-0 min-w-[220px] bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-3 z-[999999999] animate-scaleIn origin-top">
+              <div class="flex items-center justify-between mb-2">
+                <button type="button" onclick="window.ScheduleModal.changeMonth(-1); event.stopPropagation();" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#1A1A24] hover:text-[#FAFAFA] text-[#A1A1AA] transition-all duration-200 ease-out">&lsaquo;</button>
+                <div id="sm-calendar-title" class="text-[12px] font-bold text-[#FAFAFA] tracking-wide"></div>
+                <button type="button" onclick="window.ScheduleModal.changeMonth(1); event.stopPropagation();" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#1A1A24] hover:text-[#FAFAFA] text-[#A1A1AA] transition-all duration-200 ease-out">&rsaquo;</button>
               </div>
-              <div class="grid grid-cols-7 gap-1.5 text-center text-[10px] font-bold text-[#6B7280] mb-3">
+              <div class="grid grid-cols-7 gap-1 text-center text-[9px] font-bold text-[#6B7280] mb-2">
                 <div>SU</div><div>MO</div><div>TU</div><div>WE</div><div>TH</div><div>FR</div><div>SA</div>
               </div>
-              <div id="sm-calendar-grid" class="grid grid-cols-7 gap-1.5"></div>
+              <div id="sm-calendar-grid" class="grid grid-cols-7 gap-1"></div>
             </div>
           </div>
 
           <!-- Time Picker -->
           <div id="sm-time-wrapper" class="relative">
-            <label class="block text-[11px] font-bold text-[#8A8A98] uppercase tracking-wider mb-2.5">Time</label>
-            <div onclick="window.ScheduleModal.toggleTimePicker()" class="w-full bg-[#111116] border border-[#2A2A35] hover:border-[#A855F7]/50 rounded-[14px] p-4 flex items-center justify-between cursor-pointer transition-all duration-200 ease-out group shadow-sm">
+            <label class="block text-[11px] font-bold text-[#8A8A98] uppercase tracking-wider mb-2">Time</label>
+            <div onclick="window.ScheduleModal.toggleTimePicker()" class="w-full bg-[#111116] border border-[#2A2A35] hover:border-[#A855F7]/50 rounded-[12px] px-[15px] py-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 ease-out group shadow-sm">
               <span id="sm-time-display" class="text-[14px] font-semibold text-[#A1A1AA]">Choose a time</span>
-              <svg class="w-4.5 h-4.5 text-[#6B7280] group-hover:text-[#A855F7] transition duration-200 ease-out" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+              <svg class="w-[18px] h-[18px] text-[#6B7280] group-hover:text-[#A855F7] transition duration-200 ease-out" viewBox="0 0 24 24"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
             </div>
-            <div id="sm-time-dropdown" class="hidden absolute top-[calc(100%+8px)] left-0 w-full bg-[#111116] border border-[#2A2A35] rounded-[20px] p-3 shadow-[0_20px_50px_rgba(0,0,0,0.8)] z-50 animate-scaleIn origin-top flex justify-between gap-1 [mask-image:linear-gradient(to_bottom,transparent,black_15%,black_85%,transparent)] pt-6 pb-6">
+            <div id="sm-time-dropdown" class="hidden absolute top-[calc(100%+8px)] left-0 right-0 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] animate-scaleIn origin-top font-mono text-xs">
             </div>
           </div>
         </div>
 
         <!-- Duration Quick Chips (No Dropdown) -->
         <div>
-          <div class="flex items-center justify-between mb-2.5">
+          <div class="flex items-center justify-between mb-2">
             <label class="block text-[11px] font-bold text-[#8A8A98] uppercase tracking-wider">Duration</label>
             <span id="sm-duration-display" class="text-[12px] font-semibold text-[#A855F7]">60 min</span>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
-             <div onclick="window.ScheduleModal.selectDuration(30)" class="duration-chip px-3.5 py-1.5 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">30m</div>
-             <div onclick="window.ScheduleModal.selectDuration(45)" class="duration-chip px-3.5 py-1.5 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">45m</div>
-             <div onclick="window.ScheduleModal.selectDuration(60)" class="duration-chip px-3.5 py-1.5 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">60m</div>
-             <div onclick="window.ScheduleModal.selectDuration(90)" class="duration-chip px-3.5 py-1.5 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">90m</div>
-             <div onclick="window.ScheduleModal.selectDuration(120)" class="duration-chip px-3.5 py-1.5 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">120m</div>
+             <div onclick="window.ScheduleModal.selectDuration(30)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">30m</div>
+             <div onclick="window.ScheduleModal.selectDuration(45)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">45m</div>
+             <div onclick="window.ScheduleModal.selectDuration(60)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">60m</div>
+             <div onclick="window.ScheduleModal.selectDuration(90)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">90m</div>
+             <div onclick="window.ScheduleModal.selectDuration(120)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">120m</div>
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="flex items-center justify-end space-x-3 pt-3 border-t border-[#22222E]">
-          <button type="button" onclick="window.ScheduleModal.close()" class="px-5 py-2.5 rounded-[12px] text-[13px] font-bold text-[#8A8A98] hover:text-[#FAFAFA] transition duration-200 ease-out hover:bg-[#1A1A24]">Cancel</button>
-          <button type="button" onclick="window.ScheduleModal.submit()" id="scheduleSubmitBtn" class="px-7 py-3 rounded-[12px] bg-gradient-to-r from-[#A855F7] to-[#9333EA] hover:from-[#9333EA] hover:to-[#7E22CE] text-white text-[14px] font-bold shadow-[0_0_24px_rgba(168,85,247,0.4)] transition-all duration-200 ease-out flex items-center space-x-2 hover:-translate-y-0.5 active:translate-y-0">
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-[#22222E]">
+          <button type="button" onclick="window.ScheduleModal.close()" class="px-4.5 py-2 rounded-[10px] text-[13px] font-bold text-[#8A8A98] hover:text-[#FAFAFA] transition duration-200 ease-out hover:bg-[#1A1A24]">Cancel</button>
+          <button type="button" onclick="window.ScheduleModal.submit()" id="scheduleSubmitBtn" class="px-6 py-2.5 rounded-[10px] bg-gradient-to-r from-[#A855F7] to-[#9333EA] hover:from-[#9333EA] hover:to-[#7E22CE] text-white text-[13.5px] font-bold shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all duration-200 ease-out flex items-center space-x-1.5 hover:-translate-y-0.5 active:translate-y-0">
             <span id="scheduleSubmitText">Schedule to Planner</span>
-            <svg id="scheduleSubmitSpinner" class="animate-spin -mr-1 ml-2 h-4.5 w-4.5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg id="scheduleSubmitSpinner" class="animate-spin -mr-1 ml-2 h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -931,9 +931,9 @@ window.ScheduleModal = {
     chips.forEach(chip => {
       const val = parseInt(chip.innerText);
       if (val === this.duration) {
-        chip.className = "duration-chip px-3.5 py-1.5 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out bg-[#A855F7]/20 border border-[#A855F7]/50 text-[#FAFAFA] shadow-[0_0_12px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95";
+        chip.className = "duration-chip px-3 py-1.5 rounded-full text-[12px] font-bold cursor-pointer transition-all duration-200 ease-out bg-[#A855F7]/20 border border-[#A855F7]/50 text-[#FAFAFA] shadow-[0_0_12px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95";
       } else {
-        chip.className = "duration-chip px-3.5 py-1.5 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95";
+        chip.className = "duration-chip px-3 py-1.5 rounded-full text-[12px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95";
       }
     });
     
@@ -988,14 +988,14 @@ window.ScheduleModal = {
     const daysInPrevMonth = new Date(this.currentYear, this.currentMonth, 0).getDate();
     
     for (let i = 0; i < startDay; i++) {
-      grid.innerHTML += `<div class="p-1.5 text-center text-[11px] font-medium text-[#3A3A3A]">${daysInPrevMonth - startDay + i + 1}</div>`;
+      grid.innerHTML += `<div class="p-1 text-center text-[10px] font-medium text-[#3A3A3A]">${daysInPrevMonth - startDay + i + 1}</div>`;
     }
     
     for (let i = 1; i <= daysInMonth; i++) {
       const isSelected = (this.date.getDate() === i && this.date.getMonth() === this.currentMonth && this.date.getFullYear() === this.currentYear);
       const isToday = (new Date().getDate() === i && new Date().getMonth() === new Date().getMonth() && new Date().getFullYear() === new Date().getFullYear());
       
-      let classes = "p-1.5 text-center text-[12px] font-bold rounded-[8px] cursor-pointer transition-all duration-200 ease-out flex items-center justify-center w-8 h-8 mx-auto ";
+      let classes = "p-1 text-center text-[11px] font-bold rounded-[6px] cursor-pointer transition-all duration-200 ease-out flex items-center justify-center w-6 h-6 mx-auto ";
       if (isSelected) {
         classes += "bg-[#A855F7] text-white shadow-[0_0_12px_rgba(168,85,247,0.5)] scale-110";
       } else if (isToday) {
@@ -1009,7 +1009,7 @@ window.ScheduleModal = {
     
     const remaining = 42 - (startDay + daysInMonth);
     for (let i = 1; i <= remaining && i <= 14; i++) {
-      grid.innerHTML += `<div class="p-1.5 text-center text-[11px] font-medium text-[#3A3A3A] flex items-center justify-center w-8 h-8 mx-auto">${i}</div>`;
+      grid.innerHTML += `<div class="p-1 text-center text-[10px] font-medium text-[#3A3A3A] flex items-center justify-center w-6 h-6 mx-auto">${i}</div>`;
     }
   },
 
@@ -1049,32 +1049,22 @@ window.ScheduleModal = {
     let ampm = h >= 12 ? 'PM' : 'AM';
     let hr12 = h % 12 || 12;
     
-    let hrHtml = '<div class="flex-1 h-[160px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-y snap-mandatory flex flex-col text-center px-1 space-y-1">';
-    hrHtml += '<div class="h-[60px] shrink-0"></div>'; // padding for scroll center
+    let hrHtml = '';
     for (let i = 1; i <= 12; i++) {
       const isSel = i === hr12;
-      const pad = String(i).padStart(2, '0');
-      hrHtml += `<div onclick="window.ScheduleModal.selectHour(${i}, event)" class="py-2 cursor-pointer rounded-[10px] transition-all duration-200 ${isSel ? 'bg-[#A855F7] text-white text-[16px] font-bold shadow-[0_0_12px_rgba(168,85,247,0.4)] scale-110' : 'text-[#6B7280] text-[13px] font-semibold hover:text-[#FAFAFA] hover:bg-[#1A1A24]'} snap-center shrink-0">${pad}</div>`;
+      hrHtml += `<div onclick="window.ScheduleModal.selectHour(${i}, event)" class="py-0.5 rounded text-[11px] cursor-pointer text-center transition-all duration-150 ${isSel ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">${String(i).padStart(2, '0')}</div>`;
     }
-    hrHtml += '<div class="h-[60px] shrink-0"></div>';
-    hrHtml += '</div>';
 
-    let minHtml = '<div class="flex-1 h-[160px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-y snap-mandatory flex flex-col text-center px-1 space-y-1 relative before:absolute before:left-0 before:top-4 before:bottom-4 before:w-[1px] before:bg-[#2A2A35] pl-2 ml-1">';
-    minHtml += '<div class="h-[60px] shrink-0"></div>';
-    for (let i = 0; i < 60; i+=15) {
-      const isSel = i === m || (Math.abs(i - m) < 15 && i <= m && (i+15 > m));
-      const pad = String(i).padStart(2, '0');
-      minHtml += `<div onclick="window.ScheduleModal.selectMinute(${i}, event)" class="py-2 cursor-pointer rounded-[10px] transition-all duration-200 ${isSel ? 'bg-[#A855F7] text-white text-[16px] font-bold shadow-[0_0_12px_rgba(168,85,247,0.4)] scale-110' : 'text-[#6B7280] text-[13px] font-semibold hover:text-[#FAFAFA] hover:bg-[#1A1A24]'} snap-center shrink-0">${pad}</div>`;
+    let minHtml = '';
+    for (let i = 0; i < 60; i += 5) {
+      const isSel = i === m || (Math.abs(i - m) < 5 && i <= m && (i+5 > m));
+      minHtml += `<div onclick="window.ScheduleModal.selectMinute(${i}, event)" class="py-0.5 rounded text-[11px] cursor-pointer text-center transition-all duration-150 ${isSel ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">${String(i).padStart(2, '0')}</div>`;
     }
-    minHtml += '<div class="h-[60px] shrink-0"></div>';
-    minHtml += '</div>';
 
-    let ampmHtml = '<div class="flex-1 h-[160px] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] flex flex-col text-center justify-center gap-3 px-1 relative before:absolute before:left-0 before:top-4 before:bottom-4 before:w-[1px] before:bg-[#2A2A35] pl-2 ml-1">';
-    ampmHtml += `<div onclick="window.ScheduleModal.selectAmPm('AM', event)" class="py-2.5 cursor-pointer rounded-[10px] transition-all duration-200 ${ampm === 'AM' ? 'bg-[#A855F7] text-white text-[14px] font-bold shadow-[0_0_12px_rgba(168,85,247,0.4)] scale-105' : 'text-[#6B7280] text-[13px] font-semibold hover:text-[#FAFAFA] hover:bg-[#1A1A24]'} shrink-0">AM</div>`;
-    ampmHtml += `<div onclick="window.ScheduleModal.selectAmPm('PM', event)" class="py-2.5 cursor-pointer rounded-[10px] transition-all duration-200 ${ampm === 'PM' ? 'bg-[#A855F7] text-white text-[14px] font-bold shadow-[0_0_12px_rgba(168,85,247,0.4)] scale-105' : 'text-[#6B7280] text-[13px] font-semibold hover:text-[#FAFAFA] hover:bg-[#1A1A24]'} shrink-0">PM</div>`;
-    ampmHtml += '</div>';
+    let ampmHtml = `<div onclick="window.ScheduleModal.selectAmPm('AM', event)" class="py-1 rounded text-[11px] cursor-pointer text-center transition-all duration-150 ${ampm === 'AM' ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">AM</div>`;
+    ampmHtml += `<div onclick="window.ScheduleModal.selectAmPm('PM', event)" class="py-1 rounded text-[11px] cursor-pointer text-center transition-all duration-150 ${ampm === 'PM' ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">PM</div>`;
     
-    container.innerHTML = hrHtml + minHtml + ampmHtml;
+    container.innerHTML = `<div class="grid grid-cols-3 gap-1 text-center h-32 select-none"><div class="flex flex-col border-r border-[#2A2A38]/60 pr-1 overflow-hidden"><div class="text-[9px] font-bold text-[#A855F7] pb-1 sticky top-0 bg-[#12121A]">HR</div><div class="overflow-y-auto space-y-0.5 flex-1 sf-scrollbar pr-0.5">${hrHtml}</div></div><div class="flex flex-col border-r border-[#2A2A38]/60 px-1 overflow-hidden"><div class="text-[9px] font-bold text-[#A855F7] pb-1 sticky top-0 bg-[#12121A]">MIN</div><div class="overflow-y-auto space-y-0.5 flex-1 sf-scrollbar pr-0.5">${minHtml}</div></div><div class="flex flex-col pl-1 overflow-hidden"><div class="text-[9px] font-bold text-[#A855F7] pb-1 sticky top-0 bg-[#12121A]">AM/PM</div><div class="overflow-y-auto space-y-1 flex-1 sf-scrollbar pr-0.5">${ampmHtml}</div></div></div>`;
   },
 
   selectDuration(mins) {
@@ -1136,3 +1126,415 @@ window.openScheduleMilestoneModal = function(goalId, milestoneId) {
   window.ScheduleModal.open(goalId, milestoneId);
 };
 
+
+window.createDeadlineSelector = function(containerElement, initialValue = null) {
+  if (!containerElement) {
+    console.error('createDeadlineSelector requires a container element');
+    return null;
+  }
+
+  let state = {
+    mode: 'NONE',
+    date: '',
+    time: '',
+    value: '',
+    unit: 'days'
+  };
+
+  if (initialValue) {
+    if (typeof initialValue === 'object') {
+      state = { ...state, ...initialValue };
+    } else if (typeof initialValue === 'string') {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(initialValue) || /^\d{4}-\d{2}-\d{2}T/.test(initialValue)) {
+        state.mode = 'SPECIFIC_DATE';
+        state.date = initialValue.substring(0, 10);
+      } else {
+        state.mode = 'NONE';
+      }
+    }
+  }
+
+  containerElement.innerHTML = `
+    <div class="space-y-3">
+      <div class="flex p-1 space-x-1 bg-[#0A0A0A] rounded-xl border border-[#202020] text-xs">
+        <button type="button" data-mode="NONE" class="flex-1 py-1.5 px-3 rounded-lg text-center font-medium transition-all duration-200 hover:text-white text-[#A1A1AA]">No Deadline</button>
+        <button type="button" data-mode="SPECIFIC_DATE" class="flex-1 py-1.5 px-3 rounded-lg text-center font-medium transition-all duration-200 hover:text-white text-[#A1A1AA]">Specific Date</button>
+        <button type="button" data-mode="DURATION" class="flex-1 py-1.5 px-3 rounded-lg text-center font-medium transition-all duration-200 hover:text-white text-[#A1A1AA]">Duration</button>
+      </div>
+
+      <div class="relative transition-all duration-300" style="min-height: 48px;" id="deadline-panels-container">
+        
+        <div data-panel="NONE" class="absolute inset-0 transition-opacity duration-300 flex items-center justify-center opacity-0 pointer-events-none">
+          <span class="text-[#A1A1AA] text-xs italic">This goal has no deadline.</span>
+        </div>
+
+        <div data-panel="SPECIFIC_DATE" class="absolute inset-0 transition-opacity duration-300 flex flex-col gap-2 opacity-0 pointer-events-none">
+          <div class="flex items-center gap-2">
+            <div class="relative sf-custom-select-container flex-grow">
+              <input type="date" id="dl-date" class="hidden" value="${state.date}" />
+              <button type="button" id="btn-dl-date" onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
+                <span id="sf-display-dl-date" class="flex items-center gap-2 text-white">${state.date ? new Date(state.date + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : 'mm/dd/yyyy'}</span>
+                <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              </button>
+              <div id="sf-menu-dl-date" class="hidden absolute left-0 mt-1 w-[260px] bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-3 z-[999999999] select-none">
+                <div class="flex items-center justify-between mb-3 px-1">
+                  <button type="button" id="dl-cal-prev" class="text-[#A1A1AA] hover:text-white p-1 rounded hover:bg-white/5 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                  <span id="dl-cal-title" class="text-white text-[13px] font-bold tracking-wide">Month Year</span>
+                  <button type="button" id="dl-cal-next" class="text-[#A1A1AA] hover:text-white p-1 rounded hover:bg-white/5 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+                </div>
+                <div class="grid grid-cols-7 gap-1 mb-2 text-center text-[10px] font-bold text-[#A1A1AA]">
+                  <div>SU</div><div>MO</div><div>TU</div><div>WE</div><div>TH</div><div>FR</div><div>SA</div>
+                </div>
+                <div id="dl-cal-grid" class="grid grid-cols-7 gap-1"></div>
+                <div class="flex justify-between mt-3 pt-3 border-t border-[#2A2A38]/50 text-xs text-[#A855F7] font-semibold">
+                  <button type="button" id="dl-cal-clear" class="hover:text-white hover:bg-white/5 px-2 py-1 rounded transition">Clear</button>
+                  <button type="button" id="dl-cal-today" class="hover:text-white hover:bg-white/5 px-2 py-1 rounded transition">Today</button>
+                </div>
+              </div>
+            </div>
+            <div class="relative sf-custom-select-container w-[130px]">
+              <input type="time" id="dl-time" class="hidden" value="${state.time}" />
+              <button type="button" id="btn-dl-time" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-mono font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
+                <span id="sf-display-dl-time" class="flex items-center gap-2 text-white text-[11px]">${state.time ? (() => { let [h,m]=state.time.split(':'); return (h%12||12)+':'+m+' '+(h>=12?'PM':'AM'); })() : 'Time'}</span>
+                <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <div id="sf-menu-dl-time" class="hidden absolute right-0 mt-1 w-[200px] bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] font-mono text-xs">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+          </div>
+          <span class="text-[#A1A1AA] text-[10px] pl-1">If no time is selected, the deadline will only use the selected date.</span>
+        </div>
+
+        <div data-panel="DURATION" class="absolute inset-0 transition-opacity duration-300 flex flex-col gap-2 opacity-0 pointer-events-none">
+          <div class="flex items-center gap-2">
+            <div class="flex items-center bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl focus-within:border-[#A855F7] transition-colors h-[38px] shrink-0">
+              <button type="button" class="w-7 h-full flex items-center justify-center text-[#A1A1AA] hover:text-white hover:bg-white/5 rounded-l-xl transition font-medium" onclick="const i=document.getElementById('dl-value'); i.value=Math.max(1, (parseInt(i.value)||0)-1); i.dispatchEvent(new Event('input'))">−</button>
+              <input type="number" id="dl-value" min="1" placeholder="1" class="w-10 h-full p-0 text-center text-xs bg-transparent border-none text-white outline-none no-spinners" value="${state.value || 1}" />
+              <button type="button" class="w-7 h-full flex items-center justify-center text-[#A1A1AA] hover:text-white hover:bg-white/5 rounded-r-xl transition font-medium" onclick="const i=document.getElementById('dl-value'); i.value=(parseInt(i.value)||0)+1; i.dispatchEvent(new Event('input'))">+</button>
+            </div>
+            <div class="relative sf-custom-select-container flex-grow">
+              <select id="dl-unit" class="hidden">
+                <option value="days" ${state.unit === 'days' ? 'selected' : ''}>Days</option>
+                <option value="weeks" ${state.unit === 'weeks' ? 'selected' : ''}>Weeks</option>
+                <option value="months" ${state.unit === 'months' ? 'selected' : ''}>Months</option>
+              </select>
+              <button type="button" id="btn-dl-unit" onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
+                <span id="sf-display-dl-unit" class="flex items-center gap-2 text-white capitalize">${state.unit}</span>
+                <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <div id="sf-menu-dl-unit" class="hidden absolute left-0 right-0 mt-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5">
+                ${['days', 'weeks', 'months'].map(t => {
+                  return `<div onclick="document.getElementById('dl-unit').value='${t}'; document.getElementById('dl-unit').dispatchEvent(new Event('change')); document.getElementById('sf-display-dl-unit').innerText='${t.charAt(0).toUpperCase() + t.slice(1)}'; document.getElementById('sf-menu-dl-unit').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition-all duration-150 hover:bg-[#20202A] text-[#A1A1AA] hover:text-white capitalize">${t}</div>`;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+          <span id="dl-duration-calc-text" class="text-[#A1A1AA] text-[10px] pl-1 font-mono">Target Date: Not set</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const buttons = containerElement.querySelectorAll('button[data-mode]');
+  const panels = containerElement.querySelectorAll('div[data-panel]');
+  const container = containerElement.querySelector('#deadline-panels-container');
+  const inputs = {
+    date: containerElement.querySelector('#dl-date'),
+    time: containerElement.querySelector('#dl-time'),
+    value: containerElement.querySelector('#dl-value'),
+    unit: containerElement.querySelector('#dl-unit')
+  };
+
+  const updateUI = () => {
+    buttons.forEach(btn => {
+      if (btn.dataset.mode === state.mode) {
+        btn.classList.add('bg-[#A855F7]', 'text-white', 'shadow-sm');
+        btn.classList.remove('text-[#A1A1AA]');
+      } else {
+        btn.classList.remove('bg-[#A855F7]', 'text-white', 'shadow-sm');
+        btn.classList.add('text-[#A1A1AA]');
+      }
+    });
+
+    panels.forEach(panel => {
+      if (panel.dataset.panel === state.mode) {
+        panel.classList.remove('opacity-0', 'pointer-events-none');
+        panel.classList.add('opacity-100');
+        container.style.height = panel.scrollHeight + 'px';
+      } else {
+        panel.classList.add('opacity-0', 'pointer-events-none');
+        panel.classList.remove('opacity-100');
+      }
+    });
+  };
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.mode = btn.dataset.mode;
+      updateUI();
+    });
+  });
+
+  const timeBtn = containerElement.querySelector('#btn-dl-time');
+  const timeMenu = containerElement.querySelector('#sf-menu-dl-time');
+  const timeDisplay = containerElement.querySelector('#sf-display-dl-time');
+
+  const updateTimeMenuSelection = (h24, m) => {
+    let hr12 = h24 % 12;
+    if (hr12 === 0) hr12 = 12;
+    const isPM = h24 >= 12;
+    timeMenu.querySelectorAll('[data-col="hr"]').forEach(el => {
+      const v = parseInt(el.dataset.val, 10);
+      el.className = `py-0.5 rounded text-[11px] cursor-pointer transition-all duration-150 text-center ${v === hr12 ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}`;
+    });
+    timeMenu.querySelectorAll('[data-col="min"]').forEach(el => {
+      const v = parseInt(el.dataset.val, 10);
+      el.className = `py-0.5 rounded text-[11px] cursor-pointer transition-all duration-150 text-center ${v === m ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}`;
+    });
+    timeMenu.querySelectorAll('[data-col="ampm"]').forEach(el => {
+      const v = el.dataset.val;
+      el.className = `py-1 rounded text-[11px] cursor-pointer transition-all duration-150 text-center ${v === (isPM ? 'PM' : 'AM') ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}`;
+    });
+  };
+
+  const setTimeFromParts = (h24, m) => {
+    state.time = `${String(h24).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    inputs.time.value = state.time;
+    let hr12 = h24 % 12;
+    if (hr12 === 0) hr12 = 12;
+    timeDisplay.innerText = `${hr12}:${String(m).padStart(2,'0')} ${h24 >= 12 ? 'PM' : 'AM'}`;
+    updateTimeMenuSelection(h24, m);
+  };
+
+  if (timeMenu) {
+    let hrHtml = '';
+    for (let h = 1; h <= 12; h++) hrHtml += `<div data-col="hr" data-val="${h}" class="py-0.5 rounded text-[11px] cursor-pointer text-center">${String(h).padStart(2, '0')}</div>`;
+    let minHtml = '';
+    for (let m = 0; m < 60; m += 5) minHtml += `<div data-col="min" data-val="${m}" class="py-0.5 rounded text-[11px] cursor-pointer text-center">${String(m).padStart(2, '0')}</div>`;
+    let ampmHtml = `<div data-col="ampm" data-val="AM" class="py-1 rounded text-xs cursor-pointer text-center">AM</div><div data-col="ampm" data-val="PM" class="py-1 rounded text-xs cursor-pointer text-center">PM</div>`;
+    timeMenu.innerHTML = `<div class="grid grid-cols-3 gap-1 text-center h-32 select-none"><div class="flex flex-col border-r border-[#2A2A38]/60 pr-1 overflow-hidden"><div class="text-[9px] font-bold text-[#A855F7] pb-1 sticky top-0 bg-[#12121A]">HR</div><div class="overflow-y-auto space-y-0.5 flex-1 sf-scrollbar pr-0.5">${hrHtml}</div></div><div class="flex flex-col border-r border-[#2A2A38]/60 px-1 overflow-hidden"><div class="text-[9px] font-bold text-[#A855F7] pb-1 sticky top-0 bg-[#12121A]">MIN</div><div class="overflow-y-auto space-y-0.5 flex-1 sf-scrollbar pr-0.5">${minHtml}</div></div><div class="flex flex-col pl-1 overflow-hidden"><div class="text-[9px] font-bold text-[#A855F7] pb-1 sticky top-0 bg-[#12121A]">AM/PM</div><div class="overflow-y-auto space-y-1 flex-1 sf-scrollbar pr-0.5">${ampmHtml}</div></div></div>`;
+
+    timeMenu.addEventListener('click', (e) => {
+      const col = e.target.closest('[data-col]');
+      if (!col) return;
+      e.stopPropagation();
+      let [h24, m] = (state.time || '10:00').split(':').map(Number);
+      if(isNaN(h24)) h24 = 10; if(isNaN(m)) m = 0;
+      let isPM = h24 >= 12;
+      const type = col.dataset.col;
+      const val = col.dataset.val;
+      if (type === 'hr') {
+        const hr12 = parseInt(val, 10);
+        h24 = isPM ? (hr12 === 12 ? 12 : hr12 + 12) : (hr12 === 12 ? 0 : hr12);
+      } else if (type === 'min') {
+        m = parseInt(val, 10);
+      } else if (type === 'ampm') {
+        isPM = val === 'PM';
+        let hr12 = h24 % 12;
+        if (hr12 === 0) hr12 = 12;
+        h24 = isPM ? (hr12 === 12 ? 12 : hr12 + 12) : (hr12 === 12 ? 0 : hr12);
+      }
+      setTimeFromParts(h24, m);
+    });
+
+    timeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.sf-custom-select-container .absolute').forEach(m => {
+        if(m !== timeMenu) m.classList.add('hidden');
+      });
+      timeMenu.classList.toggle('hidden');
+      if (!timeMenu.classList.contains('hidden')) {
+        let [h24, m] = (state.time || '10:00').split(':').map(Number);
+        if(isNaN(h24)) h24 = 10; if(isNaN(m)) m = 0;
+        updateTimeMenuSelection(h24, m);
+      }
+    });
+  }
+
+  let currentMonth = new Date().getMonth();
+  let currentYear = new Date().getFullYear();
+  if (state.date) {
+    const d = new Date(state.date + 'T00:00:00');
+    if (!isNaN(d.getTime())) {
+      currentMonth = d.getMonth();
+      currentYear = d.getFullYear();
+    }
+  }
+
+  const updateDlCalendar = () => {
+    const grid = containerElement.querySelector('#dl-cal-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    const d = new Date(currentYear, currentMonth, 1);
+    const monthName = d.toLocaleString('default', { month: 'long' });
+    containerElement.querySelector('#dl-cal-title').innerText = `${monthName} ${currentYear}`;
+    
+    const startDay = d.getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+    
+    for (let i = 0; i < startDay; i++) {
+      grid.innerHTML += `<div class="p-1 text-center text-[11px] font-medium text-[#3A3A3A] flex items-center justify-center w-7 h-7 mx-auto">${daysInPrevMonth - startDay + i + 1}</div>`;
+    }
+    
+    let selectedDate = state.date ? new Date(state.date + 'T00:00:00') : null;
+    let today = new Date();
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+      const isSelected = selectedDate && (selectedDate.getDate() === i && selectedDate.getMonth() === currentMonth && selectedDate.getFullYear() === currentYear);
+      const isToday = (today.getDate() === i && today.getMonth() === currentMonth && today.getFullYear() === currentYear);
+      
+      let classes = "p-1 text-center text-[11px] font-bold rounded-[8px] cursor-pointer transition-all duration-200 ease-out flex items-center justify-center w-7 h-7 mx-auto ";
+      if (isSelected) {
+        classes += "bg-[#A855F7] text-white shadow-[0_0_10px_rgba(168,85,247,0.5)]";
+      } else if (isToday) {
+        classes += "text-[#A855F7] border border-[#A855F7]/30 hover:bg-[#20202A]";
+      } else {
+        classes += "text-[#A1A1AA] hover:text-white hover:bg-[#20202A]";
+      }
+      grid.innerHTML += `<div data-date="${i}" class="${classes}">${i}</div>`;
+    }
+    
+    const remaining = 42 - (startDay + daysInMonth);
+    for (let i = 1; i <= remaining && i <= 14; i++) {
+      grid.innerHTML += `<div class="p-1 text-center text-[11px] font-medium text-[#3A3A3A] flex items-center justify-center w-7 h-7 mx-auto">${i}</div>`;
+    }
+  };
+
+  containerElement.addEventListener('click', (e) => {
+    if (e.target.closest('#dl-cal-prev')) {
+      currentMonth--; if(currentMonth < 0) { currentMonth=11; currentYear--; }
+      updateDlCalendar();
+    }
+    if (e.target.closest('#dl-cal-next')) {
+      currentMonth++; if(currentMonth > 11) { currentMonth=0; currentYear++; }
+      updateDlCalendar();
+    }
+    if (e.target.closest('#dl-cal-clear')) {
+      state.date = ''; inputs.date.value = '';
+      containerElement.querySelector('#sf-display-dl-date').innerText = 'mm/dd/yyyy';
+      updateDlCalendar();
+    }
+    if (e.target.closest('#dl-cal-today')) {
+      let d = new Date();
+      currentMonth = d.getMonth(); currentYear = d.getFullYear();
+      let padM = String(currentMonth+1).padStart(2,'0');
+      let padD = String(d.getDate()).padStart(2,'0');
+      state.date = `${currentYear}-${padM}-${padD}`;
+      inputs.date.value = state.date;
+      containerElement.querySelector('#sf-display-dl-date').innerText = d.toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'});
+      updateDlCalendar();
+    }
+    const dayBtn = e.target.closest('[data-date]');
+    if (dayBtn) {
+      let padM = String(currentMonth+1).padStart(2,'0');
+      let padD = String(dayBtn.dataset.date).padStart(2,'0');
+      state.date = `${currentYear}-${padM}-${padD}`;
+      inputs.date.value = state.date;
+      const d = new Date(state.date + 'T00:00:00');
+      containerElement.querySelector('#sf-display-dl-date').innerText = d.toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'});
+      containerElement.querySelector('#sf-menu-dl-date').classList.add('hidden');
+      updateDlCalendar();
+    }
+  });
+
+  const btnDate = containerElement.querySelector('#btn-dl-date');
+  if (btnDate) {
+    btnDate.addEventListener('click', () => {
+      document.querySelectorAll('.sf-custom-select-container .absolute').forEach(m => {
+        if(m !== containerElement.querySelector('#sf-menu-dl-date')) m.classList.add('hidden');
+      });
+      updateDlCalendar();
+    });
+  }
+
+  const updateDurationCalculatedDate = () => {
+    const calcEl = containerElement.querySelector('#dl-duration-calc-text');
+    if (!calcEl) return;
+    if (!state.value || isNaN(state.value) || state.value <= 0) {
+      calcEl.innerText = 'Target Date: Not set';
+      return;
+    }
+    const d = new Date();
+    if (state.unit === 'days') {
+      d.setDate(d.getDate() + state.value);
+    } else if (state.unit === 'weeks') {
+      d.setDate(d.getDate() + (state.value * 7));
+    } else if (state.unit === 'months') {
+      d.setMonth(d.getMonth() + state.value);
+    }
+    calcEl.innerText = 'Target Date: ' + d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+  };
+
+  inputs.value.addEventListener('input', (e) => {
+    state.value = parseInt(e.target.value, 10);
+    updateDurationCalculatedDate();
+  });
+  inputs.unit.addEventListener('change', (e) => {
+    state.unit = e.target.value;
+    updateDurationCalculatedDate();
+  });
+
+  setTimeout(() => {
+    updateUI();
+    updateDlCalendar();
+    updateDurationCalculatedDate();
+  }, 10);
+
+  return {
+    getValue: () => {
+      if (state.mode === 'NONE') {
+        return { mode: 'NONE' };
+      } else if (state.mode === 'SPECIFIC_DATE') {
+        return { mode: 'SPECIFIC_DATE', date: state.date, time: state.time };
+      } else if (state.mode === 'DURATION') {
+        return { mode: 'DURATION', value: state.value, unit: state.unit };
+      }
+    },
+    setValue: (deadlineObj) => {
+      if (deadlineObj) {
+        if (typeof deadlineObj === 'object') {
+          state = { ...state, ...deadlineObj };
+        } else if (typeof deadlineObj === 'string') {
+          if (/^\d{4}-\d{2}-\d{2}$/.test(deadlineObj) || /^\d{4}-\d{2}-\d{2}T/.test(deadlineObj)) {
+            state.mode = 'SPECIFIC_DATE';
+            state.date = deadlineObj.substring(0, 10);
+            state.time = '';
+          } else {
+            state.mode = 'NONE';
+          }
+        }
+        inputs.date.value = state.date || '';
+        inputs.time.value = state.time || '';
+        inputs.value.value = state.value || '';
+        inputs.unit.value = state.unit || 'days';
+        updateUI();
+        updateDurationCalculatedDate();
+      }
+    },
+    validate: () => {
+      if (state.mode === 'SPECIFIC_DATE' && !state.date) {
+        return { valid: false, error: 'Please select a specific date.' };
+      }
+      if (state.mode === 'DURATION') {
+        if (!state.value || state.value <= 0) {
+          return { valid: false, error: 'Duration value must be a positive number.' };
+        }
+        if (!['days', 'weeks', 'months'].includes(state.unit)) {
+          return { valid: false, error: 'Invalid duration unit.' };
+        }
+      }
+      return { valid: true };
+    },
+    reset: () => {
+      state = { mode: 'NONE', date: '', time: '', value: '', unit: 'days' };
+      inputs.date.value = '';
+      inputs.time.value = '';
+      inputs.value.value = '';
+      inputs.unit.value = 'days';
+      updateUI();
+      updateDurationCalculatedDate();
+    }
+  };
+};
