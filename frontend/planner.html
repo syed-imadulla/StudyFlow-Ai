@@ -563,12 +563,31 @@
             </div>
 
             <div class="grid grid-cols-3 gap-3">
-              <!-- Due Date -->
-              <div>
+              <!-- Custom Due Date -->
+              <div class="relative sf-custom-select-container">
                 <label class="block text-[11px] font-semibold text-[#A1A1AA] mb-1.5 flex items-center gap-1.5 truncate">
                   Date (Opt)
                 </label>
-                <input type="date" id="sf-add-block-due" class="w-full px-2 py-2 rounded-xl bg-[#151515] border border-[#2A2A2A] text-white text-[11px] placeholder-[#6B7280] focus:outline-none focus:border-[#A855F7] transition [color-scheme:dark]">
+                <input type="hidden" id="sf-add-block-due">
+                <button type="button" id="sf-btn-due" onclick="openDueDatePicker(event)" class="w-full px-2 py-2 rounded-xl bg-[#15151A] border border-[#2A2A38] hover:border-[#A855F7]/60 text-white text-[11px] font-mono font-semibold focus:outline-none focus:ring-2 focus:ring-[#A855F7]/40 focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between shadow-[0_4px_15px_rgba(0,0,0,0.3)] group">
+                  <span id="sf-display-due" class="flex items-center gap-1 text-[#6B7280]">mm/dd/yyyy</span>
+                  <svg class="w-3 h-3 text-[#A1A1AA] group-hover:text-white transition-transform duration-200 shrink-0" id="sf-arrow-due" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </button>
+                <div id="sf-due-datepicker-popup" class="hidden absolute left-0 top-full mt-2 w-64 bg-[#181822]/95 backdrop-blur-xl border border-[#2A2A38] rounded-2xl shadow-[0_15px_50px_rgba(0,0,0,0.8)] p-3.5 z-[999999999] transition-all">
+                  <div class="flex items-center justify-between mb-2 pb-2 border-b border-[#2A2A38]">
+                    <button type="button" onclick="sfDueNav(-1)" class="p-1 rounded-lg hover:bg-white/10 text-[#A1A1AA] hover:text-white transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+                    <span id="sf-due-month-year" class="text-xs font-bold text-white tracking-wide"></span>
+                    <button type="button" onclick="sfDueNav(1)" class="p-1 rounded-lg hover:bg-white/10 text-[#A1A1AA] hover:text-white transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+                  </div>
+                  <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-[#71717A] mb-1">
+                    <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                  </div>
+                  <div id="sf-due-grid" class="grid grid-cols-7 gap-1 text-center"></div>
+                  <div class="flex items-center justify-between mt-2 pt-2 border-t border-[#2A2A38]">
+                    <button type="button" onclick="sfDueSelect('')" class="text-[10px] text-[#A1A1AA] hover:text-white transition px-2 py-0.5">Clear</button>
+                    <button type="button" onclick="sfDueSelectToday()" class="text-[10px] bg-[#A855F7]/20 border border-[#A855F7]/30 text-[#D8B4FE] hover:bg-[#A855F7] hover:text-white transition px-2.5 py-0.5 rounded-md font-medium">Today</button>
+                  </div>
+                </div>
               </div>
 
               <!-- Custom Start Time -->
@@ -661,7 +680,7 @@
                       <span id="sf-repeat-until-date-label">Select Date</span>
                     </button>
                     <!-- Custom Datepicker Popup -->
-                    <div id="sf-custom-datepicker-popup" class="hidden absolute right-0 top-full mt-2 w-64 bg-[#181822]/95 backdrop-blur-xl border border-[#2A2A38] rounded-2xl shadow-[0_15px_50px_rgba(0,0,0,0.8)] p-3.5 z-[999999999] transition-all">
+                    <div id="sf-custom-datepicker-popup" class="hidden absolute left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-auto sm:right-0 bottom-full mb-2 w-64 bg-[#181822]/95 backdrop-blur-xl border border-[#2A2A38] rounded-2xl shadow-[0_15px_50px_rgba(0,0,0,0.8)] p-3.5 z-[999999999] transition-all">
                       <div class="flex items-center justify-between mb-2 pb-2 border-b border-[#2A2A38]">
                         <button type="button" onclick="sfDatepickerNav(-1)" class="p-1 rounded-lg hover:bg-white/10 text-[#A1A1AA] hover:text-white transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
                         <span id="sf-datepicker-month-year" class="text-xs font-bold text-white tracking-wide"></span>
@@ -3387,6 +3406,120 @@
     }
     window.sfDatepickerSelectToday = sfDatepickerSelectToday;
 
+    // --- Due Date Custom Datepicker Logic ---
+    let _sfDueYear = new Date().getFullYear();
+    let _sfDueMonth = new Date().getMonth();
+
+    function openDueDatePicker(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      const popup = document.getElementById('sf-due-datepicker-popup');
+      if (!popup) return;
+      if (!popup.classList.contains('hidden')) {
+        popup.classList.add('hidden');
+        return;
+      }
+      const currentVal = document.getElementById('sf-add-block-due')?.value;
+      if (currentVal) {
+        const [y, m] = currentVal.split('-').map(Number);
+        if (y && m) {
+          _sfDueYear = y;
+          _sfDueMonth = m - 1;
+        }
+      } else {
+        const now = new Date();
+        _sfDueYear = now.getFullYear();
+        _sfDueMonth = now.getMonth();
+      }
+      renderSfDuepicker();
+      popup.classList.remove('hidden');
+
+      function _closeHandlerDue(ev) {
+        if (!ev.target || typeof ev.target.closest !== 'function' || (!ev.target.closest('#sf-btn-due') && !ev.target.closest('#sf-due-datepicker-popup'))) {
+          popup.classList.add('hidden');
+          document.removeEventListener('click', _closeHandlerDue);
+        }
+      }
+      setTimeout(() => document.addEventListener('click', _closeHandlerDue), 10);
+    }
+    window.openDueDatePicker = openDueDatePicker;
+
+    function sfDueNav(dir) {
+      _sfDueMonth += dir;
+      if (_sfDueMonth < 0) {
+        _sfDueMonth = 11;
+        _sfDueYear--;
+      } else if (_sfDueMonth > 11) {
+        _sfDueMonth = 0;
+        _sfDueYear++;
+      }
+      renderSfDuepicker();
+    }
+    window.sfDueNav = sfDueNav;
+
+    function renderSfDuepicker() {
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const titleEl = document.getElementById('sf-due-month-year');
+      if (titleEl) titleEl.textContent = `${monthNames[_sfDueMonth]} ${_sfDueYear}`;
+
+      const grid = document.getElementById('sf-due-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const firstDay = new Date(_sfDueYear, _sfDueMonth, 1).getDay();
+      const daysInMonth = new Date(_sfDueYear, _sfDueMonth + 1, 0).getDate();
+      const selectedVal = document.getElementById('sf-add-block-due')?.value || '';
+
+      for (let i = 0; i < firstDay; i++) {
+        const blank = document.createElement('div');
+        grid.appendChild(blank);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const mStr = String(_sfDueMonth + 1).padStart(2, '0');
+        const dStr = String(d).padStart(2, '0');
+        const dateStr = `${_sfDueYear}-${mStr}-${dStr}`;
+        const isSelected = dateStr === selectedVal;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = d;
+        btn.className = isSelected
+          ? 'w-7 h-7 mx-auto rounded-full bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.5)] transition-all flex items-center justify-center'
+          : 'w-7 h-7 mx-auto rounded-full text-white hover:bg-white/10 transition-all flex items-center justify-center';
+        btn.onclick = () => sfDueSelect(dateStr);
+        grid.appendChild(btn);
+      }
+    }
+
+    function sfDueSelect(dateStr) {
+      const dtInput = document.getElementById('sf-add-block-due');
+      const displayEl = document.getElementById('sf-display-due');
+      if (dtInput) dtInput.value = dateStr;
+      if (displayEl) {
+        if (dateStr) {
+          displayEl.textContent = formatSfFriendlyDate(dateStr);
+          displayEl.classList.remove('text-[#6B7280]');
+          displayEl.classList.add('text-white');
+        } else {
+          displayEl.textContent = 'mm/dd/yyyy';
+          displayEl.classList.remove('text-white');
+          displayEl.classList.add('text-[#6B7280]');
+        }
+      }
+      const popup = document.getElementById('sf-due-datepicker-popup');
+      if (popup) popup.classList.add('hidden');
+    }
+    window.sfDueSelect = sfDueSelect;
+
+    function sfDueSelectToday() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      sfDueSelect(`${y}-${m}-${d}`);
+    }
+    window.sfDueSelectToday = sfDueSelectToday;
+
     function updateRecurrenceSummary() {
       const repeatRadio = document.querySelector('input[name="blockRepeat"]:checked');
       const repeatVal = repeatRadio ? repeatRadio.value : 'NONE';
@@ -3981,6 +4114,11 @@
       if (checkedColor && colorLabel) {
         const name = checkedColor.getAttribute('data-name') || 'Accent';
         colorLabel.textContent = name;
+      }
+
+      const dueInput = document.getElementById('sf-add-block-due');
+      if (dueInput && typeof sfDueSelect === 'function') {
+        sfDueSelect(dueInput.value);
       }
     }
     window.syncCustomUIControls = syncCustomUIControls;
