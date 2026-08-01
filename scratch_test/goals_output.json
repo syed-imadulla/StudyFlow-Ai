@@ -1,6 +1,6 @@
 {
   "overdueGoal": {
-    "_id": "6a6dad855427262cfc1e514e",
+    "_id": "6a6dc77b48810428e8795eb6",
     "user": "6a40f3e1f867acf3923b12e5",
     "title": "Overdue Goal Test",
     "description": "",
@@ -10,10 +10,26 @@
     "completed": false,
     "completedAt": null,
     "subtasks": [],
-    "createdAt": "2026-08-01T08:25:41.324Z",
-    "updatedAt": "2026-08-01T08:25:41.324Z",
-    "id": "6a6dad855427262cfc1e514e",
+    "createdAt": "2026-08-01T10:16:27.151Z",
+    "updatedAt": "2026-08-01T10:16:27.151Z",
+    "id": "6a6dc77b48810428e8795eb6",
     "finalDeadline": "2026-07-31",
+    "progressSummary": {
+      "totalMilestones": 0,
+      "completedMilestones": 0,
+      "activeMilestones": 0,
+      "dueSoonMilestones": 0,
+      "dueTodayMilestones": 0,
+      "overdueMilestones": 0,
+      "completedLateMilestones": 0,
+      "completionPercentage": 0,
+      "remainingMilestones": 0,
+      "nextMilestone": null
+    },
+    "goalHealth": {
+      "status": "HEALTHY",
+      "score": 100
+    },
     "progress": 0,
     "lifecycle": {
       "status": "OVERDUE",
@@ -27,10 +43,25 @@
       "overdueDays": 1,
       "completedEarlyBy": null,
       "completedLateBy": null
+    },
+    "deadlineInfo": {
+      "type": "OVERDUE",
+      "label": "Yesterday",
+      "shortLabel": "Yesterday",
+      "description": "Overdue by 1 day",
+      "color": "danger",
+      "badge": "danger",
+      "icon": "alert",
+      "urgencyLevel": 4,
+      "sortPriority": 100,
+      "daysRemaining": null,
+      "overdueDays": 1,
+      "completedEarlyBy": null,
+      "completedLateBy": null
     }
   },
   "completedLateGoal": {
-    "_id": "6a6dad855427262cfc1e5151",
+    "_id": "6a6dc77b48810428e8795eb8",
     "user": "6a40f3e1f867acf3923b12e5",
     "title": "Completed Late Goal Test",
     "description": "",
@@ -38,12 +69,28 @@
     "urgency": "ACTIVE",
     "deadline": "2026-07-31",
     "completed": true,
-    "completedAt": "2026-08-01T08:25:40.903Z",
+    "completedAt": "2026-08-01T10:16:26.693Z",
     "subtasks": [],
-    "createdAt": "2026-08-01T08:25:41.380Z",
-    "updatedAt": "2026-08-01T08:25:41.380Z",
-    "id": "6a6dad855427262cfc1e5151",
+    "createdAt": "2026-08-01T10:16:27.203Z",
+    "updatedAt": "2026-08-01T10:16:27.203Z",
+    "id": "6a6dc77b48810428e8795eb8",
     "finalDeadline": "2026-07-31",
+    "progressSummary": {
+      "totalMilestones": 0,
+      "completedMilestones": 0,
+      "activeMilestones": 0,
+      "dueSoonMilestones": 0,
+      "dueTodayMilestones": 0,
+      "overdueMilestones": 0,
+      "completedLateMilestones": 0,
+      "completionPercentage": 100,
+      "remainingMilestones": 0,
+      "nextMilestone": null
+    },
+    "goalHealth": {
+      "status": "HEALTHY",
+      "score": 100
+    },
     "progress": 100,
     "lifecycle": {
       "status": "COMPLETED_LATE",
@@ -53,6 +100,21 @@
       "isDueSoon": false,
       "isDueToday": false,
       "isOverdue": false,
+      "daysRemaining": null,
+      "overdueDays": null,
+      "completedEarlyBy": null,
+      "completedLateBy": 1
+    },
+    "deadlineInfo": {
+      "type": "COMPLETED_LATE",
+      "label": "Completed 1 day late",
+      "shortLabel": "1d late",
+      "description": "Completed late by 1 day",
+      "color": "purple",
+      "badge": "info",
+      "icon": "check-circle",
+      "urgencyLevel": 0,
+      "sortPriority": 10,
       "daysRemaining": null,
       "overdueDays": null,
       "completedEarlyBy": null,

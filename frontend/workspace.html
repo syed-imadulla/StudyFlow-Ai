@@ -15,6 +15,13 @@
   <script src="src/js/services/plannerService.js"></script>
   <script src="src/js/store.js"></script>
   <script src="src/js/components.js"></script>
+  
+  <!-- Workspace Module -->
+  <script src="src/js/workspace/workspaceState.js"></script>
+  <script src="src/js/workspace/workspaceActions.js"></script>
+  <script src="src/js/workspace/workspaceMapper.js"></script>
+  <script src="src/js/workspace/workspaceRenderer.js"></script>
+  
   <script src="router.js"></script>
 </head>
 <body class="bg-background text-text-primary min-h-screen flex antialiased selection:bg-primary selection:text-white">
@@ -38,11 +45,35 @@
             <button class="ws-tab px-4 py-2 rounded-lg text-[#A1A1AA] hover:text-[#FAFAFA] font-semibold text-xs transition" data-target="goals">Goal Summary</button>
             <button class="ws-tab px-4 py-2 rounded-lg text-[#A1A1AA] hover:text-[#FAFAFA] font-semibold text-xs transition" data-target="resources">AI Resources</button>
           </div>
-          <button onclick="window.openAddItemModal('goalsDynamicContainer', false)" class="btn btn-primary px-5 py-2.5 text-xs font-bold shadow-[0_0_20px_rgba(168,85,247,0.25)] flex items-center space-x-1">
+          <button onclick="window.WorkspaceActions.createGoal()" class="btn btn-primary px-5 py-2.5 text-xs font-bold shadow-[0_0_20px_rgba(168,85,247,0.25)] flex items-center space-x-1">
             <span>+ Create AI Goal</span>
           </button>
         </div>
       </header>
+
+      <!-- Workspace Controls -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="window.WorkspaceActions.setFilter('ALL')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#A855F7] bg-[#A855F7]/10 text-[#A855F7]" data-filter="ALL">All Goals</button>
+          <button onclick="window.WorkspaceActions.setFilter('HEALTHY')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="HEALTHY">Healthy</button>
+          <button onclick="window.WorkspaceActions.setFilter('OVERDUE')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="OVERDUE">Overdue</button>
+          <button onclick="window.WorkspaceActions.setFilter('DUE_TODAY')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="DUE_TODAY">Due Today</button>
+          <button onclick="window.WorkspaceActions.setFilter('BLOCKING')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="BLOCKING">Blocking</button>
+          <button onclick="window.WorkspaceActions.setFilter('COMPLETED')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="COMPLETED">Completed</button>
+        </div>
+        
+        <div class="flex items-center gap-3 relative">
+          <span class="text-xs text-[#A1A1AA] font-semibold">Sort By</span>
+          <select id="workspaceSortSelect" onchange="window.WorkspaceActions.setSort(this.value)" class="appearance-none bg-[#0E0E0E] border border-[#202020] text-xs font-bold text-[#FAFAFA] rounded-xl pl-3 pr-8 py-2 hover:border-[#A855F7]/50 focus:outline-none focus:border-[#A855F7] transition-all cursor-pointer">
+            <option value="PRIORITY">Priority</option>
+            <option value="DEADLINE">Deadline</option>
+            <option value="HEALTH">Goal Health</option>
+            <option value="PROGRESS">Progress</option>
+            <option value="REMAINING">Remaining Milestones</option>
+          </select>
+          <svg class="w-3 h-3 text-[#6B7280] absolute right-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
+      </div>
 
       <!-- Tab 1: Hierarchical Tasks View -->
       <section id="tasksView" class="ws-panel space-y-6">
@@ -82,51 +113,25 @@
   <script>
     function renderWorkspaceGoals() {
       const goalsSlice = window.SF_STORE.getSlice('goals');
-      const goals = goalsSlice.items || [];
-      const container = document.getElementById('goalsDynamicContainer');
-      const cardsContainer = document.getElementById('goalsView');
-      if (!container) return;
-
-      if (goals.length === 0) {
-        const emptyHtml = window.SF_COMPONENTS.renderEmptyState({
-          title: 'No Active Workspace Goals',
-          message: 'Get started by creating your first AI Goal Breakdown or structuring blueprints in IdeaLab.',
-          actionHtml: '<button onclick="window.openAddItemModal(\'goalsDynamicContainer\')" class="btn btn-primary px-5 py-2.5 text-xs font-bold shadow-[0_0_20px_rgba(168,85,247,0.3)]">+ Create AI Goal</button>'
-        });
-        container.innerHTML = emptyHtml;
-        if (cardsContainer) cardsContainer.innerHTML = emptyHtml;
-        return;
-      }
-
-      container.innerHTML = goals.map(goal => window.SF_COMPONENTS.renderGoalCard(goal, 'expanded')).join('');
-
-      if (cardsContainer) {
-        cardsContainer.innerHTML = goals.map(goal => window.SF_COMPONENTS.renderGoalCard(goal, 'grid')).join('');
-      }
-
-      // Auto-scroll to selected goal if hash exists
-      if (window.location.hash && window.location.hash.startsWith('#goal-')) {
-        setTimeout(() => {
-          const target = document.querySelector(window.location.hash);
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            // Apply premium highlight & pulse
-            target.classList.add('ring-2', 'ring-[#A855F7]', 'shadow-[0_0_30px_rgba(168,85,247,0.3)]', 'animate-pulse', 'bg-[#151520]');
-            target.style.transition = 'all 0.5s ease-out';
-            
-            setTimeout(() => {
-              target.classList.remove('animate-pulse');
-            }, 1000);
-
-            setTimeout(() => {
-              target.classList.remove('ring-2', 'ring-[#A855F7]', 'shadow-[0_0_30px_rgba(168,85,247,0.3)]', 'bg-[#151520]');
-              // Clear hash to prevent re-triggering on subsequent renders without messing up history
-              if (window.history && window.history.replaceState) {
-                window.history.replaceState(null, null, window.location.pathname);
-              }
-            }, 2500);
-          }
-        }, 150);
+      const rawGoals = goalsSlice.items || [];
+      
+      // Delegate entirely to the new WorkspaceRenderer
+      window.WorkspaceRenderer.render(rawGoals);
+      
+      // Update Filter Chips UI state
+      const currentFilter = window.WorkspaceState.filter;
+      document.querySelectorAll('.ws-filter-chip').forEach(chip => {
+        if (chip.dataset.filter === currentFilter) {
+          chip.className = 'ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#A855F7] bg-[#A855F7]/10 text-[#A855F7]';
+        } else {
+          chip.className = 'ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]';
+        }
+      });
+      
+      // Update Sort Select UI state
+      const sortSelect = document.getElementById('workspaceSortSelect');
+      if (sortSelect) {
+        sortSelect.value = window.WorkspaceState.sort;
       }
     }
 
@@ -136,6 +141,9 @@
       if (container && window.SF_COMPONENTS) container.innerHTML = window.SF_COMPONENTS.renderSkeleton('compact', 2);
       if (cardsContainer && window.SF_COMPONENTS) cardsContainer.innerHTML = window.SF_COMPONENTS.renderSkeleton('grid', 2);
 
+      // Subscribe WorkspaceState to re-render when filters/sort changes
+      window.WorkspaceState.subscribe(() => renderWorkspaceGoals());
+      
       // Re-render when goals slice changes (e.g. after subtask toggle)
       window.SF_STORE.subscribe('goals', () => renderWorkspaceGoals());
 

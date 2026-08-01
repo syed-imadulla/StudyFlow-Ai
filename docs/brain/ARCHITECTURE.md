@@ -56,3 +56,20 @@ All cross-domain actions are atomic:
 
 ### Future Extensions
 Features like Focus Sessions, AI Planner, or Calendar Sync that require cross-domain state adjustments MUST integrate through `GoalSyncService` to update Goal states. Do not bypass `GoalSyncService`.
+
+## Intelligence Layer & ViewModel Architecture (Phase 2.3)
+To ensure scalability, the system strictly separates factual data, derived intelligence, and presentation.
+
+### 1. Store Facts, Derive Intelligence
+The database stores immutable facts (e.g., `deadline`, `completedAt`, `status`). 
+The **Intelligence Layer** dynamically derives state without persisting it:
+- **GoalLifecycleService / MilestoneLifecycleService**: Calculates `ACTIVE`, `DUE_SOON`, `OVERDUE`, `COMPLETED`, etc.
+- **GoalProgressService**: Aggregates milestone metrics (`completionPercentage`, `remainingMilestones`, `goalHealth`).
+- **DeadlineIntelligenceService**: Formats lifecycle information into machine-readable types (`TODAY`, `UPCOMING`) and UI assets (color, badge, urgencyLevel).
+
+### 2. ViewModels & Pure Presentation (Frontend)
+The UI acts exclusively as a consumer of backend intelligence. 
+- **Zero Calculations**: The frontend performs zero date math, deadline comparisons, or progress derivations.
+- **Mappers (e.g., WorkspaceMapper)**: Isolates the frontend from the backend schema by transforming raw API objects into flattened `ViewModels`.
+- **Pure Rendering**: Components (`workspaceComponents.js`) receive only ViewModels and execute in O(1) time without business logic. 
+- **Modular State**: Dedicated UI state managers (e.g., `workspaceState.js`) handle sorting and filtering using backend-derived properties (e.g., `goal.goalHealth.score`, `goal.deadlineInfo.sortPriority`).

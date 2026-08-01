@@ -24,6 +24,15 @@ const subtaskSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  completedAt: {
+    type: Date
+  },
+  deadline: {
+    type: String
+  },
+  deadlineTime: {
+    type: String
+  },
   status: {
     type: String,
     enum: ['TODO', 'SCHEDULED', 'COMPLETED'],

@@ -4,6 +4,9 @@ import { HTTP_STATUS, GOAL_STATUS, ERROR_CODES } from '../constants/index.js';
 import { logger } from '../utils/logger.js';
 import { PlannerService } from './planner.service.js';
 import { GoalLifecycleService } from './goalLifecycle.service.js';
+import { MilestoneLifecycleService } from './milestoneLifecycle.service.js';
+import { GoalProgressService } from './goalProgress.service.js';
+import { DeadlineIntelligenceService } from './deadlineIntelligence.service.js';
 
 /**
  * Helper to compute dynamic progress from subtasks
@@ -11,10 +14,25 @@ import { GoalLifecycleService } from './goalLifecycle.service.js';
 const attachDynamicProgress = (goalDoc) => {
   if (!goalDoc) return null;
   const goal = goalDoc.toJSON ? goalDoc.toJSON() : { ...goalDoc };
+  
+  // Backwards compatible fallback progress
   const total = goal.subtasks?.length || 0;
   const done = goal.subtasks?.filter(s => s.completed).length || 0;
-  goal.progress = total > 0 ? Math.round((done / total) * 100) : (goal.completed ? 100 : 0);
+  const fallbackProgress = total > 0 ? Math.round((done / total) * 100) : (goal.completed ? 100 : 0);
+  
+  if (goal.subtasks && goal.subtasks.length > 0) {
+    goal.subtasks.forEach(subtask => {
+      subtask.lifecycle = MilestoneLifecycleService.calculate(subtask);
+    });
+  }
+
+  const { progressSummary, goalHealth } = GoalProgressService.calculate(goal.subtasks || [], fallbackProgress);
+  goal.progressSummary = progressSummary;
+  goal.goalHealth = goalHealth;
+  goal.progress = progressSummary.completionPercentage;
+
   goal.lifecycle = GoalLifecycleService.calculate(goal);
+  goal.deadlineInfo = DeadlineIntelligenceService.calculate(goal, goal.lifecycle);
   return goal;
 };
 

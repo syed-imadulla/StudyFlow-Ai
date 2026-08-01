@@ -157,6 +157,9 @@
     /**
      * Canonical Goal Progress Helper
      */
+    /**
+     * Canonical Goal Progress Helper (DEPRECATED - Use WorkspaceCardModel.progress)
+     */
     calculateGoalProgress(goal) {
       if (!goal || !Array.isArray(goal.subtasks) || goal.subtasks.length === 0) {
         return 0;
@@ -177,59 +180,90 @@
      * @param {Object} goal
      * @param {string} mode - 'compact' (dashboard), 'grid' (workspace cards), 'expanded' (workspace detail)
      */
-    renderGoalCard(goal, mode = 'compact') {
-      const done = goal.subtasks ? goal.subtasks.filter(s => s.completed).length : 0;
-      const total = goal.subtasks ? goal.subtasks.length : 0;
-      const progress = this.calculateGoalProgress(goal);
-      const isUrg = goal.lifecycle?.isOverdue || goal.lifecycle?.status === 'DUE_TODAY';
+    renderGoalCard(input, mode = 'compact') {
+      // Auto-map raw goals to ViewModels to preserve backward compatibility
+      let model = input;
+      if (!model.deadline || !model.progress) {
+        if (window.WorkspaceMapper) {
+          model = window.WorkspaceMapper.toCardModel(input);
+        } else {
+          // Minimal inline fallback for pages without WorkspaceMapper (e.g. Dashboard)
+          const fallbackStatus = input.lifecycle?.status || input.urgency || 'ACTIVE';
+          model = {
+            id: input.id || input._id,
+            title: input.title || 'Untitled',
+            description: input.description || '',
+            rawStatus: input.status,
+            health: input.goalHealth ? { label: input.goalHealth.status.replace('_', ' '), color: 'success' } : { label: 'Healthy', color: 'success' },
+            progress: input.progressSummary ? {
+              percentage: input.progressSummary.completionPercentage !== undefined ? Math.round(input.progressSummary.completionPercentage) : 0,
+              label: `${input.progressSummary.completedMilestones || 0}/${input.progressSummary.totalMilestones || 0} Completed`
+            } : { percentage: 0, label: '0/0' },
+            deadline: input.deadlineInfo ? {
+              type: input.deadlineInfo.type,
+              label: input.deadlineInfo.label,
+              shortLabel: input.deadlineInfo.shortLabel,
+              isUrgent: input.deadlineInfo.urgencyLevel >= 2
+            } : {
+              type: fallbackStatus,
+              label: input.finalDeadlineDisplay || 'No deadline',
+              shortLabel: input.finalDeadlineDisplay || 'No deadline',
+              isUrgent: fallbackStatus === 'OVERDUE' || fallbackStatus === 'DUE_TODAY'
+            },
+            subtasks: input.subtasks || []
+          };
+        }
+      }
+
+      if (!model) return ''; // Fallback failed
 
       if (mode === 'compact') {
-        const urgClass = isUrg ? 'bg-red-500/15 text-red-400 border border-red-500/30 font-bold' : 'bg-[#A855F7]/15 text-[#A855F7] border border-[#A855F7]/30 font-bold';
+        const urgClass = model.deadline.isUrgent ? 'bg-red-500/15 text-red-400 border border-red-500/30 font-bold' : 'bg-[#A855F7]/15 text-[#A855F7] border border-[#A855F7]/30 font-bold';
         return `
-          <div role="button" tabindex="0" aria-label="Open Goal: ${goal.title}" onclick="window.location.href='idealab.html?goalId=${goal.id}'" onkeydown="if(event.key==='Enter'||event.key===' ')window.location.href='idealab.html?goalId=${goal.id}'" class="relative p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] hover:border-[#A855F7]/50 hover:shadow-lg transition-all duration-200 cursor-pointer space-y-2.5 group">
+          <div role="button" tabindex="0" aria-label="Open Goal: ${model.title}" onclick="window.WorkspaceActions ? window.WorkspaceActions.openGoal('${model.id}') : window.location.href='idealab.html?goalId=${model.id}'" onkeydown="if(event.key==='Enter'||event.key===' ')(window.WorkspaceActions ? window.WorkspaceActions.openGoal('${model.id}') : window.location.href='idealab.html?goalId=${model.id}')" class="relative p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] hover:border-[#A855F7]/50 hover:shadow-lg transition-all duration-200 cursor-pointer space-y-2.5 group">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center space-x-2 min-w-0">
-                <span class="text-[10px] px-2 py-0.5 rounded shrink-0 ${urgClass}">${goal.lifecycle?.status || goal.urgency || 'ACTIVE'}</span>
-                <span class="text-[10px] font-mono text-[#FACC15] truncate">📅 ${goal.finalDeadlineDisplay || 'No deadline'}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded shrink-0 ${urgClass}">${model.deadline.type || model.rawStatus || 'ACTIVE'}</span>
+                <span class="text-[10px] font-mono text-[#FACC15] truncate">📅 ${model.deadline.shortLabel || model.deadline.label}</span>
               </div>
-              ${this.renderGoalActionMenu(goal.id)}
+              ${this.renderGoalActionMenu(model.id)}
             </div>
             <div>
-              <h4 class="text-xs font-bold text-[#FAFAFA] group-hover:text-[#A855F7] transition truncate">${goal.title}</h4>
-              <p class="text-[10px] text-[#6B7280] truncate mt-0.5">${goal.description || 'AI Goal Blueprint'}</p>
+              <h4 class="text-xs font-bold text-[#FAFAFA] group-hover:text-[#A855F7] transition truncate">${model.title}</h4>
+              <p class="text-[10px] text-[#6B7280] truncate mt-0.5">${model.description}</p>
             </div>
             <div class="space-y-1 pt-1 border-t border-[#1C1C1C]">
               <div class="flex items-center justify-between text-[10px] font-mono">
-                <span class="text-[#A1A1AA]">${done} / ${total} Subtasks</span>
-                <span class="text-[#FAFAFA] font-bold">${progress}%</span>
+                <span class="text-[#A1A1AA]">${model.progress.label}</span>
+                <span class="text-[#FAFAFA] font-bold">${model.progress.percentage}%</span>
               </div>
-              ${this.renderProgressBar(progress, { heightClass: 'h-1.5', bgClass: 'bg-[#151515]' })}
+              ${this.renderProgressBar(model.progress.percentage, { heightClass: 'h-1.5', bgClass: 'bg-[#151515]' })}
             </div>
           </div>
         `;
       } else if (mode === 'grid') {
-        const urgClass = isUrg ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-[#A855F7]/20 text-[#A855F7] border border-[#A855F7]/40';
+        const urgClass = model.deadline.isUrgent ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-[#A855F7]/20 text-[#A855F7] border border-[#A855F7]/40';
         return `
-          <div role="button" tabindex="0" aria-label="Open Goal Grid: ${goal.title}" onclick="window.location.href='idealab.html?goalId=${goal.id}'" onkeydown="if(event.key==='Enter'||event.key===' ')window.location.href='idealab.html?goalId=${goal.id}'" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] flex flex-col justify-between space-y-4 hover:border-[#A855F7]/50 hover:shadow-[0_10px_30px_rgba(168,85,247,0.12)] transition-all duration-200 cursor-pointer relative group">
+          <div role="button" tabindex="0" aria-label="Open Goal Grid: ${model.title}" onclick="window.WorkspaceActions ? window.WorkspaceActions.openGoal('${model.id}') : window.location.href='idealab.html?goalId=${model.id}'" onkeydown="if(event.key==='Enter'||event.key===' ')(window.WorkspaceActions ? window.WorkspaceActions.openGoal('${model.id}') : window.location.href='idealab.html?goalId=${model.id}')" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] flex flex-col justify-between space-y-4 hover:border-[#A855F7]/50 hover:shadow-[0_10px_30px_rgba(168,85,247,0.12)] transition-all duration-200 cursor-pointer relative group">
             <div class="space-y-2">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center space-x-2.5 min-w-0">
-                  <span class="px-2.5 py-1 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${urgClass}">${goal.lifecycle?.status || goal.urgency || 'ACTIVE'}</span>
-                  <span class="text-xs font-mono text-[#FACC15] font-semibold truncate">${goal.finalDeadlineDisplay || 'In 7 days'}</span>
+                  <span class="px-2.5 py-1 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${urgClass}">${model.deadline.type || model.rawStatus || 'ACTIVE'}</span>
+                  <span class="text-xs font-mono text-[#FACC15] font-semibold truncate">${model.deadline.shortLabel || model.deadline.label}</span>
                 </div>
-                ${this.renderGoalActionMenu(goal.id)}
+                ${this.renderGoalActionMenu(model.id)}
               </div>
-              <h3 class="text-base font-bold text-[#FAFAFA]">${goal.title}</h3>
-              <p class="text-xs text-[#A1A1AA] line-clamp-2 leading-relaxed">${goal.description || ''}</p>
+              <h3 class="text-base font-bold text-[#FAFAFA]">${model.title}</h3>
+              <p class="text-xs text-[#A1A1AA] line-clamp-2 leading-relaxed">${model.description}</p>
             </div>
             <div class="space-y-3 pt-4 border-t border-[#1C1C1C]">
               <div class="flex items-center justify-between text-xs font-mono">
-                <span class="text-[#6B7280]">${done}/${total} Subtasks</span>
-                <span class="text-[#A855F7] font-bold">${progress}%</span>
+                <span class="text-[#6B7280]">${model.progress.label}</span>
+                <span class="text-[#A855F7] font-bold">${model.progress.percentage}%</span>
               </div>
-              ${this.renderProgressBar(progress, { heightClass: 'h-1.5', bgClass: 'bg-[#0A0A0A]' })}
+              ${this.renderProgressBar(model.progress.percentage, { heightClass: 'h-1.5', bgClass: 'bg-[#0A0A0A]' })}
               <div class="flex items-center">
-                <button onclick="event.stopPropagation(); window.location.href='idealab.html?goalId=${goal.id}'" class="w-full py-2 bg-[#151515] hover:bg-[#A855F7] text-[#A855F7] hover:text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 border border-[#2A2A2A] hover:border-transparent shadow-sm">
+                <button onclick="event.stopPropagation(); window.WorkspaceActions ? window.WorkspaceActions.openGoal('${model.id}') : window.location.href='idealab.html?goalId=${model.id}'" class="w-full py-2 bg-[#151515] hover:bg-[#A855F7] text-[#A855F7] hover:text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 border border-[#2A2A2A] hover:border-transparent shadow-sm">
                   <svg class="w-3.5 h-3.5 inline shrink-0 fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                   <span>IdeaLab Architect</span>
                 </button>
@@ -238,9 +272,18 @@
           </div>
         `;
       } else if (mode === 'expanded') {
-        const subtasksHtml = (goal.subtasks || []).map(sub => this.renderTaskCard(sub, { mode: 'workspace', goalId: goal.id })).join('');
+        const subtasksHtml = (model.subtasks || []).map(sub => this.renderTaskCard(sub, { mode: 'workspace', goalId: model.id })).join('');
+        const healthBadge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 bg-${model.health.color}-500/15 text-${model.health.color}-400 border border-${model.health.color}-500/30">${model.health.label}</span>`;
+        const urgClass = model.deadline.isUrgent ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-[#A855F7]/20 text-[#A855F7] border border-[#A855F7]/40';
+        const blockingHtml = model.blockingMilestone ? `
+          <div class="mt-2 text-xs font-semibold text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-lg flex items-center w-max">
+            <svg class="w-3.5 h-3.5 mr-1.5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            Blocking: ${model.blockingMilestone.title} (${model.blockingMilestone.deadlineLabel})
+          </div>
+        ` : '';
+
         return `
-          <div id="goal-${goal.id}" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] space-y-4 shadow-saas animate-fadeIn relative group hover:border-[#A855F7]/40 transition-all duration-200">
+          <div id="goal-${model.id}" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] space-y-4 shadow-saas animate-fadeIn relative group hover:border-[#A855F7]/40 transition-all duration-200">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#1C1C1C]">
               <div class="flex items-start space-x-3.5 min-w-0 flex-1">
                 <div class="w-10 h-10 rounded-xl bg-[#A855F7]/15 border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7] font-bold text-sm shrink-0 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
@@ -248,37 +291,39 @@
                 </div>
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-2.5">
-                    <h3 class="text-base font-bold text-[#FAFAFA] truncate">${goal.title}</h3>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${isUrg ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-[#A855F7]/20 text-[#A855F7] border border-[#A855F7]/40'}">${goal.lifecycle?.status || goal.urgency || 'ACTIVE'}</span>
-                    <button onclick="window.location.href='idealab.html?goalId=${goal.id}'" class="px-3 py-1 rounded-lg bg-[#A855F7] text-white hover:bg-[#9333EA] transition text-[11px] font-bold flex items-center space-x-1.5 shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0" title="Restructure & Refine Main Goal in IdeaLab">
+                    <h3 class="text-base font-bold text-[#FAFAFA] truncate">${model.title}</h3>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${urgClass}">${model.deadline.type || model.rawStatus || 'ACTIVE'}</span>
+                    ${healthBadge}
+                    <button onclick="window.WorkspaceActions ? window.WorkspaceActions.openGoal('${model.id}') : window.location.href='idealab.html?goalId=${model.id}'" class="px-3 py-1 rounded-lg bg-[#A855F7] text-white hover:bg-[#9333EA] transition text-[11px] font-bold flex items-center space-x-1.5 shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0" title="Restructure & Refine Main Goal in IdeaLab">
                       <svg class="w-3.5 h-3.5 inline shrink-0 fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                       <span>IdeaLab Architect</span>
                       <span>→</span>
                     </button>
                   </div>
-                  <p class="text-xs text-[#A1A1AA] mt-1">${goal.description || 'AI Goal Plan'}</p>
+                  <p class="text-xs text-[#A1A1AA] mt-1">${model.description}</p>
+                  ${blockingHtml}
                 </div>
               </div>
               <div class="flex items-center justify-between md:justify-end space-x-4 shrink-0 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-[#1C1C1C]">
                 <div class="text-right">
                   <span class="text-[10px] font-mono text-[#6B7280] block">FINAL DEADLINE</span>
-                  <span class="text-xs font-bold text-[#FACC15]">${goal.finalDeadlineDisplay || 'In 7 days'}</span>
+                  <span class="text-xs font-bold text-[#FACC15]">${model.deadline.label}</span>
                 </div>
                 <div class="w-px h-8 bg-[#1C1C1C] hidden md:block"></div>
                 <div class="flex items-center space-x-3">
                   <div class="w-24 bg-[#0A0A0A] h-2 rounded-full overflow-hidden border border-[#202020]">
-                    <div class="bg-[#A855F7] h-full rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(168,85,247,0.3)]" style="width: ${progress}%;"></div>
+                    <div class="bg-[#A855F7] h-full rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(168,85,247,0.3)]" style="width: ${model.progress.percentage}%;"></div>
                   </div>
-                  <span class="text-xs font-mono font-bold text-[#A855F7] w-9 text-right">${progress}%</span>
+                  <span class="text-xs font-mono font-bold text-[#A855F7] w-9 text-right">${model.progress.percentage}%</span>
                 </div>
-                ${this.renderGoalActionMenu(goal.id)}
+                ${this.renderGoalActionMenu(model.id)}
               </div>
             </div>
 
             <div class="space-y-2 pt-1">
               <div class="flex items-center justify-between text-xs text-[#6B7280] font-mono mb-2 px-1">
                 <span>NESTED SUBTASKS & STRUCTURED IDEALAB BLUEPRINTS</span>
-                <span>${done} / ${total} Completed</span>
+                <span>${model.progress.label}</span>
               </div>
               <div class="space-y-2.5">
                 ${subtasksHtml}
@@ -295,27 +340,49 @@
      * @param {Object} sub
      * @param {Object} options
      */
-    renderTaskCard(sub, options = {}) {
+    renderTaskCard(input, options = {}) {
+      // Auto-map raw subtasks to ViewModels
+      let sub = input;
+      if (!sub.deadline || !sub.priorityColor) {
+        if (window.WorkspaceMapper) {
+          sub = window.WorkspaceMapper.toSubtaskModel(input, options.goalId || input.goalId);
+        } else {
+          // Minimal inline fallback for pages without WorkspaceMapper
+          sub = {
+            id: input.id || input._id,
+            goalId: options.goalId || input.goalId,
+            title: input.title || 'Task',
+            completed: !!input.completed,
+            priority: input.priority || 'Medium',
+            priorityColor: input.priority === 'High' ? 'danger' : input.priority === 'Medium' ? 'warning' : 'success',
+            deadline: input.deadlineInfo ? { shortLabel: input.deadlineInfo.shortLabel, color: input.deadlineInfo.color } : { shortLabel: input.deadlineDisplay || 'Assigned', color: 'neutral' },
+            _raw: input
+          };
+        }
+      }
+      if (!sub) return ''; // Fallback failed
+
       const mode = options.mode || 'dashboard';
-      const goalId = options.goalId || sub.goalId;
-      const badgeColor = sub.priority === 'High' ? 'bg-red-500/10 border border-red-500/30 text-red-400' : sub.priority === 'Medium' ? 'bg-yellow-500/10 border border-yellow-500/30 text-yellow-400' : 'bg-green-500/10 border border-green-500/30 text-green-400';
-      const isScheduled = typeof window.isMilestoneScheduled === 'function' ? window.isMilestoneScheduled(goalId, sub.id) : (sub.status === 'SCHEDULED');
+      const goalId = sub.goalId;
+      const badgeColor = `bg-${sub.priorityColor}-500/10 border border-${sub.priorityColor}-500/30 text-${sub.priorityColor}-400`;
+      const isScheduled = typeof window.isMilestoneScheduled === 'function' ? window.isMilestoneScheduled(goalId, sub.id) : (sub._raw?.status === 'SCHEDULED');
+      const actionPrefix = window.WorkspaceActions ? 'window.WorkspaceActions.' : 'window.';
 
       let scheduleBtnHtml = '';
       if (mode === 'workspace') {
         scheduleBtnHtml = isScheduled ? `
-          <button onclick="window.location.href='planner.html'" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="View in Planner">
+          <button onclick="${actionPrefix}viewInPlanner ? ${actionPrefix}viewInPlanner() : window.location.href='planner.html'" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="View in Planner">
             <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
           </button>
         ` : `
-          <button onclick="window.openScheduleMilestoneModal('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Schedule to Planner">
+          <button onclick="${actionPrefix}scheduleMilestone('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Schedule to Planner">
             <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
           </button>
         `;
       } else {
         if (isScheduled) {
           scheduleBtnHtml = `
-            <button onclick="window.location.href='planner.html'" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="View in Planner">
+            <button onclick="${actionPrefix}viewInPlanner ? ${actionPrefix}viewInPlanner() : window.location.href='planner.html'" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="View in Planner">
               <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
             </button>
           `;
@@ -326,24 +393,24 @@
         return `
           <div class="flex items-center justify-between p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] hover:border-[#343434] transition group gap-4">
             <div class="flex items-center space-x-3.5 overflow-hidden">
-              <input type="checkbox" aria-label="Mark task ${sub.title} completed" onchange="SF_STORE.dispatch('goals/TOGGLE_SUBTASK',{goalId:'${goalId}',subtaskId:'${sub.id}'})" ${sub.completed ? 'checked' : ''} class="w-4 h-4 rounded border-[#2A2A2A] bg-[#161616] text-[#A855F7] focus:ring-[#A855F7] cursor-pointer shrink-0" />
+              <input type="checkbox" aria-label="Mark task ${sub.title} completed" onchange="${actionPrefix}toggleSubtask('${goalId}','${sub.id}')" ${sub.completed ? 'checked' : ''} class="w-4 h-4 rounded border-[#2A2A2A] bg-[#161616] text-[#A855F7] focus:ring-[#A855F7] cursor-pointer shrink-0" />
               <div class="truncate">
                 <h4 class="text-xs font-semibold text-[#FAFAFA] ${sub.completed ? 'line-through text-[#6B7280]' : 'group-hover:text-[#A855F7]'} transition truncate">${sub.title}</h4>
                 <p class="text-[10px] text-[#6B7280] font-mono mt-0.5 truncate flex items-center gap-1.5">
-                  <span>${sub.goalTitle || 'Task'}</span>
+                  <span>${sub._raw?.goalTitle || 'Task'}</span>
                   <span>•</span>
-                  <span class="text-[#A855F7]">${sub.deadlineDisplay || 'Assigned'}</span>
+                  <span class="text-${sub.deadline.color}-400">${sub.deadline.shortLabel}</span>
                 </p>
               </div>
             </div>
             <div class="flex items-center space-x-3 shrink-0">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}">${sub.priority || 'High'}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}">${sub.priority}</span>
               <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-300">
-                <button onclick="window.openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
+                <button onclick="${actionPrefix}openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                 </button>
                 ${scheduleBtnHtml}
-                <button onclick="window.location.href='focus.html'" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
+                <button onclick="${actionPrefix}startFocus()" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
                   <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 </button>
               </div>
@@ -351,27 +418,36 @@
           </div>
         `;
       } else if (mode === 'workspace') {
+        const blockingIconHtml = sub.isBlocking ? `
+          <div title="Blocking Milestone" class="flex items-center justify-center w-5 h-5 rounded-full bg-red-500/20 text-red-500 border border-red-500/40 shrink-0 shadow-[0_0_10px_rgba(239,68,68,0.2)]">
+            <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          </div>
+        ` : '';
+
         return `
-          <div class="flex items-center justify-between p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] hover:border-[#343434] transition group gap-4">
+          <div class="flex items-center justify-between p-3.5 rounded-xl bg-[#0A0A0A] border ${sub.isBlocking ? 'border-red-500/30 bg-red-500/5' : 'border-[#202020] hover:border-[#343434]'} transition group gap-4">
             <div class="flex items-center space-x-3.5 overflow-hidden">
-              <input type="checkbox" aria-label="Mark task ${sub.title} completed" onchange="window.SF_STORE.dispatch('goals/TOGGLE_SUBTASK',{goalId:'${goalId}',subtaskId:'${sub.id}'})" ${sub.completed ? 'checked' : ''} class="w-4 h-4 rounded border-[#2A2A2A] bg-[#161616] text-[#A855F7] focus:ring-[#A855F7] cursor-pointer shrink-0" />
+              <input type="checkbox" aria-label="Mark task ${sub.title} completed" onchange="${actionPrefix}toggleSubtask('${goalId}','${sub.id}')" ${sub.completed ? 'checked' : ''} class="w-4 h-4 rounded border-[#2A2A2A] bg-[#161616] text-[#A855F7] focus:ring-[#A855F7] cursor-pointer shrink-0" />
               <div class="truncate">
-                <h4 class="text-xs font-semibold text-[#FAFAFA] ${sub.completed ? 'line-through text-[#6B7280]' : 'group-hover:text-[#A855F7]'} transition truncate">${sub.title}</h4>
+                <h4 class="text-xs font-semibold text-[#FAFAFA] ${sub.completed ? 'line-through text-[#6B7280]' : 'group-hover:text-[#A855F7]'} transition truncate flex items-center space-x-2">
+                  <span>${sub.title}</span>
+                  ${blockingIconHtml}
+                </h4>
                 <p class="text-[10px] text-[#6B7280] font-mono mt-0.5 truncate flex items-center gap-1.5">
-                  <span>${sub.estimate || 'Task'}</span>
+                  <span>${sub._raw?.estimate || 'Task'}</span>
                   <span>•</span>
-                  <span class="text-[#A855F7]">${sub.deadlineDisplay || 'Assigned'}</span>
+                  <span class="text-${sub.deadline.color}-400">${sub.deadline.shortLabel}</span>
                 </p>
               </div>
             </div>
             <div class="flex items-center space-x-3 shrink-0">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}">${sub.priority || 'High'}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}">${sub.priority}</span>
               <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-300">
-                <button onclick="window.openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
+                <button onclick="${actionPrefix}openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                 </button>
                 ${scheduleBtnHtml}
-                <button onclick="window.location.href='focus.html'" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
+                <button onclick="${actionPrefix}startFocus()" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
                   <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 </button>
               </div>

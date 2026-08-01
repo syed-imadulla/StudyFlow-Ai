@@ -248,6 +248,8 @@ StudyFlow-AI/
 - **Phase 2.1**: Base architecture, core data models, user authentication.
 - **Phase 2.2**: Goal ↔ Planner Synchronization, API error standardization, structured logging, UI consistency.
 - **Phase 2.3.0.2**: Goal Lifecycle Engine (Computed intelligence based on immutable facts).
+- **Phase 2.3.0.3**: Deadline Intelligence (Decoupled formatting logic).
+- **Phase 2.3.0.4**: Milestone Lifecycle Engine (Shared LifecycleEngine and GoalProgressService).
 
 ### Current
 - **Current Version**: `v2.1.1`
