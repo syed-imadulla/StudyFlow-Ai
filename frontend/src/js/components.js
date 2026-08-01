@@ -1176,7 +1176,7 @@ window.createDeadlineSelector = function(containerElement, initialValue = null) 
                 <span id="sf-display-dl-date" class="flex items-center gap-2 text-white">${state.date ? new Date(state.date + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : 'mm/dd/yyyy'}</span>
                 <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
               </button>
-              <div id="sf-menu-dl-date" class="hidden absolute left-0 mt-1 w-[260px] bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-3 z-[999999999] select-none">
+              <div id="sf-menu-dl-date" class="hidden absolute left-0 bottom-full mb-2 w-[260px] bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-3 z-[999999999] select-none origin-bottom animate-scaleIn">
                 <div class="flex items-center justify-between mb-3 px-1">
                   <button type="button" id="dl-cal-prev" class="text-[#A1A1AA] hover:text-white p-1 rounded hover:bg-white/5 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
                   <span id="dl-cal-title" class="text-white text-[13px] font-bold tracking-wide">Month Year</span>
@@ -1198,7 +1198,7 @@ window.createDeadlineSelector = function(containerElement, initialValue = null) 
                 <span id="sf-display-dl-time" class="flex items-center gap-2 text-white text-[11px]">${state.time ? (() => { let [h,m]=state.time.split(':'); return (h%12||12)+':'+m+' '+(h>=12?'PM':'AM'); })() : 'Time'}</span>
                 <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </button>
-              <div id="sf-menu-dl-time" class="hidden absolute right-0 mt-1 w-[200px] bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] font-mono text-xs">
+              <div id="sf-menu-dl-time" class="hidden absolute right-0 bottom-full mb-2 w-[200px] bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] font-mono text-xs origin-bottom animate-scaleIn">
                 <!-- Injected via JS -->
               </div>
             </div>
@@ -1223,7 +1223,7 @@ window.createDeadlineSelector = function(containerElement, initialValue = null) 
                 <span id="sf-display-dl-unit" class="flex items-center gap-2 text-white capitalize">${state.unit}</span>
                 <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </button>
-              <div id="sf-menu-dl-unit" class="hidden absolute left-0 right-0 mt-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5">
+              <div id="sf-menu-dl-unit" class="hidden absolute left-0 right-0 bottom-full mb-2 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5 origin-bottom animate-scaleIn">
                 ${['days', 'weeks', 'months'].map(t => {
                   return `<div onclick="document.getElementById('dl-unit').value='${t}'; document.getElementById('dl-unit').dispatchEvent(new Event('change')); document.getElementById('sf-display-dl-unit').innerText='${t.charAt(0).toUpperCase() + t.slice(1)}'; document.getElementById('sf-menu-dl-unit').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition-all duration-150 hover:bg-[#20202A] text-[#A1A1AA] hover:text-white capitalize">${t}</div>`;
                 }).join('')}

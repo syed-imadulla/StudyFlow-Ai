@@ -553,7 +553,7 @@ window.openEditGoalModal = function (goalId) {
               <span id="sf-display-editGoalUrgency" class="flex items-center gap-2 text-white">ACTIVE</span>
               <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div id="sf-menu-editGoalUrgency" class="hidden absolute left-0 right-0 mt-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5 max-h-40 overflow-y-auto">
+            <div id="sf-menu-editGoalUrgency" class="hidden absolute left-0 right-0 bottom-full mb-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5 max-h-40 overflow-y-auto origin-bottom animate-scaleIn">
               ${['URGENT', 'ACTIVE', 'UPCOMING'].map(t => {
                 return `<div onclick="document.getElementById('editGoalUrgency').value='${t}'; document.getElementById('sf-display-editGoalUrgency').innerText='${t}'; document.getElementById('sf-menu-editGoalUrgency').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">${t}</div>`;
               }).join('')}
