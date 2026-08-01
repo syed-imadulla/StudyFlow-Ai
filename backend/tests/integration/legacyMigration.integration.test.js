@@ -4,28 +4,12 @@ import { GoalLifecycleService } from '../../src/services/goalLifecycle.service.j
 import { MilestoneLifecycleService } from '../../src/services/milestoneLifecycle.service.js';
 import { DeadlineIntelligenceService } from '../../src/services/deadlineIntelligence.service.js';
 import { GoalProgressService } from '../../src/services/goalProgress.service.js';
-import dotenv from 'dotenv';
-import path from 'path';
-
-dotenv.config({ path: path.join(process.cwd(), '.env') });
 
 describe('Legacy Migration & Intelligence Pipeline Idempotency', () => {
-  const TEST_DB_URI = process.env.MONGODB_URI_TEST || 'mongodb://localhost:27017/studyflow_test_migration';
-  
-  beforeAll(async () => {
-    if (mongoose.connection.readyState) {
-      await mongoose.disconnect();
-    }
-    await mongoose.connect(TEST_DB_URI);
-  });
-  
-  afterAll(async () => {
-    await mongoose.disconnect();
-  });
-  
   beforeEach(async () => {
-    await mongoose.connection.db.collection('goals').deleteMany({});
-    await mongoose.connection.db.collection('schema_migrations').deleteMany({});
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.connection.db.collection('schema_migrations').deleteMany({});
+    }
   });
 
   it('safely migrates legacy document, runs through pipeline, and verifies idempotency', async () => {
@@ -50,8 +34,7 @@ describe('Legacy Migration & Intelligence Pipeline Idempotency', () => {
     // 2. First Execution (Production Mode)
     const run1 = await runMigration('001_migrate_deadlines.js', { 
       dryRun: false, 
-      force: false,
-      dbUrl: TEST_DB_URI
+      force: false
     });
     
     expect(run1.skipped).toBe(false);
@@ -91,8 +74,7 @@ describe('Legacy Migration & Intelligence Pipeline Idempotency', () => {
     // 5. Second Execution (Idempotency)
     const run2 = await runMigration('001_migrate_deadlines.js', {
       dryRun: false,
-      force: false,
-      dbUrl: TEST_DB_URI
+      force: false
     });
     
     expect(run2.skipped).toBe(true);
@@ -104,8 +86,7 @@ describe('Legacy Migration & Intelligence Pipeline Idempotency', () => {
     // 6. Force Execution (Idempotency override)
     const run3 = await runMigration('001_migrate_deadlines.js', {
       dryRun: false,
-      force: true,
-      dbUrl: TEST_DB_URI
+      force: true
     });
     
     expect(run3.skipped).toBe(false);

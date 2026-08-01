@@ -1,33 +1,46 @@
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env.test' });
 
-let mongoServer;
-
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
+  const baseUri = process.env.MONGO_URI;
+  if (!baseUri) {
+    throw new Error('MONGO_URI is not defined in the environment. globalSetup may have failed.');
+  }
+  
+  const workerId = process.env.JEST_WORKER_ID || '1';
+  const dbName = `test_${workerId}`;
+  
+  // Parse and replace the pathname to guarantee a valid URI
+  const url = new URL(baseUri);
+  url.pathname = `/${dbName}`;
+  const mongoUri = url.toString();
+  
+  console.log(`[Worker ${workerId}] Connecting to ${mongoUri}`);
   
   if (mongoose.connection.readyState !== 0) {
     await mongoose.disconnect();
   }
   
   await mongoose.connect(mongoUri, {
-    // Mongoose 8+ doesn't strictly need these, but we keep them just in case
+    serverSelectionTimeoutMS: 2000,
   });
 });
 
 beforeEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    const collection = collections[key];
-    await collection.deleteMany({});
+  if (mongoose.connection.readyState !== 0) {
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    for (const collection of collections) {
+      if (!collection.name.startsWith('system.')) {
+        await mongoose.connection.db.collection(collection.name).deleteMany({});
+      }
+    }
   }
 });
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
+  }
 });

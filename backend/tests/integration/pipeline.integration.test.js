@@ -1,21 +1,11 @@
 import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { GoalService } from '../../src/services/goal.service.js';
 import { Goal } from '../../src/models/Goal.js';
 
-let mongoServer;
 let userId;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
-  await mongoose.connect(mongoUri);
   userId = new mongoose.Types.ObjectId();
-});
-
-afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
 });
 
 describe('Milestone Generation Pipeline & Intelligence Layer', () => {
