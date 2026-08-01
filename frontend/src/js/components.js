@@ -355,7 +355,7 @@
             completed: !!input.completed,
             priority: input.priority || 'Medium',
             priorityColor: input.priority === 'High' ? 'danger' : input.priority === 'Medium' ? 'warning' : 'success',
-            deadline: input.deadlineInfo ? { shortLabel: input.deadlineInfo.shortLabel, color: input.deadlineInfo.color } : { shortLabel: input.deadlineDisplay || 'Assigned', color: 'neutral' },
+            deadline: input.deadlineInfo ? { shortLabel: input.deadlineInfo.shortLabel, color: input.deadlineInfo.color } : { shortLabel: input.deadlineInfo?.shortLabel || 'Assigned', color: 'neutral' },
             _raw: input
           };
         }
@@ -1285,9 +1285,9 @@ window.createDeadlineSelector = function(containerElement, initialValue = null) 
         <div data-panel="DURATION" class="absolute inset-0 transition-opacity duration-300 flex flex-col gap-2 opacity-0 pointer-events-none">
           <div class="flex items-center gap-2">
             <div class="flex items-center bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl focus-within:border-[#A855F7] transition-colors h-[38px] shrink-0">
-              <button type="button" class="w-7 h-full flex items-center justify-center text-[#A1A1AA] hover:text-white hover:bg-white/5 rounded-l-xl transition font-medium" onclick="const i=document.getElementById('dl-value'); i.value=Math.max(1, (parseInt(i.value)||0)-1); i.dispatchEvent(new Event('input'))">−</button>
+              <button type="button" class="w-7 h-full flex items-center justify-center text-[#A1A1AA] hover:text-white hover:bg-white/5 rounded-l-xl transition font-medium" onclick="const i=this.nextElementSibling; i.value=Math.max(1, (parseInt(i.value)||0)-1); i.dispatchEvent(new Event('input'))">−</button>
               <input type="number" id="dl-value" min="1" placeholder="1" class="w-10 h-full p-0 text-center text-xs bg-transparent border-none text-white outline-none no-spinners" value="${state.value || 1}" />
-              <button type="button" class="w-7 h-full flex items-center justify-center text-[#A1A1AA] hover:text-white hover:bg-white/5 rounded-r-xl transition font-medium" onclick="const i=document.getElementById('dl-value'); i.value=(parseInt(i.value)||0)+1; i.dispatchEvent(new Event('input'))">+</button>
+              <button type="button" class="w-7 h-full flex items-center justify-center text-[#A1A1AA] hover:text-white hover:bg-white/5 rounded-r-xl transition font-medium" onclick="const i=this.previousElementSibling; i.value=(parseInt(i.value)||0)+1; i.dispatchEvent(new Event('input'))">+</button>
             </div>
             <div class="relative sf-custom-select-container flex-grow">
               <select id="dl-unit" class="hidden">
