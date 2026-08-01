@@ -2418,28 +2418,21 @@
             if (sub.completed || !sub.title || sub.title.trim() === '') return;
             
             let dueObj = null;
-            if (sub.dueDate) {
-              const parts = sub.dueDate.split('-');
+            if (sub.deadline) {
+              const parts = sub.deadline.split('-');
               if (parts.length === 3) {
                 const y = parseInt(parts[0], 10);
                 const m = parseInt(parts[1], 10) - 1;
                 const d = parseInt(parts[2], 10);
                 dueObj = new Date(y, m, d);
               }
-            } else if (sub.deadlineDisplay) {
-              const display = sub.deadlineDisplay.toLowerCase().trim();
-              const todayMidnight = new Date();
-              todayMidnight.setHours(0, 0, 0, 0);
-              let diffDays = null;
-              if (display === 'today') diffDays = 0;
-              else if (display === 'tomorrow') diffDays = 1;
-              else if (display === 'yesterday' || display === 'overdue') diffDays = -1;
-              else if (display.startsWith('in ') && display.includes('days')) {
-                const num = parseInt(display.replace(/[^\d]/g, ''), 10);
-                if (!isNaN(num)) diffDays = num;
-              }
-              if (diffDays !== null) {
-                dueObj = new Date(todayMidnight.getTime() + diffDays * 86400000);
+            } else if (sub.dueDate) {
+              const parts = sub.dueDate.split('-');
+              if (parts.length === 3) {
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10) - 1;
+                const d = parseInt(parts[2], 10);
+                dueObj = new Date(y, m, d);
               }
             }
             
@@ -2518,28 +2511,62 @@
         const diffTime = block.dueObj.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
+        let displayStr = block.deadlineInfo?.label || getDeadlineRelativeLabel(block.dueDate);
+        
         let labelColor = 'text-[#6B7280]';
         let accentLine = 'bg-[#6B7280]';
-        let displayStr = block.deadlineDisplay || getDeadlineRelativeLabel(block.dueDate);
         
-        if (diffDays < 0) {
-          labelColor = 'text-red-500';
-          accentLine = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]';
-          displayStr = `Overdue by ${Math.abs(diffDays)} day${Math.abs(diffDays)>1?'s':''}`;
-        } else if (diffDays === 0) {
-          labelColor = 'text-[#f97316]'; // orange-500
-          accentLine = 'bg-[#f97316] shadow-[0_0_8px_rgba(249,115,22,0.5)]';
-          displayStr = `Today • Due today`;
-        } else if (diffDays === 1) {
-          labelColor = 'text-[#facc15]'; // yellow-400
-          accentLine = 'bg-[#facc15] shadow-[0_0_8px_rgba(250,204,21,0.5)]';
-          displayStr = `Tomorrow • 1 day left`;
-        } else if (diffDays < 7) {
-          labelColor = 'text-[#A855F7]'; // purple-500
-          accentLine = 'bg-[#A855F7] shadow-[0_0_8px_rgba(168,85,247,0.5)]';
-          displayStr = `In ${diffDays} days`;
+        if (block.deadlineInfo) {
+          // Map backend badge/color classes (neutral, error, warning, info, success) 
+          // to specific tailwind colors used here for backward compatibility
+          const c = block.deadlineInfo.color;
+          if (c === 'error') {
+            labelColor = 'text-red-500';
+            accentLine = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]';
+          } else if (c === 'warning') {
+            // differentiate warning for tomorrow (yellow) vs today (orange)
+            if (block.deadlineInfo.type === 'TODAY') {
+              labelColor = 'text-[#f97316]'; // orange
+              accentLine = 'bg-[#f97316] shadow-[0_0_8px_rgba(249,115,22,0.5)]';
+            } else {
+              labelColor = 'text-[#facc15]'; // yellow
+              accentLine = 'bg-[#facc15] shadow-[0_0_8px_rgba(250,204,21,0.5)]';
+            }
+          } else if (c === 'info') {
+            labelColor = 'text-[#A855F7]'; // purple
+            accentLine = 'bg-[#A855F7] shadow-[0_0_8px_rgba(168,85,247,0.5)]';
+          } else {
+             // neutral
+             labelColor = 'text-[#6B7280]';
+             accentLine = 'bg-[#6B7280]';
+          }
+          
+          if (block.deadlineInfo.type === 'OVERDUE') {
+            displayStr = `Overdue by ${block.deadlineInfo.overdueDays} day${block.deadlineInfo.overdueDays>1?'s':''}`;
+          } else if (block.deadlineInfo.type === 'TODAY') {
+            displayStr = `Today • Due today`;
+          } else if (block.deadlineInfo.type === 'TOMORROW') {
+            displayStr = `Tomorrow • 1 day left`;
+          }
         } else {
-          displayStr = `In ${diffDays} days`;
+          // Fallback legacy calculation if no deadlineInfo
+          if (diffDays < 0) {
+            labelColor = 'text-red-500';
+            accentLine = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]';
+            displayStr = `Overdue by ${Math.abs(diffDays)} day${Math.abs(diffDays)>1?'s':''}`;
+          } else if (diffDays === 0) {
+            labelColor = 'text-[#f97316]'; // orange-500
+            accentLine = 'bg-[#f97316] shadow-[0_0_8px_rgba(249,115,22,0.5)]';
+            displayStr = `Today • Due today`;
+          } else if (diffDays === 1) {
+            labelColor = 'text-[#facc15]'; // yellow-400
+            accentLine = 'bg-[#facc15] shadow-[0_0_8px_rgba(250,204,21,0.5)]';
+            displayStr = `Tomorrow • 1 day left`;
+          } else if (diffDays < 7) {
+            labelColor = 'text-[#A855F7]'; // purple-500
+            accentLine = 'bg-[#A855F7] shadow-[0_0_8px_rgba(168,85,247,0.5)]';
+            displayStr = `In ${diffDays} days`;
+          }
         }
 
         const labelClasses = `${labelColor} font-bold text-[11px] sm:text-xs shrink-0`;

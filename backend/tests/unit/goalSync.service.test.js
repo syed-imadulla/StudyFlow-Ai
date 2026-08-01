@@ -111,8 +111,8 @@ describe('GoalSyncService', () => {
       const goal = new Goal(createMockGoal(userId, { subtasks: [milestone] }));
       await goal.save();
 
-      const updatedGoal = await GoalSyncService.rollbackPlannerRescheduled(userId, goal._id, milestone._id, { deadlineDisplay: 'New Deadline' });
-      expect(updatedGoal.subtasks.id(milestone._id).deadlineDisplay).toBe('New Deadline');
+      const updatedGoal = await GoalSyncService.rollbackPlannerRescheduled(userId, goal._id, milestone._id, { deadline: '2026-08-01' });
+      expect(updatedGoal.subtasks.id(milestone._id).deadline).toBe('2026-08-01');
     });
 
     it('rollbackPlannerCompleted should restore status to SCHEDULED and completed=false', async () => {

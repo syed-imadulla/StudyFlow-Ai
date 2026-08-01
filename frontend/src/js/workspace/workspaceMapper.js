@@ -24,7 +24,7 @@ window.WorkspaceMapper = {
     const blockingSubtask = rawSubtasks.find(s => s.isBlocking);
     const blockingMilestone = blockingSubtask ? {
       title: blockingSubtask.title,
-      deadlineLabel: blockingSubtask.deadlineInfo?.shortLabel || blockingSubtask.deadlineDisplay || 'Overdue'
+      deadlineLabel: blockingSubtask.deadlineInfo?.shortLabel || 'No deadline'
     } : null;
 
     return {
@@ -132,8 +132,8 @@ window.WorkspaceMapper = {
         color: sub.deadlineInfo.color
       } : {
         type: 'UNKNOWN',
-        label: sub.deadlineDisplay || 'No deadline',
-        shortLabel: sub.deadlineDisplay || 'No deadline',
+        label: sub.deadlineInfo?.label || 'No deadline',
+        shortLabel: sub.deadlineInfo?.shortLabel || 'No deadline',
         color: 'neutral'
       },
       

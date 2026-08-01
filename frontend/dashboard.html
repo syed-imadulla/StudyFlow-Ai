@@ -431,13 +431,15 @@
         goals.forEach(g => {
           (g.subtasks || []).forEach(s => {
             const subCopy = { ...s, goalTitle: g.title, goalId: g.id };
-            if (!subCopy.completed) {
-              if (subCopy.deadlineDisplay === 'Tomorrow' || subCopy.deadlineDisplay === 'In 2 days' || subCopy.deadlineDisplay === 'In 3 days') {
-                subCopy.deadlineDisplay = 'Today';
+            console.log("Dashboard checking subtask:", subCopy.title, "completed:", subCopy.completed, "deadline:", subCopy.deadline, "lifecycle:", subCopy.lifecycle, "deadlineInfo:", subCopy.deadlineInfo);
+            if (!subCopy.completed && subCopy.lifecycle && subCopy.deadlineInfo) {
+              const isToday = subCopy.lifecycle.isDueToday;
+              const isOverdue = subCopy.lifecycle.isOverdue;
+              const isDueSoon = subCopy.lifecycle.isDueSoon;
+              
+              if (isToday || isOverdue || isDueSoon) {
+                allSubtasks.push(subCopy);
               }
-            }
-            if (subCopy.deadlineDisplay === 'Today' || subCopy.deadlineDisplay === 'Overdue') {
-              allSubtasks.push(subCopy);
             }
           });
         });

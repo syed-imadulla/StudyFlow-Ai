@@ -200,8 +200,12 @@ export class GoalSyncService {
     const milestone = goal.subtasks.id(milestoneId);
     if (!milestone) return null;
 
-    if (originalMetadata.deadlineDisplay) {
-      milestone.deadlineDisplay = originalMetadata.deadlineDisplay;
+    // Only revert deadline if it was mutated
+    if (originalMetadata.deadline) {
+      milestone.deadline = originalMetadata.deadline;
+    }
+    if (originalMetadata.deadlineTime !== undefined) {
+      milestone.deadlineTime = originalMetadata.deadlineTime;
     }
 
     await goal.save();
@@ -234,10 +238,12 @@ export class GoalSyncService {
       throw new AppError('Cannot reschedule a milestone that is not scheduled', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.INVALID_TRANSITION);
     }
 
-    // 4. Update scheduling metadata if applicable
-    // Goal subtasks currently only store 'deadlineDisplay' as metadata
-    if (metadata.deadlineDisplay) {
-      milestone.deadlineDisplay = metadata.deadlineDisplay;
+    // Update scheduling metadata if applicable
+    if (metadata.deadline) {
+      milestone.deadline = metadata.deadline;
+    }
+    if (metadata.deadlineTime !== undefined) {
+      milestone.deadlineTime = metadata.deadlineTime;
     }
 
     // Note: status, completed, and goal.progress remain unchanged during rescheduling.

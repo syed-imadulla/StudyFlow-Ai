@@ -423,7 +423,7 @@
             completed: oldSub ? oldSub.completed : false,
             priority: oldSub?.priority || 'High',
             estimate: oldSub?.estimate || '2 Pomodoros',
-            deadlineDisplay: oldSub?.deadlineDisplay || (idx === 0 ? 'Tomorrow' : `In ${idx + 2} days`)
+            deadline: oldSub?.deadline || null
           };
         });
         try {

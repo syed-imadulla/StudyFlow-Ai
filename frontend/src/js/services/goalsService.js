@@ -134,12 +134,19 @@ window.goalsService = (function () {
     const priorities = ['High', 'High', 'Medium', 'Low'];
     const subtasks = lines.map((line, idx) => {
       const stepDays = Math.max(1, Math.round(((idx + 1) / lines.length) * totalDays));
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + stepDays);
+      const yyyy = targetDate.getFullYear();
+      const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(targetDate.getDate()).padStart(2, '0');
+
       return {
         id: 'sub-' + Date.now() + '-' + idx,
         title: line,
         estimate: `Sprint ${idx + 1} • 1.5h`,
         priority: priorities[idx % priorities.length],
-        deadlineDisplay: stepDays === 1 ? 'Tomorrow' : `In ${stepDays} days`,
+        deadline: `${yyyy}-${mm}-${dd}`,
+        deadlineTime: null,
         completed: false,
         status: 'TODO'
       };
@@ -150,8 +157,13 @@ window.goalsService = (function () {
       urgency: urgency || 'ACTIVE',
       description: description || 'AI generated study plan with spaced backward deadline assignment.',
       deadline: deadlinePayload,
-      subtasks
+      rawDump // Send to backend for actual generation
     };
+
+    if (window.SF_CONFIG?.USE_MOCK_API) {
+      payload.subtasks = subtasks;
+    }
+
     return createGoal(payload);
   }
 

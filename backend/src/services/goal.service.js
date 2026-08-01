@@ -113,6 +113,50 @@ export class GoalService {
    */
   static async createGoal(userId, payload) {
     let data = { ...payload };
+    
+    // Server-side AI Milestone Breakdown
+    if (data.rawDump) {
+      let totalDays = 7;
+      if (data.deadline && typeof data.deadline === 'object') {
+        const { mode, date, value, unit } = data.deadline;
+        if (mode === 'DURATION') {
+          totalDays = value || 7;
+          if (unit === 'weeks') totalDays *= 7;
+          if (unit === 'months') totalDays *= 30;
+        } else if (mode === 'SPECIFIC_DATE' && date) {
+          const ms = new Date(date) - new Date();
+          totalDays = Math.max(1, Math.round(ms / 86400000));
+        }
+      }
+
+      let lines = data.rawDump.split('\n').map(l => l.replace(/^[-*•\d.]+\s*/, '').trim()).filter(Boolean);
+      if (lines.length === 0) {
+        lines = ['Complete Milestone 1', 'Complete Milestone 2', 'Final Review'];
+      }
+
+      const priorities = ['High', 'High', 'Medium', 'Low'];
+      data.subtasks = lines.map((line, idx) => {
+        const stepDays = Math.max(1, Math.round(((idx + 1) / lines.length) * totalDays));
+        
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + stepDays);
+        const yyyy = targetDate.getFullYear();
+        const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(targetDate.getDate()).padStart(2, '0');
+        
+        return {
+          title: line,
+          estimate: `Sprint ${idx + 1} • 1.5h`,
+          priority: priorities[idx % priorities.length],
+          deadline: `${yyyy}-${mm}-${dd}`,
+          deadlineTime: null,
+          completed: false,
+          status: 'TODO'
+        };
+      });
+      delete data.rawDump;
+    }
+
     data = processDeadline(data);
     if (data.status && typeof data.status === 'string') {
       data.status = data.status.toUpperCase().trim();

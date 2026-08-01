@@ -1,0 +1,310 @@
+[
+  {
+    "_id": "6a411957e7e68d22c8b5310d",
+    "user": "6a4116cae7e68d22c8b530e2",
+    "title": "Master DSA",
+    "description": "Complete Striver A2Z Sheet",
+    "urgency": "URGENT",
+    "deadline": "2026-08-15",
+    "completed": false,
+    "subtasks": [],
+    "createdAt": "2026-06-28T12:53:43.928Z",
+    "updatedAt": "2026-06-28T12:55:12.149Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a411c85e7e68d22c8b53123",
+    "user": "6a411be2e7e68d22c8b5311b",
+    "title": "Learn DSA",
+    "description": "Complete Striver A2Z Sheet",
+    "urgency": "ACTIVE",
+    "deadline": "2026-08-15",
+    "completed": false,
+    "subtasks": [],
+    "createdAt": "2026-06-28T13:07:17.656Z",
+    "updatedAt": "2026-06-28T13:07:17.656Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a415c40515dc96a7560e3fd",
+    "user": "6a41588fa0c835f1c1a272a3",
+    "title": "Learn DSA",
+    "description": "Complete Arrays and Strings",
+    "urgency": "ACTIVE",
+    "completed": false,
+    "subtasks": [],
+    "createdAt": "2026-06-28T17:39:12.226Z",
+    "updatedAt": "2026-06-28T17:39:12.226Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a415c51515dc96a7560e400",
+    "user": "6a41588fa0c835f1c1a272a3",
+    "title": "Learn Backend",
+    "description": "Finish Express.js",
+    "urgency": "ACTIVE",
+    "completed": true,
+    "subtasks": [],
+    "createdAt": "2026-06-28T17:39:29.728Z",
+    "updatedAt": "2026-06-28T17:47:09.512Z",
+    "__v": 0,
+    "status": "COMPLETED"
+  },
+  {
+    "_id": "6a421859d79d128707c0b956",
+    "user": "6a4217c0d79d128707c0b950",
+    "title": "Learn DSA",
+    "description": "Complete Arrays",
+    "status": "COMPLETED",
+    "urgency": "ACTIVE",
+    "completed": true,
+    "subtasks": [],
+    "createdAt": "2026-06-29T07:01:45.201Z",
+    "updatedAt": "2026-06-29T07:02:56.997Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a421874d79d128707c0b959",
+    "user": "6a4217c0d79d128707c0b950",
+    "title": "Learn Backend",
+    "description": "Finish Express",
+    "status": "ACTIVE",
+    "urgency": "ACTIVE",
+    "completed": false,
+    "subtasks": [],
+    "createdAt": "2026-06-29T07:02:12.534Z",
+    "updatedAt": "2026-06-29T07:02:12.534Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a6b73620d9bccc91360770f",
+    "user": "6a6b73620d9bccc91360770e",
+    "title": "Test Goal",
+    "description": "Testing runtime path",
+    "status": "ACTIVE",
+    "urgency": "ACTIVE",
+    "deadline": "2026-07-31",
+    "subtasks": [
+      {
+        "title": "Subtask 1",
+        "estimate": "2 Pomodoros",
+        "priority": "High",
+        "deadline": "2026-08-02",
+        "completed": false,
+        "status": "ACTIVE",
+        "completedAt": null,
+        "_id": "6a6b73620d9bccc913607710"
+      },
+      {
+        "title": "Subtask 2",
+        "estimate": "1 Pomodoros",
+        "priority": "Medium",
+        "deadline": "2026-08-03",
+        "completed": false,
+        "status": "ACTIVE",
+        "completedAt": null,
+        "_id": "6a6b73620d9bccc913607711"
+      }
+    ],
+    "completed": false,
+    "completedAt": null,
+    "createdAt": "2026-07-30T15:53:06.100Z",
+    "updatedAt": "2026-07-30T15:53:06.100Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a6dc77b48810428e8795eb6",
+    "user": "6a40f3e1f867acf3923b12e5",
+    "title": "Overdue Goal Test",
+    "description": "",
+    "status": "ACTIVE",
+    "urgency": "ACTIVE",
+    "deadline": "2026-07-31",
+    "completed": false,
+    "completedAt": null,
+    "subtasks": [],
+    "createdAt": "2026-08-01T10:16:27.151Z",
+    "updatedAt": "2026-08-01T10:16:27.151Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a6dc77b48810428e8795eb8",
+    "user": "6a40f3e1f867acf3923b12e5",
+    "title": "Completed Late Goal Test",
+    "description": "",
+    "status": "COMPLETED",
+    "urgency": "ACTIVE",
+    "deadline": "2026-07-31",
+    "completed": true,
+    "completedAt": "2026-08-01T10:16:26.693Z",
+    "subtasks": [],
+    "createdAt": "2026-08-01T10:16:27.203Z",
+    "updatedAt": "2026-08-01T10:16:27.203Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a6df8c9d26a881dfd2f9a9b",
+    "user": "6a6df8c9d26a881dfd2f9a9a",
+    "title": "Test Workflow Goal",
+    "description": "",
+    "status": "ACTIVE",
+    "urgency": "ACTIVE",
+    "subtasks": [
+      {
+        "title": "My Subtask",
+        "estimate": "1h",
+        "priority": "Medium",
+        "completed": true,
+        "deadline": "2026-08-05",
+        "status": "COMPLETED",
+        "_id": "6a6df8c9d26a881dfd2f9a9c",
+        "completedAt": "2026-08-01T13:46:49.103Z"
+      }
+    ],
+    "completed": false,
+    "completedAt": null,
+    "createdAt": "2026-08-01T13:46:49.101Z",
+    "updatedAt": "2026-08-01T13:46:49.101Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a6e054c11a992a80560df0d",
+    "user": "6a6e054c11a992a80560df0c",
+    "title": "New AI Goal Integration Test",
+    "description": "Testing the new backend milestone generation",
+    "status": "ACTIVE",
+    "urgency": "ACTIVE",
+    "deadline": "2026-08-08",
+    "deadlineTime": null,
+    "subtasks": [
+      {
+        "title": "Milestone A",
+        "estimate": "Sprint 1 • 1.5h",
+        "priority": "High",
+        "completed": false,
+        "deadline": "2026-08-05",
+        "deadlineTime": null,
+        "status": "TODO",
+        "_id": "6a6e054c11a992a80560df0e"
+      },
+      {
+        "title": "Milestone B",
+        "estimate": "Sprint 2 • 1.5h",
+        "priority": "High",
+        "completed": false,
+        "deadline": "2026-08-08",
+        "deadlineTime": null,
+        "status": "TODO",
+        "_id": "6a6e054c11a992a80560df0f"
+      }
+    ],
+    "completed": false,
+    "completedAt": null,
+    "createdAt": "2026-08-01T14:40:12.741Z",
+    "updatedAt": "2026-08-01T14:40:12.741Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a6e058abbb8555e663ca22e",
+    "user": "6a43ea9fa32fffc712944fec",
+    "title": "Daa Study 3.0",
+    "description": "Created via AI Goal Breakdown Modal",
+    "status": "ACTIVE",
+    "urgency": "URGENT",
+    "deadline": "2026-08-01",
+    "deadlineTime": null,
+    "completed": false,
+    "completedAt": null,
+    "subtasks": [
+      {
+        "title": "Milestone 1 (two pointers)",
+        "estimate": "2 Pomodoros",
+        "priority": "High",
+        "completed": false,
+        "status": "SCHEDULED",
+        "_id": "6a6e05c6bbb8555e663ca238"
+      },
+      {
+        "title": "Milestone 2 (Arrays)",
+        "estimate": "2 Pomodoros",
+        "priority": "High",
+        "completed": false,
+        "status": "TODO",
+        "_id": "6a6e05c6bbb8555e663ca239"
+      }
+    ],
+    "createdAt": "2026-08-01T14:41:14.919Z",
+    "updatedAt": "2026-08-01T14:47:24.418Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a6e1b5d0cefb8ecec54415e",
+    "user": "6a4116cae7e68d22c8b530e2",
+    "title": "Legacy Milestone Test Goal",
+    "description": "Testing migration",
+    "urgency": "ACTIVE",
+    "subtasks": [
+      {
+        "_id": "6a6e1b5d0cefb8ecec54415a",
+        "title": "Complete Milestone 1",
+        "estimate": "Sprint 1 • 1.5h",
+        "priority": "High",
+        "deadlineDisplay": "Tomorrow",
+        "completed": false
+      },
+      {
+        "_id": "6a6e1b5d0cefb8ecec54415b",
+        "title": "Complete Milestone 2",
+        "estimate": "Sprint 1 • 1.5h",
+        "priority": "Medium",
+        "deadlineDisplay": "In 7 days",
+        "completed": false
+      },
+      {
+        "_id": "6a6e1b5d0cefb8ecec54415c",
+        "title": "Complete Milestone 3",
+        "estimate": "Sprint 1 • 1.5h",
+        "priority": "Low",
+        "deadlineDisplay": "Yesterday",
+        "completed": true
+      },
+      {
+        "_id": "6a6e1b5d0cefb8ecec54415d",
+        "title": "Complete Milestone 4",
+        "estimate": "Sprint 1 • 1.5h",
+        "priority": "High",
+        "deadlineDisplay": "Today",
+        "completed": false
+      }
+    ],
+    "createdAt": "2026-08-01T16:14:21.669Z",
+    "updatedAt": "2026-08-01T16:14:21.669Z"
+  },
+  {
+    "_id": "6a6e1dc268be51d8af743dd8",
+    "user": "6a4116cae7e68d22c8b530e2",
+    "title": "Ambiguous Milestone Test Goal",
+    "description": "Testing unknown format skipping",
+    "urgency": "ACTIVE",
+    "subtasks": [
+      {
+        "_id": "6a6e1dc268be51d8af743dd6",
+        "title": "Ambiguous Milestone 1",
+        "estimate": "Sprint 1 • 1.5h",
+        "priority": "High",
+        "deadlineDisplay": "Next Week",
+        "completed": false
+      },
+      {
+        "_id": "6a6e1dc268be51d8af743dd7",
+        "title": "Ambiguous Milestone 2",
+        "estimate": "Sprint 1 • 1.5h",
+        "priority": "High",
+        "deadlineDisplay": "ASAP",
+        "completed": false
+      }
+    ],
+    "createdAt": "2026-07-01T10:00:00.000Z",
+    "updatedAt": "2026-08-01T16:24:34.364Z"
+  }
+]

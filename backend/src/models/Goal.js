@@ -16,10 +16,6 @@ const subtaskSchema = new mongoose.Schema({
     enum: ['Low', 'Medium', 'High', 'URGENT'],
     default: 'Medium'
   },
-  deadlineDisplay: {
-    type: String,
-    default: 'Upcoming'
-  },
   completed: {
     type: Boolean,
     default: false
