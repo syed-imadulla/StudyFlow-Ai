@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## v2.1.1 (Phase 2.3.0.2 Completion)
+**Release Date**: July 31, 2026
+
+### Summary
+This release marks the completion of Phase 2.3.0.2 — Goal Lifecycle Engine. The goal lifecycle state is now dynamically computed from immutable facts, ensuring a single source of truth without persisting lifecycle status in the database.
+
+### Major Features
+- **Goal Lifecycle Engine**: Implemented `GoalLifecycleService` to compute lifecycle states (e.g., DUE_SOON, OVERDUE, COMPLETED_LATE) on the fly based on goal deadlines and completion timestamps.
+- **Immutable Persistence**: Added `completedAt` timestamp to track exactly when goals are completed. Refactored the architecture to avoid saving dynamic lifecycle states to MongoDB.
+
+### Architecture Improvements
+- **Separation of Workflow and Lifecycle**: The `status` field is now strictly for workflow state (ACTIVE, COMPLETED), while all intelligence (OVERDUE, DUE_TODAY) lives in the computed `lifecycle` response object.
+
+---
+
 ## v2.1.0 (Phase 2.2 Completion)
 **Release Date**: July 21, 2026
 

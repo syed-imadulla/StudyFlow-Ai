@@ -1,4 +1,4 @@
-export default {
+const config = {
   testEnvironment: 'node',
   transform: {},
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
@@ -12,3 +12,5 @@ export default {
     '**/tests/**/*.test.js'
   ]
 };
+
+module.exports = config;

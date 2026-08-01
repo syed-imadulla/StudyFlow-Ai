@@ -1,0 +1,62 @@
+{
+  "overdueGoal": {
+    "_id": "6a6dad855427262cfc1e514e",
+    "user": "6a40f3e1f867acf3923b12e5",
+    "title": "Overdue Goal Test",
+    "description": "",
+    "status": "ACTIVE",
+    "urgency": "ACTIVE",
+    "deadline": "2026-07-31",
+    "completed": false,
+    "completedAt": null,
+    "subtasks": [],
+    "createdAt": "2026-08-01T08:25:41.324Z",
+    "updatedAt": "2026-08-01T08:25:41.324Z",
+    "id": "6a6dad855427262cfc1e514e",
+    "finalDeadline": "2026-07-31",
+    "progress": 0,
+    "lifecycle": {
+      "status": "OVERDUE",
+      "hasDeadline": true,
+      "isCompleted": false,
+      "isCompletedLate": false,
+      "isDueSoon": false,
+      "isDueToday": false,
+      "isOverdue": true,
+      "daysRemaining": null,
+      "overdueDays": 1,
+      "completedEarlyBy": null,
+      "completedLateBy": null
+    }
+  },
+  "completedLateGoal": {
+    "_id": "6a6dad855427262cfc1e5151",
+    "user": "6a40f3e1f867acf3923b12e5",
+    "title": "Completed Late Goal Test",
+    "description": "",
+    "status": "COMPLETED",
+    "urgency": "ACTIVE",
+    "deadline": "2026-07-31",
+    "completed": true,
+    "completedAt": "2026-08-01T08:25:40.903Z",
+    "subtasks": [],
+    "createdAt": "2026-08-01T08:25:41.380Z",
+    "updatedAt": "2026-08-01T08:25:41.380Z",
+    "id": "6a6dad855427262cfc1e5151",
+    "finalDeadline": "2026-07-31",
+    "progress": 100,
+    "lifecycle": {
+      "status": "COMPLETED_LATE",
+      "hasDeadline": true,
+      "isCompleted": true,
+      "isCompletedLate": true,
+      "isDueSoon": false,
+      "isDueToday": false,
+      "isOverdue": false,
+      "daysRemaining": null,
+      "overdueDays": null,
+      "completedEarlyBy": null,
+      "completedLateBy": 1
+    }
+  }
+}

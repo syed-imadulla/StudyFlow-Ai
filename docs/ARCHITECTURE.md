@@ -126,7 +126,19 @@ When a user schedules a milestone:
 
 ---
 
-## 6. Frontend State Flow
+## 6. Lifecycle Engine (Derived Intelligence)
+
+StudyFlow enforces a strict separation between **persisted workflow state** and **computed lifecycle intelligence** ("Store facts, derive intelligence").
+
+- **Workflow State (`status`)**: Persisted in the database. Restricted to broad workflow phases (`ACTIVE`, `COMPLETED`, `ARCHIVED`).
+- **Computed Lifecycle**: Never persisted. Computed on the fly by the `GoalLifecycleService` immediately before an API response is sent.
+
+### Why compute instead of persist?
+If states like `DUE_SOON` or `OVERDUE` were saved to the database, a cron job would be required to constantly update them as time passes. By keeping the database purely for facts (`deadline`, `completedAt`), the system remains robust. The `lifecycle` object returned in the API powers the Workspace, Dashboard, Planner, and Analytics without duplicating time-based logic.
+
+---
+
+## 7. Frontend State Flow
 
 To ensure the UI remains instantly responsive across different views (Workspace, Dashboard, Planner), state flows in a strict loop:
 
@@ -235,9 +247,10 @@ StudyFlow-AI/
 ### Completed
 - **Phase 2.1**: Base architecture, core data models, user authentication.
 - **Phase 2.2**: Goal ↔ Planner Synchronization, API error standardization, structured logging, UI consistency.
+- **Phase 2.3.0.2**: Goal Lifecycle Engine (Computed intelligence based on immutable facts).
 
 ### Current
-- **Current Version**: `v2.1.0`
+- **Current Version**: `v2.1.1`
 - **Current Development Branch**: `planner-recovery`
 - **Architecture Status**: **Stable**
 

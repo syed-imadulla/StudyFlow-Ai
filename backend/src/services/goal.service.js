@@ -3,6 +3,7 @@ import { AppError } from '../utils/AppError.js';
 import { HTTP_STATUS, GOAL_STATUS, ERROR_CODES } from '../constants/index.js';
 import { logger } from '../utils/logger.js';
 import { PlannerService } from './planner.service.js';
+import { GoalLifecycleService } from './goalLifecycle.service.js';
 
 /**
  * Helper to compute dynamic progress from subtasks
@@ -13,6 +14,7 @@ const attachDynamicProgress = (goalDoc) => {
   const total = goal.subtasks?.length || 0;
   const done = goal.subtasks?.filter(s => s.completed).length || 0;
   goal.progress = total > 0 ? Math.round((done / total) * 100) : (goal.completed ? 100 : 0);
+  goal.lifecycle = GoalLifecycleService.calculate(goal);
   return goal;
 };
 
@@ -100,8 +102,10 @@ export class GoalService {
     if (data.completed === true || data.completed === 'true' || data.urgency === 'COMPLETED') {
       data.status = GOAL_STATUS.COMPLETED;
       data.completed = true;
+      data.completedAt = new Date();
     } else if (data.status === GOAL_STATUS.COMPLETED) {
       data.completed = true;
+      data.completedAt = new Date();
     }
 
     const goal = await Goal.create({
@@ -123,10 +127,13 @@ export class GoalService {
     if (data.completed === true || data.completed === 'true' || data.urgency === 'COMPLETED') {
       data.status = GOAL_STATUS.COMPLETED;
       data.completed = true;
+      if (!data.completedAt) data.completedAt = new Date();
     } else if (data.status === GOAL_STATUS.COMPLETED) {
       data.completed = true;
+      if (!data.completedAt) data.completedAt = new Date();
     } else if (data.completed === false || data.completed === 'false') {
       if (!data.status) data.status = GOAL_STATUS.ACTIVE;
+      data.completedAt = null;
     }
 
     const goal = await Goal.findOneAndUpdate(
@@ -190,6 +197,13 @@ export class GoalService {
     if (allCompleted) {
       goal.status = GOAL_STATUS.COMPLETED;
       goal.completed = true;
+      if (!goal.completedAt) goal.completedAt = new Date();
+    } else {
+      if (goal.completed) {
+         goal.status = GOAL_STATUS.ACTIVE;
+         goal.completed = false;
+         goal.completedAt = null;
+      }
     }
 
     await goal.save();
@@ -207,11 +221,16 @@ export class GoalService {
 
     // Delete existing and replace with new array while maintaining ownership
     await Goal.deleteMany({ user: userId });
-    const formatted = goalsArray.map(g => ({
-      ...g,
-      user: userId,
-      status: (g.completed || g.status === 'COMPLETED' || g.urgency === 'COMPLETED') ? GOAL_STATUS.COMPLETED : (g.status ? g.status.toUpperCase() : GOAL_STATUS.ACTIVE)
-    }));
+    const formatted = goalsArray.map(g => {
+      const isCompleted = (g.completed || g.status === 'COMPLETED' || g.urgency === 'COMPLETED');
+      return {
+        ...g,
+        user: userId,
+        status: isCompleted ? GOAL_STATUS.COMPLETED : (g.status ? g.status.toUpperCase() : GOAL_STATUS.ACTIVE),
+        completed: isCompleted,
+        completedAt: isCompleted ? (g.completedAt || new Date()) : null
+      };
+    });
 
     if (formatted.length > 0) {
       await Goal.insertMany(formatted);

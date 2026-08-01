@@ -181,7 +181,7 @@
       const done = goal.subtasks ? goal.subtasks.filter(s => s.completed).length : 0;
       const total = goal.subtasks ? goal.subtasks.length : 0;
       const progress = this.calculateGoalProgress(goal);
-      const isUrg = goal.urgency === 'URGENT' || (goal.urgency && goal.urgency.includes('High'));
+      const isUrg = goal.lifecycle?.isOverdue || goal.lifecycle?.status === 'DUE_TODAY';
 
       if (mode === 'compact') {
         const urgClass = isUrg ? 'bg-red-500/15 text-red-400 border border-red-500/30 font-bold' : 'bg-[#A855F7]/15 text-[#A855F7] border border-[#A855F7]/30 font-bold';
@@ -189,7 +189,7 @@
           <div role="button" tabindex="0" aria-label="Open Goal: ${goal.title}" onclick="window.location.href='idealab.html?goalId=${goal.id}'" onkeydown="if(event.key==='Enter'||event.key===' ')window.location.href='idealab.html?goalId=${goal.id}'" class="relative p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] hover:border-[#A855F7]/50 hover:shadow-lg transition-all duration-200 cursor-pointer space-y-2.5 group">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center space-x-2 min-w-0">
-                <span class="text-[10px] px-2 py-0.5 rounded shrink-0 ${urgClass}">${goal.urgency || 'ACTIVE'}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded shrink-0 ${urgClass}">${goal.lifecycle?.status || goal.urgency || 'ACTIVE'}</span>
                 <span class="text-[10px] font-mono text-[#FACC15] truncate">📅 ${goal.finalDeadlineDisplay || 'No deadline'}</span>
               </div>
               ${this.renderGoalActionMenu(goal.id)}
@@ -214,7 +214,7 @@
             <div class="space-y-2">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center space-x-2.5 min-w-0">
-                  <span class="px-2.5 py-1 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${urgClass}">${goal.urgency || 'ACTIVE'}</span>
+                  <span class="px-2.5 py-1 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${urgClass}">${goal.lifecycle?.status || goal.urgency || 'ACTIVE'}</span>
                   <span class="text-xs font-mono text-[#FACC15] font-semibold truncate">${goal.finalDeadlineDisplay || 'In 7 days'}</span>
                 </div>
                 ${this.renderGoalActionMenu(goal.id)}
@@ -249,7 +249,7 @@
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-2.5">
                     <h3 class="text-base font-bold text-[#FAFAFA] truncate">${goal.title}</h3>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${isUrg ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-[#A855F7]/20 text-[#A855F7] border border-[#A855F7]/40'}">${goal.urgency || 'ACTIVE'}</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${isUrg ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 'bg-[#A855F7]/20 text-[#A855F7] border border-[#A855F7]/40'}">${goal.lifecycle?.status || goal.urgency || 'ACTIVE'}</span>
                     <button onclick="window.location.href='idealab.html?goalId=${goal.id}'" class="px-3 py-1 rounded-lg bg-[#A855F7] text-white hover:bg-[#9333EA] transition text-[11px] font-bold flex items-center space-x-1.5 shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0" title="Restructure & Refine Main Goal in IdeaLab">
                       <svg class="w-3.5 h-3.5 inline shrink-0 fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                       <span>IdeaLab Architect</span>
