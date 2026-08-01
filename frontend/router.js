@@ -312,7 +312,7 @@ window.openSubtaskIdeaLab = function (goalId, subtaskId) {
       id: 'ideaLabBlueprintModal',
       title: sub.title,
       subtitle: 'IdeaLab Task Blueprint',
-      bodyHtml: `<p class="text-xs text-[#6B7280] -mt-2 mb-2">Goal: <strong class="text-[#A1A1AA]">${goal.title}</strong> • Deadline: <strong class="text-[#FACC15]">${sub.deadlineDisplay}</strong></p>` + bodyHtml,
+      bodyHtml: `<p class="text-xs text-[#6B7280] -mt-2 mb-2">Goal: <strong class="text-[#A1A1AA]">${goal.title}</strong> • Deadline: <strong class="text-[#FACC15]">${sub.deadlineInfo?.label || 'Assigned'}</strong></p>` + bodyHtml,
       footerHtml
     });
   } else {
@@ -543,19 +543,22 @@ window.openEditGoalModal = function (goalId) {
             <input id="editGoalDesc" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" />
           </div>
           <div class="relative sf-custom-select-container">
-            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Urgency</label>
+            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Priority / Urgency</label>
             <select id="editGoalUrgency" class="hidden">
-              <option value="URGENT">URGENT</option>
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="UPCOMING">UPCOMING</option>
+              <option value="High">High / Urgent</option>
+              <option value="Focus">Focus</option>
+              <option value="Review">Review</option>
+              <option value="Study">Study</option>
+              <option value="Medium">Medium</option>
             </select>
             <button type="button" onclick="document.getElementById('sf-menu-editGoalUrgency').classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
-              <span id="sf-display-editGoalUrgency" class="flex items-center gap-2 text-white">ACTIVE</span>
+              <span id="sf-display-editGoalUrgency" class="flex items-center gap-2 text-white">High / Urgent</span>
               <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
-            <div id="sf-menu-editGoalUrgency" class="hidden absolute left-0 right-0 bottom-full mb-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5 max-h-40 overflow-y-auto origin-bottom animate-scaleIn">
-              ${['URGENT', 'ACTIVE', 'UPCOMING'].map(t => {
-                return `<div onclick="document.getElementById('editGoalUrgency').value='${t}'; document.getElementById('sf-display-editGoalUrgency').innerText='${t}'; document.getElementById('sf-menu-editGoalUrgency').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">${t}</div>`;
+            <div id="sf-menu-editGoalUrgency" class="hidden absolute left-0 right-0 mt-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5 max-h-40 overflow-y-auto">
+              ${['High / Urgent', 'Focus', 'Review', 'Study', 'Medium'].map(t => {
+                const val = t.split(' / ')[0];
+                return `<div onclick="document.getElementById('editGoalUrgency').value='${val}'; document.getElementById('sf-display-editGoalUrgency').innerText='${t}'; document.getElementById('sf-menu-editGoalUrgency').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">${t}</div>`;
               }).join('')}
             </div>
           </div>
@@ -580,9 +583,11 @@ window.openEditGoalModal = function (goalId) {
   document.getElementById('editGoalIdHidden').value = goal.id;
   document.getElementById('editGoalTitle').value = goal.title || '';
   document.getElementById('editGoalDesc').value = goal.description || '';
+  const urgencyValue = goal.urgency === 'URGENT' ? 'High' : goal.urgency === 'UPCOMING' ? 'Medium' : 'Focus';
+  const urgencyDisplay = urgencyValue === 'High' ? 'High / Urgent' : urgencyValue;
   const eInput = document.getElementById('editGoalUrgency');
-  eInput.value = goal.urgency || 'ACTIVE';
-  document.getElementById('sf-display-editGoalUrgency').innerText = goal.urgency || 'ACTIVE';
+  eInput.value = urgencyValue;
+  document.getElementById('sf-display-editGoalUrgency').innerText = urgencyDisplay;
   document.getElementById('editGoalSubtasks').value = (goal.subtasks || []).map(s => s.title).join('\n');
   
   if (window.createDeadlineSelector) {
@@ -599,7 +604,8 @@ window.submitEditGoal = async function () {
   const goalId = document.getElementById('editGoalIdHidden').value;
   const title = document.getElementById('editGoalTitle').value.trim();
   const description = document.getElementById('editGoalDesc').value.trim();
-  const urgency = document.getElementById('editGoalUrgency').value;
+  const tag = document.getElementById('editGoalUrgency').value;
+  const urgency = tag === 'High' ? 'URGENT' : (tag === 'Medium' || tag === 'Review' ? 'UPCOMING' : 'ACTIVE');
   const subtasksText = document.getElementById('editGoalSubtasks').value;
 
   if (!title || !goalId) return;
@@ -623,7 +629,7 @@ window.submitEditGoal = async function () {
       completed: oldSub ? oldSub.completed : false,
       priority: oldSub?.priority || 'High',
       estimate: oldSub?.estimate || '2 Pomodoros',
-      deadlineDisplay: oldSub?.deadlineDisplay || 'Assigned'
+      deadline: oldSub?.deadline || null
     };
   });
 
