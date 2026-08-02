@@ -13,7 +13,7 @@
    * Throws an explicit error if critical environment tokens are invalid or missing.
    */
   const validateEnv = () => {
-    const required = ['PORT', 'NODE_ENV', 'MONGODB_URI'];
+    const required = ['PORT', 'NODE_ENV', 'MONGODB_URI', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
     const missing = required.filter(key => !process.env[key] && !getDefault(key));
 
     if (missing.length > 0) {
@@ -37,8 +37,6 @@
       PORT: '5000',
       NODE_ENV: 'development',
       MONGODB_URI: 'mongodb://localhost:27017/studyflow-ai',
-      JWT_ACCESS_SECRET: 'super_secret_dev_access_key_1234567890',
-      JWT_REFRESH_SECRET: 'super_secret_dev_refresh_key_0987654321',
       JWT_ACCESS_EXPIRES_IN: '15m',
       JWT_REFRESH_EXPIRES_IN: '7d'
     };
