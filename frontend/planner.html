@@ -2470,8 +2470,11 @@
           const completedCount = goals.reduce((sum, g) => sum + (g.subtasks || []).filter(s => s.completed).length, 0);
           const totalCount = goals.reduce((sum, g) => sum + (g.subtasks || []).length, 0);
           if (milestones.length === 1) {
-            const diffTime = milestones[0].dueObj.getTime() - (new Date().setHours(0,0,0,0));
-            const isToday = Math.ceil(diffTime / 86400000) === 0;
+            const m = milestones[0];
+            const isToday = m.deadlineInfo 
+              ? (m.deadlineInfo.type === 'TODAY') 
+              : (Math.ceil((m.dueObj.getTime() - new Date().setHours(0,0,0,0)) / 86400000) === 0);
+              
             subtitleEl.textContent = isToday ? '1 milestone due today' : '1 milestone due soon';
           } else {
             subtitleEl.textContent = `${milestones.length} upcoming milestones • ${completedCount}/${totalCount} done`;
