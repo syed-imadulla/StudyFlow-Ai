@@ -2511,7 +2511,7 @@
         const diffTime = block.dueObj.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        let displayStr = block.deadlineInfo?.label || getDeadlineRelativeLabel(block.dueDate);
+        let displayStr = block.deadlineInfo?.label ?? getDeadlineRelativeLabel(block.dueDate);
         
         let labelColor = 'text-[#6B7280]';
         let accentLine = 'bg-[#6B7280]';
@@ -2539,14 +2539,6 @@
              // neutral
              labelColor = 'text-[#6B7280]';
              accentLine = 'bg-[#6B7280]';
-          }
-          
-          if (block.deadlineInfo.type === 'OVERDUE') {
-            displayStr = `Overdue by ${block.deadlineInfo.overdueDays} day${block.deadlineInfo.overdueDays>1?'s':''}`;
-          } else if (block.deadlineInfo.type === 'TODAY') {
-            displayStr = `Today • Due today`;
-          } else if (block.deadlineInfo.type === 'TOMORROW') {
-            displayStr = `Tomorrow • 1 day left`;
           }
         } else {
           // Fallback legacy calculation if no deadlineInfo
