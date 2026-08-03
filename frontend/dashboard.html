@@ -396,7 +396,7 @@
       const ringText = document.getElementById('heroRingText');
       const ringCircle = document.getElementById('heroRingCircle');
 
-      const calcP = topGoal.progressSummary?.completionPercentage ?? 0;
+      const calcP = Math.round(topGoal.progressSummary?.completionPercentage ?? 0);
       if (hTitle) hTitle.textContent = topGoal.title;
       if (hDesc) hDesc.textContent = topGoal.description || 'AI active project plan.';
       if (hProgText) hProgText.textContent = `${calcP}%`;

@@ -186,7 +186,7 @@
             rawStatus: input.status,
             health: input.goalHealth ? { label: input.goalHealth.status.replace('_', ' '), color: 'success' } : { label: 'Healthy', color: 'success' },
             progress: {
-              percentage: input.progressSummary?.completionPercentage ?? 0,
+              percentage: Math.round(input.progressSummary?.completionPercentage ?? 0),
               label: `${input.progressSummary?.completedMilestones ?? 0}/${input.progressSummary?.totalMilestones ?? 0} Completed`
             },
             deadline: {
