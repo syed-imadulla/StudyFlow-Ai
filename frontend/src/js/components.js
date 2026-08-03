@@ -191,8 +191,8 @@
             },
             deadline: {
               type: input.deadlineInfo?.type ?? fallbackStatus,
-              label: input.deadlineInfo?.label ?? input.finalDeadlineDisplay ?? 'No deadline',
-              shortLabel: input.deadlineInfo?.shortLabel ?? input.finalDeadlineDisplay ?? 'No deadline',
+              label: input.deadlineInfo?.label ?? 'No deadline',
+              shortLabel: input.deadlineInfo?.shortLabel ?? 'No deadline',
               isUrgent: (input.deadlineInfo?.urgencyLevel >= 2) || fallbackStatus === 'OVERDUE' || fallbackStatus === 'DUE_TODAY'
             },
             subtasks: input.subtasks || []
