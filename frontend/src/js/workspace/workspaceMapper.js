@@ -13,7 +13,7 @@ window.WorkspaceMapper = {
     if (!goal) return null;
 
     // Use safe fallbacks for backward compatibility
-    const fallbackDeadline = goal.finalDeadlineDisplay || 'No deadline';
+    const fallbackDeadline = 'No deadline';
     const fallbackStatus = goal.urgency || 'ACTIVE';
     
     // Subtasks mapping

@@ -192,7 +192,7 @@ window.SF_STORE = (function () {
         id: activeSub?.id || activeSub?._id || 'sub-1',
         title: activeSub?.title || activeSub?.text || topGoal.title,
         goalTitle: topGoal.title,
-        milestone: topGoal.deadlineInfo?.label ?? topGoal.finalDeadlineDisplay ?? 'Active Sprint',
+        milestone: topGoal.deadlineInfo?.label ?? 'Active Sprint',
         urgency: topGoal.lifecycle?.status ?? topGoal.urgency ?? 'ACTIVE',
         goalId: topGoal.id,
         checklist: (topGoal.subtasks || []).map(s => ({

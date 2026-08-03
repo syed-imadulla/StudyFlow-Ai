@@ -603,7 +603,7 @@ window.openEditGoalModal = function (goalId) {
     if (!window.editDeadlineSelector) {
       window.editDeadlineSelector = window.createDeadlineSelector(document.getElementById('modalEditDeadlineContainer'));
     }
-    window.editDeadlineSelector.setValue(goal.deadline || goal.finalDeadlineDisplay || goal.finalDeadline || null);
+    window.editDeadlineSelector.setValue(goal.deadline || goal.deadlineInfo?.label || goal.finalDeadline || null);
   }
 
   modalEl.style.display = 'flex';
