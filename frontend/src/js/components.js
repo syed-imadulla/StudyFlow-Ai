@@ -157,19 +157,8 @@
     /**
      * Canonical Goal Progress Helper
      */
-    /**
-     * Canonical Goal Progress Helper (DEPRECATED - Use WorkspaceCardModel.progress)
-     */
-    legacyCalculateGoalProgress(goal) {
-      if (!goal || !Array.isArray(goal.subtasks) || goal.subtasks.length === 0) {
-        return 0;
-      }
-      const completedCount = goal.subtasks.filter(s => s.completed).length;
-      return Math.round((completedCount / goal.subtasks.length) * 100);
-    },
-
     calculateGoalProgress(goal) {
-      return goal?.progressSummary?.completionPercentage ?? this.legacyCalculateGoalProgress(goal);
+      return goal?.progressSummary?.completionPercentage ?? 0;
     },
 
     /**
@@ -200,8 +189,8 @@
             rawStatus: input.status,
             health: input.goalHealth ? { label: input.goalHealth.status.replace('_', ' '), color: 'success' } : { label: 'Healthy', color: 'success' },
             progress: {
-              percentage: input.progressSummary?.completionPercentage ?? this.legacyCalculateGoalProgress(input),
-              label: `${input.progressSummary?.completedMilestones ?? (input.subtasks || []).filter(s => s.completed).length}/${input.progressSummary?.totalMilestones ?? (input.subtasks || []).length} Completed`
+              percentage: input.progressSummary?.completionPercentage ?? 0,
+              label: `${input.progressSummary?.completedMilestones ?? 0}/${input.progressSummary?.totalMilestones ?? 0} Completed`
             },
             deadline: {
               type: input.deadlineInfo?.type ?? fallbackStatus,

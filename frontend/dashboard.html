@@ -396,7 +396,8 @@
       const ringText = document.getElementById('heroRingText');
       const ringCircle = document.getElementById('heroRingCircle');
 
-      const calcP = topGoal.progressSummary?.completionPercentage ?? (window.calculateGoalProgress ? window.calculateGoalProgress(topGoal) : (topGoal.progress || 0));
+      // Get calc from Intelligence Layer
+      const calcP = topGoal.progressSummary?.completionPercentage ?? 0;
       if (hTitle) hTitle.textContent = topGoal.title;
       if (hDesc) hDesc.textContent = topGoal.description || 'AI active project plan.';
       if (hProgText) hProgText.textContent = `${calcP}%`;
@@ -419,8 +420,8 @@
           hUrgency.className = 'text-[#FAFAFA] font-medium';
         }
       }
-      const doneSubs = topGoal.progressSummary?.completedMilestones ?? topGoal.subtasks.filter(s => s.completed).length;
-      const totalSubs = topGoal.progressSummary?.totalMilestones ?? topGoal.subtasks.length;
+      const doneSubs = topGoal.progressSummary?.completedMilestones ?? 0;
+      const totalSubs = topGoal.progressSummary?.totalMilestones ?? 0;
       if (hSubCount) hSubCount.textContent = `${doneSubs} / ${totalSubs} Subtasks`;
       if (aiCoachText) aiCoachText.innerHTML = `You have <strong>${totalSubs - doneSubs} remaining subtasks</strong> for <em>${topGoal.title}</em>. Complete one today! ✨`;
 
