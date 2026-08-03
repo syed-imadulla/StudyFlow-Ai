@@ -13,6 +13,15 @@
 window.StudyFlowDB = {
   init() {
     // Seeding and loading are handled cleanly by SF_STORE.bootstrap() or explicit service calls.
+    // Early cache invalidation if store hasn't initialized yet
+    try {
+      const CURRENT_VERSION = '2';
+      const version = localStorage.getItem('studyflow_store_version');
+      if (version !== CURRENT_VERSION) {
+        localStorage.removeItem('studyflow_goals');
+        localStorage.setItem('studyflow_store_version', CURRENT_VERSION);
+      }
+    } catch (e) {}
   },
 
   getGoals() {

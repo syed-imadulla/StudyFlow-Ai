@@ -844,7 +844,22 @@ window.SF_STORE = (function () {
     }
   }
 
+  function _checkCacheVersion() {
+    try {
+      const CURRENT_VERSION = '2';
+      const version = localStorage.getItem('studyflow_store_version');
+      if (version !== CURRENT_VERSION) {
+        localStorage.removeItem('studyflow_goals');
+        localStorage.setItem('studyflow_store_version', CURRENT_VERSION);
+        console.log('[SF_STORE] Cache version mismatch. Cleared legacy goal cache.');
+      }
+    } catch (e) {
+      console.warn('[SF_STORE] Could not check cache version:', e);
+    }
+  }
+
   // ─── Self-Init ──────────────────────────────────────────────────────────────
+  _checkCacheVersion();
   _restoreSessionLog();
 
   // Expose public interface
