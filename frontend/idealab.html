@@ -433,6 +433,21 @@
               title: goalData.title || "DBMS Mini Project Architecture",
               description: goalData.why || "Structured via IdeaLab 7-Step AI Architect.",
               finalDeadlineDisplay: goalData.deadline || "In 10 days",
+              progressSummary: {
+                totalMilestones: subtasks.length,
+                completedMilestones: 0,
+                completionPercentage: 0
+              },
+              deadlineInfo: {
+                type: 'UPCOMING',
+                label: goalData.deadline || "In 10 days",
+                shortLabel: '10d',
+                color: 'neutral',
+                urgencyLevel: 1,
+                sortPriority: 70
+              },
+              lifecycle: { status: 'ACTIVE' },
+              goalHealth: 'ON_TRACK',
               subtasks
             }
           });
@@ -451,7 +466,22 @@
         urgency: "URGENT",
         description: goalData.why || "Structured via IdeaLab 7-Step AI Architect.",
         finalDeadlineDaysStr: goalData.deadline || "10 days",
-        rawDump: goalData.braindump || "- Phase 1 Research & Architecture\n- Phase 2 Core Implementation\n- Phase 3 Final Review & Polish"
+        rawDump: goalData.braindump || "- Phase 1 Research & Architecture\n- Phase 2 Core Implementation\n- Phase 3 Final Review & Polish",
+        progressSummary: {
+          totalMilestones: 3,
+          completedMilestones: 0,
+          completionPercentage: 0
+        },
+        deadlineInfo: {
+          type: 'UPCOMING',
+          label: goalData.deadline || "In 10 days",
+          shortLabel: '10d',
+          color: 'neutral',
+          urgencyLevel: 1,
+          sortPriority: 70
+        },
+        lifecycle: { status: 'ACTIVE' },
+        goalHealth: 'ON_TRACK'
       });
 
       window.location.href = 'workspace.html';
