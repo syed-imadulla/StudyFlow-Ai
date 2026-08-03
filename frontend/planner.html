@@ -2406,7 +2406,8 @@
       // Extract all active subtasks that have a valid dueDate
       let milestones = [];
       goals.forEach(goal => {
-        if (goal.archived || goal.deleted || goal.status === 'archived' || goal.status === 'deleted') return;
+        const currentStatus = goal.lifecycle?.status ?? goal.status;
+        if (goal.archived || goal.deleted || currentStatus === 'archived' || currentStatus === 'deleted' || currentStatus === 'ARCHIVED') return;
         
         if (goal.subtasks && Array.isArray(goal.subtasks)) {
           const totalSubtasks = goal.subtasks.length;
