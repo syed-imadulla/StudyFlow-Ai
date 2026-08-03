@@ -154,9 +154,6 @@
       `;
     },
 
-    /**
-     * Canonical Goal Progress Helper
-     */
     calculateGoalProgress(goal) {
       return goal?.progressSummary?.completionPercentage ?? 0;
     },
