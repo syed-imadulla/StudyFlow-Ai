@@ -409,7 +409,11 @@
       if (hUrgency) {
         const u = topGoal.lifecycle?.status ?? topGoal.urgency ?? 'ACTIVE';
         hUrgency.textContent = u;
-        if (u === 'URGENT' || u.includes('High') || u.includes('Urgent')) {
+        const isUrgent = topGoal.deadlineInfo?.urgencyLevel !== undefined
+          ? topGoal.deadlineInfo.urgencyLevel >= 2
+          : (u === 'URGENT' || u.includes('High') || u.includes('Urgent'));
+
+        if (isUrgent) {
           hUrgency.className = 'text-red-400 font-bold';
         } else {
           hUrgency.className = 'text-[#FAFAFA] font-medium';
