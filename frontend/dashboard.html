@@ -396,7 +396,7 @@
       const ringText = document.getElementById('heroRingText');
       const ringCircle = document.getElementById('heroRingCircle');
 
-      const calcP = window.calculateGoalProgress ? window.calculateGoalProgress(topGoal) : (topGoal.progress || 0);
+      const calcP = topGoal.progressSummary?.completionPercentage ?? (window.calculateGoalProgress ? window.calculateGoalProgress(topGoal) : (topGoal.progress || 0));
       if (hTitle) hTitle.textContent = topGoal.title;
       if (hDesc) hDesc.textContent = topGoal.description || 'AI active project plan.';
       if (hProgText) hProgText.textContent = `${calcP}%`;
@@ -415,9 +415,10 @@
           hUrgency.className = 'text-[#FAFAFA] font-medium';
         }
       }
-      const doneSubs = topGoal.subtasks.filter(s => s.completed).length;
-      if (hSubCount) hSubCount.textContent = `${doneSubs} / ${topGoal.subtasks.length} Subtasks`;
-      if (aiCoachText) aiCoachText.innerHTML = `You have <strong>${topGoal.subtasks.length - doneSubs} remaining subtasks</strong> for <em>${topGoal.title}</em>. Complete one today! ✨`;
+      const doneSubs = topGoal.progressSummary?.completedMilestones ?? topGoal.subtasks.filter(s => s.completed).length;
+      const totalSubs = topGoal.progressSummary?.totalMilestones ?? topGoal.subtasks.length;
+      if (hSubCount) hSubCount.textContent = `${doneSubs} / ${totalSubs} Subtasks`;
+      if (aiCoachText) aiCoachText.innerHTML = `You have <strong>${totalSubs - doneSubs} remaining subtasks</strong> for <em>${topGoal.title}</em>. Complete one today! ✨`;
 
       if (btn1) btn1.onclick = () => window.location.href = `idealab.html?goalId=${topGoal.id}`;
       if (btn2) btn2.onclick = () => window.location.href = `idealab.html?goalId=${topGoal.id}`;
