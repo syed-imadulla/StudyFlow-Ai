@@ -858,6 +858,32 @@ window.SF_STORE = (function () {
     }
   }
 
+  function _maybeRefreshGoals() {
+    const goalsSlice = _state.goals;
+    
+    // Store Initialization & Concurrency Guards
+    if (!goalsSlice || !goalsSlice.lastSync || goalsSlice.loading) return;
+
+    const STALE_MS = 15 * 60 * 1000; // 15 minutes
+    const isStale = (Date.now() - goalsSlice.lastSync) > STALE_MS;
+    
+    // Robust Calendar Day Comparison
+    const lastDate = new Date(goalsSlice.lastSync).toDateString();
+    const nowDate = new Date().toDateString();
+    const dayChanged = lastDate !== nowDate;
+
+    if (isStale || dayChanged) {
+      console.log('[SF_STORE] Waking up with stale data. Refreshing intelligence...');
+      dispatch('goals/LOAD');
+    }
+  }
+
+  // ─── Background Refresh Listeners ──────────────────────────────────────────
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') _maybeRefreshGoals();
+  });
+  window.addEventListener('focus', _maybeRefreshGoals);
+
   // ─── Self-Init ──────────────────────────────────────────────────────────────
   _checkCacheVersion();
   _restoreSessionLog();
