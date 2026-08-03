@@ -160,12 +160,16 @@
     /**
      * Canonical Goal Progress Helper (DEPRECATED - Use WorkspaceCardModel.progress)
      */
-    calculateGoalProgress(goal) {
+    legacyCalculateGoalProgress(goal) {
       if (!goal || !Array.isArray(goal.subtasks) || goal.subtasks.length === 0) {
         return 0;
       }
       const completedCount = goal.subtasks.filter(s => s.completed).length;
       return Math.round((completedCount / goal.subtasks.length) * 100);
+    },
+
+    calculateGoalProgress(goal) {
+      return goal?.progressSummary?.completionPercentage ?? this.legacyCalculateGoalProgress(goal);
     },
 
     /**
@@ -188,27 +192,22 @@
           model = window.WorkspaceMapper.toCardModel(input);
         } else {
           // Minimal inline fallback for pages without WorkspaceMapper (e.g. Dashboard)
-          const fallbackStatus = input.lifecycle?.status || input.urgency || 'ACTIVE';
+          const fallbackStatus = input.lifecycle?.status ?? input.urgency ?? 'ACTIVE';
           model = {
             id: input.id || input._id,
             title: input.title || 'Untitled',
             description: input.description || '',
             rawStatus: input.status,
             health: input.goalHealth ? { label: input.goalHealth.status.replace('_', ' '), color: 'success' } : { label: 'Healthy', color: 'success' },
-            progress: input.progressSummary ? {
-              percentage: input.progressSummary.completionPercentage !== undefined ? Math.round(input.progressSummary.completionPercentage) : 0,
-              label: `${input.progressSummary.completedMilestones || 0}/${input.progressSummary.totalMilestones || 0} Completed`
-            } : { percentage: 0, label: '0/0' },
-            deadline: input.deadlineInfo ? {
-              type: input.deadlineInfo.type,
-              label: input.deadlineInfo.label,
-              shortLabel: input.deadlineInfo.shortLabel,
-              isUrgent: input.deadlineInfo.urgencyLevel >= 2
-            } : {
-              type: fallbackStatus,
-              label: input.finalDeadlineDisplay || 'No deadline',
-              shortLabel: input.finalDeadlineDisplay || 'No deadline',
-              isUrgent: fallbackStatus === 'OVERDUE' || fallbackStatus === 'DUE_TODAY'
+            progress: {
+              percentage: input.progressSummary?.completionPercentage ?? this.legacyCalculateGoalProgress(input),
+              label: `${input.progressSummary?.completedMilestones ?? (input.subtasks || []).filter(s => s.completed).length}/${input.progressSummary?.totalMilestones ?? (input.subtasks || []).length} Completed`
+            },
+            deadline: {
+              type: input.deadlineInfo?.type ?? fallbackStatus,
+              label: input.deadlineInfo?.label ?? input.finalDeadlineDisplay ?? 'No deadline',
+              shortLabel: input.deadlineInfo?.shortLabel ?? input.finalDeadlineDisplay ?? 'No deadline',
+              isUrgent: (input.deadlineInfo?.urgencyLevel >= 2) || fallbackStatus === 'OVERDUE' || fallbackStatus === 'DUE_TODAY'
             },
             subtasks: input.subtasks || []
           };
