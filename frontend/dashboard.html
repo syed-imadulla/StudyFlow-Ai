@@ -407,7 +407,7 @@
       }
       if (hDeadline) hDeadline.textContent = topGoal.deadlineInfo?.label ?? topGoal.finalDeadlineDisplay;
       if (hUrgency) {
-        const u = topGoal.lifecycle?.status || topGoal.urgency || 'ACTIVE';
+        const u = topGoal.lifecycle?.status ?? topGoal.urgency ?? 'ACTIVE';
         hUrgency.textContent = u;
         if (u === 'URGENT' || u.includes('High') || u.includes('Urgent')) {
           hUrgency.className = 'text-red-400 font-bold';
