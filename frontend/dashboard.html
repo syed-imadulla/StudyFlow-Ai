@@ -405,7 +405,7 @@
       if (ringCircle) {
         ringCircle.style.strokeDashoffset = `${263.89 - (263.89 * calcP / 100)}`;
       }
-      if (hDeadline) hDeadline.textContent = topGoal.finalDeadlineDisplay;
+      if (hDeadline) hDeadline.textContent = topGoal.deadlineInfo?.label ?? topGoal.finalDeadlineDisplay;
       if (hUrgency) {
         const u = topGoal.lifecycle?.status || topGoal.urgency || 'ACTIVE';
         hUrgency.textContent = u;
