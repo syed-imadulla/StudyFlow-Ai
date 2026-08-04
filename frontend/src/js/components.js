@@ -376,6 +376,20 @@
         }
       }
 
+      const getIconSvg = (iconName) => {
+        switch (iconName) {
+          case 'alert': return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`;
+          case 'clock': return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>`;
+          case 'check': return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+          case 'check-circle': return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`;
+          default: return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>`;
+        }
+      };
+
+      const hasDeadline = sub.deadline && sub.deadline.type !== 'NO_DEADLINE';
+      const urgencyBadgeColor = sub.deadline.badge || 'neutral';
+      const urgencyBadgeHtml = hasDeadline ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-${urgencyBadgeColor}-500/10 border border-${urgencyBadgeColor}-500/30 text-${urgencyBadgeColor}-400 flex items-center space-x-1 shrink-0 whitespace-nowrap">${getIconSvg(sub.deadline.icon)}<span>${sub.deadline.shortLabel}</span></span>` : '';
+
       if (mode === 'dashboard') {
         return `
           <div class="flex items-center justify-between p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] hover:border-[#343434] transition group gap-4">
@@ -385,14 +399,13 @@
                 <h4 class="text-xs font-semibold text-[#FAFAFA] ${sub.completed ? 'line-through text-[#6B7280]' : 'group-hover:text-[#A855F7]'} transition truncate">${sub.title}</h4>
                 <p class="text-[10px] text-[#6B7280] font-mono mt-0.5 truncate flex items-center gap-1.5">
                   <span>${sub._raw?.goalTitle || 'Task'}</span>
-                  <span>•</span>
-                  <span class="text-${sub.deadline.color}-400">${sub.deadline.shortLabel}</span>
                 </p>
               </div>
             </div>
-            <div class="flex items-center space-x-3 shrink-0">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}">${sub.priority}</span>
-              <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-300">
+            <div class="flex items-center space-x-2 shrink-0">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor} shrink-0">${sub.priority}</span>
+              ${urgencyBadgeHtml}
+              <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-300 ml-1">
                 <button onclick="${actionPrefix}openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                 </button>
@@ -422,14 +435,13 @@
                 </h4>
                 <p class="text-[10px] text-[#6B7280] font-mono mt-0.5 truncate flex items-center gap-1.5">
                   <span>${sub._raw?.estimate || 'Task'}</span>
-                  <span>•</span>
-                  <span class="text-${sub.deadline.color}-400">${sub.deadline.shortLabel}</span>
                 </p>
               </div>
             </div>
-            <div class="flex items-center space-x-3 shrink-0">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor}">${sub.priority}</span>
-              <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-300">
+            <div class="flex items-center space-x-2 shrink-0">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor} shrink-0">${sub.priority}</span>
+              ${urgencyBadgeHtml}
+              <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-300 ml-1">
                 <button onclick="${actionPrefix}openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                 </button>

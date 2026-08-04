@@ -17,7 +17,19 @@ window.WorkspaceMapper = {
     
     // Subtasks mapping
     const rawSubtasks = Array.isArray(goal.subtasks) ? goal.subtasks : [];
-    const subtasks = rawSubtasks.map(sub => this.toSubtaskModel(sub, goal.id));
+    const subtasks = rawSubtasks.map(sub => this.toSubtaskModel(sub, goal.id)).sort((a, b) => {
+      // Completed goals to the bottom
+      if (a.completed && !b.completed) return 1;
+      if (!a.completed && b.completed) return -1;
+      
+      // Sort by urgency priority (higher is more urgent)
+      if (a.deadline.sortPriority !== b.deadline.sortPriority) {
+        return b.deadline.sortPriority - a.deadline.sortPriority;
+      }
+      
+      // Tie-breaker: closest timestamp
+      return a.deadline.timestamp - b.deadline.timestamp;
+    });
     
     // Determine blocking milestone if any
     const blockingSubtask = rawSubtasks.find(s => s.isBlocking);
@@ -91,6 +103,8 @@ window.WorkspaceMapper = {
   toSubtaskModel(sub, goalId) {
     if (!sub) return null;
     
+    const timestamp = sub.deadline ? new Date(sub.deadline).getTime() : Infinity;
+    
     return {
       id: sub.id || sub._id,
       goalId: goalId,
@@ -99,14 +113,19 @@ window.WorkspaceMapper = {
       priority: sub.priority || 'Medium',
       isBlocking: !!sub.isBlocking,
       
-      // Fallback handling
-      priorityColor: sub.priority === 'High' ? 'danger' : sub.priority === 'Medium' ? 'warning' : 'success',
+      // Legacy fallback handling for priority
+      priorityColor: sub.priority === 'High' ? 'danger' : sub.priority === 'Medium' ? 'warning' : sub.priority === 'URGENT' ? 'danger' : 'success',
       
       deadline: {
         type: sub.deadlineInfo?.type,
         label: sub.deadlineInfo?.label,
         shortLabel: sub.deadlineInfo?.shortLabel,
-        color: sub.deadlineInfo?.color
+        color: sub.deadlineInfo?.color,
+        badge: sub.deadlineInfo?.badge,
+        icon: sub.deadlineInfo?.icon,
+        sortPriority: sub.deadlineInfo?.sortPriority || 0,
+        urgencyLevel: sub.deadlineInfo?.urgencyLevel || 0,
+        timestamp: timestamp
       },
       
       lifecycle: sub.lifecycle || { status: 'ACTIVE' },

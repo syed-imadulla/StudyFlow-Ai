@@ -2382,7 +2382,7 @@
         return;
       }
 
-      const goals = goalsState.items;
+        const goals = goalsState.items;
       
       // Extract all active subtasks that have a valid dueDate
       let milestones = [];
@@ -2431,15 +2431,15 @@
         }
       });
       
-      const priorityMap = { 'URGENT': 0, 'HIGH': 1, 'MEDIUM': 2, 'LOW': 3 };
+       
       milestones.sort((a, b) => {
+        const priorityA = a.deadlineInfo?.sortPriority || 0;
+        const priorityB = b.deadlineInfo?.sortPriority || 0;
+        if (priorityA !== priorityB) {
+          return priorityB - priorityA;
+        }
         const timeDiff = a.dueObj.getTime() - b.dueObj.getTime();
         if (timeDiff !== 0) return timeDiff;
-        
-        const prioA = priorityMap[(a.priority || 'MEDIUM').toUpperCase()] || 2;
-        const prioB = priorityMap[(b.priority || 'MEDIUM').toUpperCase()] || 2;
-        if (prioA !== prioB) return prioA - prioB;
-        
         return a.originalIndex - b.originalIndex;
       });
 
@@ -2498,24 +2498,24 @@
         let labelColor = 'text-[#6B7280]';
         let accentLine = 'bg-[#6B7280]';
         
-        if (block.deadlineInfo) {
+                if (block.deadlineInfo) {
           const c = block.deadlineInfo.color;
-          if (c === 'error') {
+          if (c === 'danger') {
             labelColor = 'text-red-500';
             accentLine = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]';
           } else if (c === 'warning') {
-            if (block.deadlineInfo.type === 'TODAY') {
-              labelColor = 'text-[#f97316]'; // orange
-              accentLine = 'bg-[#f97316] shadow-[0_0_8px_rgba(249,115,22,0.5)]';
-            } else {
-              labelColor = 'text-[#facc15]'; // yellow
-              accentLine = 'bg-[#facc15] shadow-[0_0_8px_rgba(250,204,21,0.5)]';
-            }
-          } else if (c === 'info') {
-            labelColor = 'text-[#A855F7]'; // purple
+            labelColor = 'text-[#facc15]';
+            accentLine = 'bg-[#facc15] shadow-[0_0_8px_rgba(250,204,21,0.5)]';
+          } else if (c === 'orange') {
+            labelColor = 'text-[#f97316]';
+            accentLine = 'bg-[#f97316] shadow-[0_0_8px_rgba(249,115,22,0.5)]';
+          } else if (c === 'purple') {
+            labelColor = 'text-[#A855F7]';
             accentLine = 'bg-[#A855F7] shadow-[0_0_8px_rgba(168,85,247,0.5)]';
+          } else if (c === 'success') {
+            labelColor = 'text-green-500';
+            accentLine = 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]';
           } else {
-             // neutral
              labelColor = 'text-[#6B7280]';
              accentLine = 'bg-[#6B7280]';
           }
