@@ -73,6 +73,16 @@ window.goalsService = (function () {
     return window.SF_HTTP.request('/goals', data);
   }
 
+  async function getRecommendedGoal() {
+    // Mock: sort local seed by hand using deadlineInfo.sortPriority if available
+    if (window.SF_CONFIG?.USE_MOCK_API) {
+      const goals = _readLS() || [];
+      const active = goals.filter(g => !g.completed && g.urgency !== 'COMPLETED');
+      return { goal: active[0] || null };
+    }
+    return window.SF_HTTP.request('/goals/recommended', null);
+  }
+
   async function createGoal(payload) {
     await _ensureSeed();
     const goals = _readLS() || [];
@@ -220,5 +230,5 @@ window.goalsService = (function () {
     });
   }
 
-  return { getGoals, createGoal, createGoalWithSubtasks, updateGoal, toggleSubtask, deleteGoal, saveGoals };
+  return { getGoals, getRecommendedGoal, createGoal, createGoalWithSubtasks, updateGoal, toggleSubtask, deleteGoal, saveGoals };
 })();

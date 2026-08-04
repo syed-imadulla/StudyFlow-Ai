@@ -105,6 +105,13 @@ window.SF_STORE = (function () {
       lastSync: null
     },
 
+    recommended: {
+      goal:     null,   // The backend-recommended goal for the Hero Card
+      loading:  false,
+      error:    null,
+      lastSync: null
+    },
+
     idealab: {
       activeGoalId:    null,   // currently viewed goal in IdeaLab
       activeGoal:      null,   // full goal object
@@ -283,6 +290,22 @@ window.SF_STORE = (function () {
       } catch (e) {
         _patch('goals', { loading: false, error: e.message });
         console.error('[SF_STORE] goals/LOAD failed:', e);
+      }
+    },
+
+    async 'goals/LOAD_RECOMMENDED'() {
+      _patch('recommended', { loading: true, error: null });
+      try {
+        const data = await window.goalsService.getRecommendedGoal();
+        // Backend returns { goal, reason, strategy, strategyVersion }
+        // data.goal is the recommended goal; data.reason is a human-readable explanation
+        const goal = data?.goal ?? null;
+        const reason = data?.reason ?? null;
+        const strategy = data?.strategy ?? null;
+        _patch('recommended', { goal, reason, strategy, loading: false, lastSync: Date.now() });
+      } catch (e) {
+        _patch('recommended', { loading: false, error: e.message });
+        console.error('[SF_STORE] goals/LOAD_RECOMMENDED failed:', e);
       }
     },
 

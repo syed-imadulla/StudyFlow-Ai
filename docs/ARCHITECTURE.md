@@ -250,9 +250,11 @@ StudyFlow-AI/
 - **Phase 2.3.0.2**: Goal Lifecycle Engine (Computed intelligence based on immutable facts).
 - **Phase 2.3.0.3**: Deadline Intelligence (Decoupled formatting logic).
 - **Phase 2.3.0.4**: Milestone Lifecycle Engine (Shared LifecycleEngine and GoalProgressService).
+- **Phase 2.3.0.5**: Workspace Integration.
+- **Phase 2.3.0.6**: Dashboard Intelligence & Goal Recommendation Service (Reusable Backend Infrastructure).
 
 ### Current
-- **Current Version**: `v2.1.1`
+- **Current Version**: `v2.3.0.6`
 - **Current Development Branch**: `planner-recovery`
 - **Architecture Status**: **Stable**
 
@@ -262,7 +264,6 @@ StudyFlow-AI/
 
 *Phase 2.3 and beyond will focus on:*
 - **Focus Mode**: Integration of the Pomodoro timer with scheduled planner blocks.
-- **Dashboard Intelligence**: AI-driven prioritization of daily tasks.
 - **Planner UX**: Drag-and-drop rescheduling and recurring events.
 - **Goal Progress**: Enhanced visualization of milestone completion over time.
 - **AI Productivity**: Integrating IdeaLab workflows with real LLM processing.

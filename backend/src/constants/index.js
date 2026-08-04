@@ -68,4 +68,14 @@ export const GOAL_STATUS = {
   COMPLETED: 'COMPLETED'
 };
 
+export const DEADLINE_SORT_PRIORITY = {
+  OVERDUE: 100,
+  TODAY: 90,
+  TOMORROW: 70,
+  UPCOMING: 50,
+  COMPLETED: 20,
+  COMPLETED_LATE: 10,
+  NO_DEADLINE: 0
+};
+
 export * from './errorCodes.js';

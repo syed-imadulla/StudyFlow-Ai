@@ -1,12 +1,17 @@
 # Roadmap
 
 ## Phase 2
-- [ ] Goal CRUD
-- [ ] Milestone CRUD
-- [ ] Schedule Milestone
-- [ ] Update Planner Block
-- [ ] Delete Planner Block
-- [ ] Completion Sync
+- [x] Goal CRUD
+- [x] Milestone CRUD
+- [x] Schedule Milestone
+- [x] Update Planner Block
+- [x] Delete Planner Block
+- [x] Completion Sync
+- [x] Goal Lifecycle Engine
+- [x] Deadline Intelligence
+- [x] Milestone Lifecycle Engine
+- [x] Workspace Integration
+- [x] Dashboard Intelligence & Goal Recommendation Service (Reusable Backend Infrastructure)
 
 ## Phase 3
 - [ ] Focus

@@ -17,6 +17,8 @@
   <script src="src/js/services/plannerService.js"></script>
   <script src="src/js/store.js"></script>
   <script src="src/js/components.js"></script>
+  <script src="src/js/workspace/workspaceMapper.js"></script>
+  <script src="src/js/dashboard/dashboardRenderer.js"></script>
   <script src="router.js"></script>
   <script>
     if (window.SF_CONFIG && !window.SF_CONFIG.USE_MOCK_API) {
@@ -358,138 +360,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     // ── Render helpers (unchanged UI logic) ──────────────────────────────────
-    function renderDashboardTasks() {
-      const goalsSlice = window.SF_STORE.getSlice('goals');
-      const goals = goalsSlice.items || [];
-      const tasksContainer = document.getElementById('dashTasksList');
-      const mainGoalsContainer = document.getElementById('dashMainGoalsList');
-
-      if (goals.length === 0) {
-        if (mainGoalsContainer) {
-          mainGoalsContainer.innerHTML = window.SF_COMPONENTS.renderEmptyState({
-            title: 'No Active Goals',
-            message: 'Create your first AI Goal Breakdown to start tracking your study productivity.',
-            actionHtml: '<button onclick="window.openAddItemModal(\'dashMainGoalsList\')" class="btn btn-primary px-4 py-2 text-xs font-bold shadow-[0_0_15px_rgba(168,85,247,0.3)]">Create Goal →</button>'
-          });
-        }
-        if (tasksContainer) {
-          tasksContainer.innerHTML = window.SF_COMPONENTS.renderEmptyState({
-            title: 'No Tasks Assigned',
-            message: 'You have no immediate subtasks assigned for today.',
-            iconHtml: '✨'
-          });
-        }
-        return;
-      }
-      function _getRecommendedHeroGoal(goalList) {
-        const activeGoals = goalList.filter(g => !g.lifecycle?.isCompleted);
-        if (activeGoals.length === 0) return null;
-        
-        return activeGoals.sort((a, b) => {
-          const priorityA = a.deadlineInfo?.sortPriority ?? 0;
-          const priorityB = b.deadlineInfo?.sortPriority ?? 0;
-          if (priorityA !== priorityB) {
-            return priorityB - priorityA; // Descending priority (higher is more critical)
-          }
-          
-          const timeA = a.deadlineInfo?.timestamp ?? Infinity;
-          const timeB = b.deadlineInfo?.timestamp ?? Infinity;
-          if (timeA !== timeB) {
-            return timeA - timeB; // Ascending time (sooner is more critical)
-          }
-          
-          const healthA = a.goalHealth?.score ?? 100;
-          const healthB = b.goalHealth?.score ?? 100;
-          if (healthA !== healthB) {
-            return healthA - healthB; // Ascending health (lower is more critical)
-          }
-          
-          const idA = String(a.id || a._id || '');
-          const idB = String(b.id || b._id || '');
-          return idA.localeCompare(idB);
-        })[0];
-      }
-
-      const topGoal = _getRecommendedHeroGoal(goals) || goals[0];
-      const hTitle = document.getElementById('heroGoalTitle');
-      const hDesc = document.getElementById('heroGoalDesc');
-      const hProgText = document.getElementById('heroGoalProgressText');
-      const hProgBar = document.getElementById('heroGoalProgressBar');
-      const hDeadline = document.getElementById('heroGoalDeadline');
-      const hSubCount = document.getElementById('heroGoalSubCount');
-      const hUrgency = document.getElementById('heroGoalUrgency');
-      const aiCoachText = document.getElementById('aiCoachText');
-      const btn1 = document.getElementById('heroIdeaLabBtn');
-      const btn2 = document.getElementById('heroIdeaLabBtnSecondary');
-      const ringText = document.getElementById('heroRingText');
-      const ringCircle = document.getElementById('heroRingCircle');
-
-      const rawP = topGoal.progressSummary?.completionPercentage ?? 0;
-      const calcP = Math.round(rawP * 100) / 100;
-      if (hTitle) hTitle.textContent = topGoal.title;
-      if (hDesc) hDesc.textContent = topGoal.description || 'AI active project plan.';
-      if (hProgText) hProgText.textContent = `${calcP}%`;
-      if (hProgBar) hProgBar.style.width = `${calcP}%`;
-      if (ringText) ringText.textContent = `${calcP}%`;
-      if (ringCircle) {
-        ringCircle.style.strokeDashoffset = `${263.89 - (263.89 * calcP / 100)}`;
-      }
-      if (hDeadline) hDeadline.textContent = topGoal.deadlineInfo?.label ?? 'No deadline';
-      if (hUrgency) {
-        const u = topGoal.lifecycle?.status ?? topGoal.urgency ?? 'ACTIVE';
-        hUrgency.textContent = u;
-        const isUrgent = (topGoal.deadlineInfo?.urgencyLevel ?? 0) >= 2;
-
-        if (isUrgent) {
-          hUrgency.className = 'text-red-400 font-bold';
-        } else {
-          hUrgency.className = 'text-[#FAFAFA] font-medium';
-        }
-      }
-      const doneSubs = topGoal.progressSummary?.completedMilestones ?? 0;
-      const totalSubs = topGoal.progressSummary?.totalMilestones ?? 0;
-      const remainingSubs = topGoal.progressSummary?.remainingMilestones ?? 0;
-      if (hSubCount) hSubCount.textContent = `${doneSubs} / ${totalSubs} Subtasks`;
-      if (aiCoachText) aiCoachText.innerHTML = `You have <strong>${remainingSubs} remaining subtasks</strong> for <em>${topGoal.title}</em>. Complete one today! ✨`;
-
-      if (btn1) btn1.onclick = () => window.location.href = `idealab.html?goalId=${topGoal.id}`;
-      if (btn2) btn2.onclick = () => window.location.href = `idealab.html?goalId=${topGoal.id}`;
-
-      if (mainGoalsContainer) {
-        mainGoalsContainer.innerHTML = goals.slice(0, 4).map(g => window.SF_COMPONENTS.renderGoalCard(g, 'compact')).join('');
-      }
-
-      if (tasksContainer) {
-        let allSubtasks = [];
-        goals.forEach(g => {
-          (g.subtasks || []).forEach(s => {
-            const subCopy = { ...s, goalTitle: g.title, goalId: g.id };
-            console.log("Dashboard checking subtask:", subCopy.title, "completed:", subCopy.completed, "deadline:", subCopy.deadline, "lifecycle:", subCopy.lifecycle, "deadlineInfo:", subCopy.deadlineInfo);
-            if (!subCopy.completed && subCopy.lifecycle && subCopy.deadlineInfo) {
-              const isToday = subCopy.lifecycle.isDueToday;
-              const isOverdue = subCopy.lifecycle.isOverdue;
-              const isDueSoon = subCopy.lifecycle.isDueSoon;
-              
-              if (isToday || isOverdue || isDueSoon) {
-                allSubtasks.push(subCopy);
-              }
-            }
-          });
-        });
-        allSubtasks = allSubtasks.slice(0, 4);
-
-        if (allSubtasks.length === 0) {
-          tasksContainer.innerHTML = window.SF_COMPONENTS.renderEmptyState({
-            title: 'All Caught Up!',
-            message: 'No subtasks scheduled for today or overdue. Excellent progress!',
-            iconHtml: '🎉'
-          });
-        } else {
-          tasksContainer.innerHTML = allSubtasks.map(sub => window.SF_COMPONENTS.renderTaskCard(sub, { mode: 'dashboard' })).join('');
-        }
-      }
-    }
-
     document.addEventListener('DOMContentLoaded', async () => {
       if (window.SF_CONFIG && !window.SF_CONFIG.USE_MOCK_API) {
         if (!window.authService || !window.authService.isAuthenticated()) {
@@ -498,13 +368,9 @@
         }
       }
 
-      const mainGoalsContainer = document.getElementById('dashMainGoalsList');
-      const tasksContainer = document.getElementById('dashTasksList');
-      if (mainGoalsContainer && window.SF_COMPONENTS) mainGoalsContainer.innerHTML = window.SF_COMPONENTS.renderSkeleton('compact', 3);
-      if (tasksContainer && window.SF_COMPONENTS) tasksContainer.innerHTML = window.SF_COMPONENTS.renderSkeleton('row', 3);
-
-      // Subscribe to goals slice – re-renders whenever goals change
-      window.SF_STORE.subscribe('goals', () => renderDashboardTasks());
+      if (window.DashboardRenderer) {
+        await window.DashboardRenderer.init();
+      }
 
       // Bootstrap the store – loads goals slice which reactively notifies subscribers
       await window.SF_STORE.bootstrap(['user', 'goals']);

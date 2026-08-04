@@ -12,6 +12,15 @@ export class GoalController {
     });
   });
 
+  static getRecommendedGoal = catchAsync(async (req, res) => {
+    const recommendation = await GoalService.getRecommendedGoal(req.user._id);
+    res.status(HTTP_STATUS.OK).json({
+      status: 'success',
+      statusCode: HTTP_STATUS.OK,
+      data: recommendation  // { goal, reason, strategy, strategyVersion }
+    });
+  });
+
   static getGoalById = catchAsync(async (req, res) => {
     const goal = await GoalService.getGoalById(req.user._id, req.params.id);
     res.status(HTTP_STATUS.OK).json({

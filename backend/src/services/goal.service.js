@@ -7,6 +7,7 @@ import { GoalLifecycleService } from './goalLifecycle.service.js';
 import { MilestoneLifecycleService } from './milestoneLifecycle.service.js';
 import { GoalProgressService } from './goalProgress.service.js';
 import { DeadlineIntelligenceService } from './deadlineIntelligence.service.js';
+import { GoalRecommendationService } from './goalRecommendation.service.js';
 
 /**
  * Helper to compute dynamic progress from subtasks
@@ -95,6 +96,25 @@ export class GoalService {
 
     const goals = await Goal.find(filter).sort(sort).skip(skip).limit(limit);
     return goals.map(attachDynamicProgress);
+  }
+
+  /**
+   * Returns the recommended active goal for the current user.
+   *
+   * Delegates to GoalRecommendationService which owns the selection algorithm.
+   * Enriches each goal DTO once via getGoals(), then passes the collection
+   * to the recommendation service — no duplicate DTO generation or progress
+   * recalculation occurs.
+   *
+   * Returns an enriched object: { goal, reason, strategy, strategyVersion }
+   * so the API response is self-describing and future-proof.
+   *
+   * @param {string} userId
+   * @returns {Promise<{ goal: Object|null, reason: string|null, strategy: string }>}
+   */
+  static async getRecommendedGoal(userId) {
+    const allGoals = await GoalService.getGoals(userId);
+    return GoalRecommendationService.selectRecommendation(allGoals);
   }
 
   /**

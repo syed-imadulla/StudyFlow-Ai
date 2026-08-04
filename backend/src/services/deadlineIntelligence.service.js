@@ -17,6 +17,8 @@ const TYPES = {
   COMPLETED_LATE: "COMPLETED_LATE"
 };
 
+import { DEADLINE_SORT_PRIORITY } from '../constants/index.js';
+
 /**
  * Deadline Intelligence Engine
  * Converts lifecycle information into human-readable deadline information.
@@ -39,7 +41,8 @@ export class DeadlineIntelligenceService {
         badge: "neutral",
         icon: "calendar",
         urgencyLevel: 0,
-        sortPriority: 0,
+        urgencyLevel: 0,
+        sortPriority: DEADLINE_SORT_PRIORITY.NO_DEADLINE,
         daysRemaining: null,
         overdueDays: null,
         completedEarlyBy: null,
@@ -55,14 +58,14 @@ export class DeadlineIntelligenceService {
     let badge = 'neutral';
     let icon = 'calendar';
     let urgencyLevel = 1;
-    let sortPriority = 50;
+    let sortPriority = DEADLINE_SORT_PRIORITY.UPCOMING;
 
     if (lifecycle.status === 'COMPLETED') {
       color = 'success';
       badge = 'success';
       icon = 'check';
       urgencyLevel = 0;
-      sortPriority = 20;
+      sortPriority = DEADLINE_SORT_PRIORITY.COMPLETED;
 
       if (lifecycle.completedEarlyBy === 0) {
         type = TYPES.COMPLETED_TODAY;
@@ -81,7 +84,7 @@ export class DeadlineIntelligenceService {
       badge = 'info';
       icon = 'check-circle';
       urgencyLevel = 0;
-      sortPriority = 10;
+      sortPriority = DEADLINE_SORT_PRIORITY.COMPLETED_LATE;
       label = `Completed ${lifecycle.completedLateBy} day${lifecycle.completedLateBy === 1 ? '' : 's'} late`;
       shortLabel = `${lifecycle.completedLateBy}d late`;
       description = `Completed late by ${lifecycle.completedLateBy} day${lifecycle.completedLateBy === 1 ? '' : 's'}`;
@@ -91,7 +94,7 @@ export class DeadlineIntelligenceService {
       badge = 'danger';
       icon = 'alert';
       urgencyLevel = 4;
-      sortPriority = 100;
+      sortPriority = DEADLINE_SORT_PRIORITY.OVERDUE;
       if (lifecycle.overdueDays === 1) {
         label = LABELS.YESTERDAY;
         shortLabel = LABELS.YESTERDAY;
@@ -107,7 +110,7 @@ export class DeadlineIntelligenceService {
       badge = 'warning';
       icon = 'alert';
       urgencyLevel = 3;
-      sortPriority = 90;
+      sortPriority = DEADLINE_SORT_PRIORITY.TODAY;
       label = LABELS.TODAY;
       shortLabel = LABELS.TODAY;
       description = "Due today";
@@ -116,7 +119,7 @@ export class DeadlineIntelligenceService {
       badge = 'warning';
       icon = 'clock';
       urgencyLevel = 2;
-      sortPriority = 70;
+      sortPriority = DEADLINE_SORT_PRIORITY.TOMORROW;
       if (lifecycle.daysRemaining === 1) {
         type = TYPES.TOMORROW;
         label = LABELS.TOMORROW;
@@ -135,7 +138,7 @@ export class DeadlineIntelligenceService {
       badge = 'neutral';
       icon = 'calendar';
       urgencyLevel = 1;
-      sortPriority = 50;
+      sortPriority = DEADLINE_SORT_PRIORITY.UPCOMING;
       const days = lifecycle.daysRemaining;
       
       if (days % 7 === 0) {

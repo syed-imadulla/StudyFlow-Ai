@@ -12,6 +12,10 @@ router.route('/')
   .post(validateCreateGoal, GoalController.createGoal)
   .put(GoalController.bulkSaveGoals);
 
+// IMPORTANT: /recommended must be registered before /:id
+// Otherwise Express will interpret 'recommended' as a goal ID parameter.
+router.get('/recommended', GoalController.getRecommendedGoal);
+
 router.route('/:id')
   .get(validateUpdateGoal, GoalController.getGoalById)
   .patch(validateUpdateGoal, GoalController.updateGoal)
