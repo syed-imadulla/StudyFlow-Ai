@@ -12,9 +12,8 @@ window.WorkspaceMapper = {
   toCardModel(goal) {
     if (!goal) return null;
 
-    // Use safe fallbacks for backward compatibility
-    const fallbackDeadline = 'No deadline';
-    const fallbackStatus = goal.urgency || 'ACTIVE';
+    // Parse canonical deadline for sorting
+    const timestamp = goal.deadline ? new Date(goal.deadline).getTime() : Infinity;
     
     // Subtasks mapping
     const rawSubtasks = Array.isArray(goal.subtasks) ? goal.subtasks : [];
@@ -32,7 +31,6 @@ window.WorkspaceMapper = {
       title: goal.title || 'Untitled Goal',
       description: goal.description || 'AI Goal Blueprint',
       
-      // Fallback for older goals without lifecycle
       rawStatus: goal.status,
       
       // Health mapping
@@ -49,55 +47,34 @@ window.WorkspaceMapper = {
       },
       
       // Progress mapping
-      progress: goal.progressSummary ? {
-        percentage: goal.progressSummary.completionPercentage !== undefined ? Math.round(goal.progressSummary.completionPercentage) : 0,
-        completed: goal.progressSummary.completedMilestones || 0,
-        total: goal.progressSummary.totalMilestones || 0,
-        remaining: goal.progressSummary.remainingMilestones || 0,
-        label: `${goal.progressSummary.completedMilestones || 0} / ${goal.progressSummary.totalMilestones || 0} Completed`
-      } : {
-        // Fallback progress calculation ONLY if backend doesn't provide it
-        percentage: rawSubtasks.length > 0 ? Math.round((rawSubtasks.filter(s => s.completed).length / rawSubtasks.length) * 100) : 0,
-        completed: rawSubtasks.filter(s => s.completed).length,
-        total: rawSubtasks.length,
-        remaining: rawSubtasks.filter(s => !s.completed).length,
-        label: `${rawSubtasks.filter(s => s.completed).length} / ${rawSubtasks.length} Completed`
+      progress: {
+        percentage: goal.progressSummary?.completionPercentage !== undefined ? Math.round(goal.progressSummary.completionPercentage * 100) / 100 : 0,
+        completed: goal.progressSummary?.completedMilestones || 0,
+        total: goal.progressSummary?.totalMilestones || 0,
+        remaining: goal.progressSummary?.remainingMilestones || 0,
+        label: `${goal.progressSummary?.completedMilestones || 0} / ${goal.progressSummary?.totalMilestones || 0} Completed`
       },
       
       // Deadline Intelligence mapping
-      deadline: goal.deadlineInfo ? {
-        type: goal.deadlineInfo.type,
-        label: goal.deadlineInfo.label,
-        shortLabel: goal.deadlineInfo.shortLabel,
-        color: goal.deadlineInfo.color,
-        badge: goal.deadlineInfo.badge,
-        icon: goal.deadlineInfo.icon,
-        sortPriority: goal.deadlineInfo.sortPriority || 0,
-        isUrgent: goal.deadlineInfo.urgencyLevel >= 2
-      } : {
-        type: fallbackStatus,
-        label: fallbackDeadline,
-        shortLabel: fallbackDeadline,
-        color: fallbackStatus === 'OVERDUE' ? 'danger' : 'neutral',
-        badge: fallbackStatus === 'OVERDUE' ? 'danger' : 'neutral',
-        icon: 'calendar',
-        sortPriority: 0,
-        isUrgent: fallbackStatus === 'OVERDUE' || fallbackStatus === 'DUE_TODAY'
+      deadline: {
+        type: goal.deadlineInfo?.type,
+        label: goal.deadlineInfo?.label,
+        shortLabel: goal.deadlineInfo?.shortLabel,
+        color: goal.deadlineInfo?.color,
+        badge: goal.deadlineInfo?.badge,
+        icon: goal.deadlineInfo?.icon,
+        sortPriority: goal.deadlineInfo?.sortPriority || 0,
+        timestamp: timestamp,
+        isUrgent: goal.deadlineInfo?.urgencyLevel >= 2
       },
       
       // Lifecycle mapping (for filtering)
-      lifecycle: goal.lifecycle ? {
-        status: goal.lifecycle.status,
-        isOverdue: goal.lifecycle.isOverdue,
-        isDueToday: goal.lifecycle.isDueToday,
-        isDueSoon: goal.lifecycle.isDueSoon,
-        isCompleted: goal.lifecycle.isCompleted
-      } : {
-        status: fallbackStatus,
-        isOverdue: fallbackStatus === 'OVERDUE',
-        isDueToday: fallbackStatus === 'DUE_TODAY',
-        isDueSoon: false,
-        isCompleted: goal.status === 'COMPLETED' || goal.completed
+      lifecycle: {
+        status: goal.lifecycle?.status,
+        isOverdue: goal.lifecycle?.isOverdue,
+        isDueToday: goal.lifecycle?.isDueToday,
+        isDueSoon: goal.lifecycle?.isDueSoon,
+        isCompleted: goal.lifecycle?.isCompleted
       },
       
       blockingMilestone,
@@ -125,16 +102,11 @@ window.WorkspaceMapper = {
       // Fallback handling
       priorityColor: sub.priority === 'High' ? 'danger' : sub.priority === 'Medium' ? 'warning' : 'success',
       
-      deadline: sub.deadlineInfo ? {
-        type: sub.deadlineInfo.type,
-        label: sub.deadlineInfo.label,
-        shortLabel: sub.deadlineInfo.shortLabel,
-        color: sub.deadlineInfo.color
-      } : {
-        type: 'UNKNOWN',
-        label: sub.deadlineInfo?.label || 'No deadline',
-        shortLabel: sub.deadlineInfo?.shortLabel || 'No deadline',
-        color: 'neutral'
+      deadline: {
+        type: sub.deadlineInfo?.type,
+        label: sub.deadlineInfo?.label,
+        shortLabel: sub.deadlineInfo?.shortLabel,
+        color: sub.deadlineInfo?.color
       },
       
       lifecycle: sub.lifecycle || { status: 'ACTIVE' },

@@ -173,27 +173,29 @@
     renderGoalCard(input, mode = 'compact') {
       // Auto-map raw goals to ViewModels to preserve backward compatibility
       let model = input;
-      if (!model.deadline || !model.progress) {
+      if (!model.deadline || !model.progress || typeof model.deadline !== 'object' || typeof model.progress !== 'object') {
         if (window.WorkspaceMapper) {
           model = window.WorkspaceMapper.toCardModel(input);
         } else {
           // Minimal inline fallback for pages without WorkspaceMapper (e.g. Dashboard)
-          const fallbackStatus = input.lifecycle?.status ?? input.urgency ?? 'ACTIVE';
+          const timestamp = input.deadline ? new Date(input.deadline).getTime() : Infinity;
+          
           model = {
             id: input.id || input._id,
             title: input.title || 'Untitled',
             description: input.description || '',
-            rawStatus: input.status,
             health: input.goalHealth ? { label: input.goalHealth.status.replace('_', ' '), color: 'success' } : { label: 'Healthy', color: 'success' },
             progress: {
-              percentage: Math.round(input.progressSummary?.completionPercentage ?? 0),
+              percentage: input.progressSummary?.completionPercentage !== undefined ? Math.round(input.progressSummary.completionPercentage * 100) / 100 : 0,
               label: `${input.progressSummary?.completedMilestones ?? 0}/${input.progressSummary?.totalMilestones ?? 0} Completed`
             },
             deadline: {
-              type: input.deadlineInfo?.type ?? fallbackStatus,
+              type: input.deadlineInfo?.type,
               label: input.deadlineInfo?.label ?? 'No deadline',
               shortLabel: input.deadlineInfo?.shortLabel ?? 'No deadline',
-              isUrgent: (input.deadlineInfo?.urgencyLevel >= 2) || fallbackStatus === 'OVERDUE' || fallbackStatus === 'DUE_TODAY'
+              timestamp: timestamp,
+              sortPriority: input.deadlineInfo?.sortPriority || 0,
+              isUrgent: (input.deadlineInfo?.urgencyLevel ?? 0) >= 2
             },
             subtasks: input.subtasks || []
           };
@@ -208,7 +210,7 @@
           <div role="button" tabindex="0" aria-label="Open Goal: ${model.title}" onclick="window.WorkspaceActions ? window.WorkspaceActions.openGoal('${model.id}') : window.location.href='idealab.html?goalId=${model.id}'" onkeydown="if(event.key==='Enter'||event.key===' ')(window.WorkspaceActions ? window.WorkspaceActions.openGoal('${model.id}') : window.location.href='idealab.html?goalId=${model.id}')" class="relative p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] hover:border-[#A855F7]/50 hover:shadow-lg transition-all duration-200 cursor-pointer space-y-2.5 group">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center space-x-2 min-w-0">
-                <span class="text-[10px] px-2 py-0.5 rounded shrink-0 ${urgClass}">${model.deadline.type || model.rawStatus || 'ACTIVE'}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded shrink-0 ${urgClass}">${model.deadline?.type || 'ACTIVE'}</span>
                 <span class="text-[10px] font-mono text-[#FACC15] truncate">📅 ${model.deadline.shortLabel || model.deadline.label}</span>
               </div>
               ${this.renderGoalActionMenu(model.id)}
@@ -233,7 +235,7 @@
             <div class="space-y-2">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center space-x-2.5 min-w-0">
-                  <span class="px-2.5 py-1 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${urgClass}">${model.deadline.type || model.rawStatus || 'ACTIVE'}</span>
+                  <span class="px-2.5 py-1 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${urgClass}">${model.deadline?.type || 'ACTIVE'}</span>
                   <span class="text-xs font-mono text-[#FACC15] font-semibold truncate">${model.deadline.shortLabel || model.deadline.label}</span>
                 </div>
                 ${this.renderGoalActionMenu(model.id)}
@@ -277,7 +279,7 @@
                 <div class="min-w-0 flex-1">
                   <div class="flex flex-wrap items-center gap-2.5">
                     <h3 class="text-base font-bold text-[#FAFAFA] truncate">${model.title}</h3>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${urgClass}">${model.deadline.type || model.rawStatus || 'ACTIVE'}</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 ${urgClass}">${model.deadline?.type || 'ACTIVE'}</span>
                     ${healthBadge}
                     <button onclick="window.WorkspaceActions ? window.WorkspaceActions.openGoal('${model.id}') : window.location.href='idealab.html?goalId=${model.id}'" class="px-3 py-1 rounded-lg bg-[#A855F7] text-white hover:bg-[#9333EA] transition text-[11px] font-bold flex items-center space-x-1.5 shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0" title="Restructure & Refine Main Goal in IdeaLab">
                       <svg class="w-3.5 h-3.5 inline shrink-0 fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
@@ -340,7 +342,7 @@
             completed: !!input.completed,
             priority: input.priority || 'Medium',
             priorityColor: input.priority === 'High' ? 'danger' : input.priority === 'Medium' ? 'warning' : 'success',
-            deadline: input.deadlineInfo ? { shortLabel: input.deadlineInfo.shortLabel, color: input.deadlineInfo.color } : { shortLabel: input.deadlineInfo?.shortLabel || 'Assigned', color: 'neutral' },
+            deadline: { shortLabel: input.deadlineInfo?.shortLabel || 'Assigned', color: input.deadlineInfo?.color || 'neutral' },
             _raw: input
           };
         }

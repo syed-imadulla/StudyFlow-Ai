@@ -62,12 +62,12 @@ window.StudyFlowDB = {
     return null;
   },
 
-  createGoalWithSubtasks(title, urgency, description, finalDeadlineDaysStr, rawDump) {
+  createGoalWithSubtasks(title, description, finalDeadlineDaysStr, rawDump) {
     if (window.SF_STORE) {
-      return window.SF_STORE.dispatch('goals/CREATE_WITH_SUBTASKS', { title, urgency, description, finalDeadlineDaysStr, rawDump });
+      return window.SF_STORE.dispatch('goals/CREATE_WITH_SUBTASKS', { title, description, finalDeadlineDaysStr, rawDump });
     }
     if (window.goalsService) {
-      return window.goalsService.createGoalWithSubtasks(title, urgency, description, finalDeadlineDaysStr, rawDump);
+      return window.goalsService.createGoalWithSubtasks(title, description, finalDeadlineDaysStr, rawDump);
     }
     return Promise.resolve(null);
   }
@@ -449,12 +449,10 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
 
     if (!isTimeBlock) {
       modalEl.style.display = 'none';
-      const urgency = tag === 'High' ? 'URGENT' : tag === 'Medium' || tag === 'Review' ? 'UPCOMING' : 'ACTIVE';
       try {
         if (autoBreakdown) {
           await window.SF_STORE.dispatch('goals/CREATE_WITH_SUBTASKS', {
             title,
-            urgency,
             description: 'Created via AI Goal Breakdown Modal',
             deadline: deadlinePayload,
             rawDump: braindump
@@ -465,7 +463,6 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
         } else {
           await window.SF_STORE.dispatch('goals/CREATE', {
             title,
-            urgency,
             description: 'Created via Add Item Modal',
             deadline: deadlinePayload
           });

@@ -7,11 +7,7 @@ export const SEED_GOALS = [
   {
     id: 'goal-1',
     title: 'DBMS Mini Project',
-    urgency: 'URGENT',
     description: 'Complete end-to-end database schema design and frontend integration.',
-    finalDeadline: '2026-07-01',
-    finalDeadlineDisplay: 'In 4 days',
-    progress: 50,
     progressSummary: {
       totalMilestones: 4,
       completedMilestones: 2,
@@ -39,11 +35,7 @@ export const SEED_GOALS = [
   {
     id: 'goal-2',
     title: 'OS Lab Assessment',
-    urgency: 'UPCOMING',
     description: 'Prepare CPU scheduling algorithms simulation in C++.',
-    finalDeadline: '2026-07-05',
-    finalDeadlineDisplay: 'In 8 days',
-    progress: 33,
     progressSummary: {
       totalMilestones: 3,
       completedMilestones: 1,

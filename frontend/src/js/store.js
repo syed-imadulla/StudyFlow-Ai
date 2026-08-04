@@ -299,10 +299,10 @@ window.SF_STORE = (function () {
     },
 
     async 'goals/CREATE_WITH_SUBTASKS'(payload) {
-      const { title, urgency, description, deadline, rawDump } = payload;
+      const { title, description, deadline, rawDump } = payload;
       try {
         const newGoal = await window.goalsService.createGoalWithSubtasks(
-          title, urgency, description, deadline, rawDump
+          title, description, deadline, rawDump
         );
         const items = [newGoal, ..._state.goals.items];
         _patch('goals', { items, lastSync: Date.now() });

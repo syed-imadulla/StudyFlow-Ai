@@ -53,10 +53,10 @@ window.WorkspaceRenderer = {
       case 'BLOCKING':
         return models.filter(m => m.subtasks.some(s => s.isBlocking));
       case 'COMPLETED':
-        return models.filter(m => m.lifecycle.isCompleted || m.rawStatus === 'COMPLETED');
+        return models.filter(m => m.lifecycle.isCompleted);
       case 'ALL':
       default:
-        return models.filter(m => !m.lifecycle.isCompleted && m.rawStatus !== 'COMPLETED');
+        return models.filter(m => !m.lifecycle.isCompleted);
     }
   },
   
@@ -73,8 +73,11 @@ window.WorkspaceRenderer = {
     return [...models].sort((a, b) => {
       switch (sortType) {
         case 'PRIORITY':
-        case 'DEADLINE':
-          return (b.deadline.sortPriority || 0) - (a.deadline.sortPriority || 0);
+        case 'DEADLINE': {
+          const priorityDiff = (b.deadline.sortPriority || 0) - (a.deadline.sortPriority || 0);
+          if (priorityDiff !== 0) return priorityDiff;
+          return (a.deadline.timestamp || Infinity) - (b.deadline.timestamp || Infinity);
+        }
         case 'HEALTH':
           return (a.health.score || 0) - (b.health.score || 0); // Lowest health first
         case 'PROGRESS':

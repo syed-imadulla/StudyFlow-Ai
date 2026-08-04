@@ -66,13 +66,6 @@ const goalSchema = new mongoose.Schema(
       enum: Object.values(GOAL_STATUS),
       default: GOAL_STATUS.ACTIVE
     },
-    // DEPRECATED: Urgency is being phased out in favor of computed GoalLifecycleService intelligence.
-    // Kept for backward compatibility. Do not build new features on this field.
-    urgency: {
-      type: String,
-      enum: ['URGENT', 'UPCOMING', 'ACTIVE', 'COMPLETED'],
-      default: 'ACTIVE'
-    },
     deadline: {
       type: String, // Stored as YYYY-MM-DD or ISO string for frontend compatibility
       required: false
@@ -97,7 +90,6 @@ const goalSchema = new mongoose.Schema(
       virtuals: true,
       transform: function (doc, ret) {
         ret.id = ret._id.toString();
-        ret.finalDeadline = ret.deadline;
         ret.completed = ret.status === GOAL_STATUS.COMPLETED || ret.completed === true || ret.urgency === 'COMPLETED';
         delete ret.__v;
         return ret;

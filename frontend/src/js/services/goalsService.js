@@ -36,16 +36,6 @@ window.goalsService = (function () {
     }
   }
 
-  function _recalcProgress(goal) {
-    if (window.calculateGoalProgress) {
-      goal.progress = window.calculateGoalProgress(goal);
-    } else {
-      const total = goal?.subtasks?.length || 0;
-      const done = goal?.subtasks?.filter(s => s.completed)?.length || 0;
-      goal.progress = total > 0 ? Math.round((done / total) * 100) : 0;
-    }
-    return goal;
-  }
 
   function processDeadlineLocal(data) {
     if (data.deadline && typeof data.deadline === 'object') {
@@ -90,7 +80,6 @@ window.goalsService = (function () {
 
     const newGoal = {
       id: 'goal-' + Date.now(),
-      urgency: 'ACTIVE',
       progress: 0,
       subtasks: [],
       ...processedPayload
@@ -109,7 +98,7 @@ window.goalsService = (function () {
    * Create a goal with auto-generated subtasks from a braindump string.
    * Mirrors the previous StudyFlowDB.createGoalWithSubtasks() API exactly.
    */
-  async function createGoalWithSubtasks(title, urgency, description, deadlinePayload, rawDump) {
+  async function createGoalWithSubtasks(title, description, deadlinePayload, rawDump) {
     let totalDays = 7;
     if (deadlinePayload?.mode === 'DURATION') {
       totalDays = deadlinePayload.value || 7;
@@ -154,7 +143,6 @@ window.goalsService = (function () {
 
     const payload = {
       title: title || 'New AI Academic Goal',
-      urgency: urgency || 'ACTIVE',
       description: description || 'AI generated study plan with spaced backward deadline assignment.',
       deadline: deadlinePayload,
       rawDump // Send to backend for actual generation
@@ -179,7 +167,6 @@ window.goalsService = (function () {
     const newCompleted = completedStatus !== undefined ? completedStatus : (sub ? !sub.completed : true);
     if (window.SF_CONFIG?.USE_MOCK_API && goal && sub) {
       sub.completed = newCompleted;
-      _recalcProgress(goal);
       const lsIndex = lsGoals.findIndex(g => g.id === goalId || g._id === goalId);
       if (lsIndex !== -1) {
         lsGoals[lsIndex] = goal;
@@ -200,7 +187,6 @@ window.goalsService = (function () {
       if (idx !== -1) {
         const processedPatch = processDeadlineLocal({ ...patch });
         goals[idx] = { ...goals[idx], ...processedPatch };
-        _recalcProgress(goals[idx]);
         _writeLS(goals);
         return window.SF_HTTP.request(`/goals/${goalId}`, goals[idx], {
           method: 'PATCH',

@@ -6,6 +6,7 @@ import { AppError } from '../utils/AppError.js';
 import { HTTP_STATUS, PLANNER_EVENT_TYPE, ERROR_CODES } from '../constants/index.js';
 import { logger } from '../utils/logger.js';
 import { GoalSyncService } from './goalSync.service.js';
+import { GoalLifecycleService } from './goalLifecycle.service.js';
 
 const buildMasterQuery = (userId, targetId) => {
   const q = { user: userId };
@@ -99,7 +100,7 @@ export class PlannerService {
       id: g._id.toString(),
       title: g.title,
       dueDisplay: g.deadline ? `Due ${g.deadline}` : 'Upcoming',
-      priority: g.urgency || 'ACTIVE',
+      priority: GoalLifecycleService.calculate(g).status,
       goalId: g._id.toString()
     }));
   }

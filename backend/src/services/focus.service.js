@@ -2,6 +2,7 @@ import { FocusSession } from '../models/FocusSession.js';
 import { Goal } from '../models/Goal.js';
 import { AppError } from '../utils/AppError.js';
 import { HTTP_STATUS, FOCUS_SESSION_TYPE, FOCUS_SESSION_STATUS, ERROR_CODES } from '../constants/index.js';
+import { GoalLifecycleService } from './goalLifecycle.service.js';
 
 export class FocusService {
   /**
@@ -138,7 +139,7 @@ export class FocusService {
       title: targetSub.title,
       goalTitle: targetGoal.title,
       milestone: targetSub.estimate || 'Sprint Task',
-      urgency: targetGoal.urgency || 'ACTIVE',
+      urgency: GoalLifecycleService.calculate(targetGoal).status,
       checklist: [
         { id: 'chk-1', text: `Review requirements for ${targetSub.title}`, completed: targetSub.completed },
         { id: 'chk-2', text: 'Execute core focus steps', completed: false },

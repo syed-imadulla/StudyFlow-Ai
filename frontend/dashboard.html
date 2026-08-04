@@ -381,8 +381,36 @@
         }
         return;
       }
+      function _getRecommendedHeroGoal(goalList) {
+        const activeGoals = goalList.filter(g => !g.lifecycle?.isCompleted);
+        if (activeGoals.length === 0) return null;
+        
+        return activeGoals.sort((a, b) => {
+          const priorityA = a.deadlineInfo?.sortPriority ?? 0;
+          const priorityB = b.deadlineInfo?.sortPriority ?? 0;
+          if (priorityA !== priorityB) {
+            return priorityB - priorityA; // Descending priority (higher is more critical)
+          }
+          
+          const timeA = a.deadlineInfo?.timestamp ?? Infinity;
+          const timeB = b.deadlineInfo?.timestamp ?? Infinity;
+          if (timeA !== timeB) {
+            return timeA - timeB; // Ascending time (sooner is more critical)
+          }
+          
+          const healthA = a.goalHealth?.score ?? 100;
+          const healthB = b.goalHealth?.score ?? 100;
+          if (healthA !== healthB) {
+            return healthA - healthB; // Ascending health (lower is more critical)
+          }
+          
+          const idA = String(a.id || a._id || '');
+          const idB = String(b.id || b._id || '');
+          return idA.localeCompare(idB);
+        })[0];
+      }
 
-      const topGoal = goals[0];
+      const topGoal = _getRecommendedHeroGoal(goals) || goals[0];
       const hTitle = document.getElementById('heroGoalTitle');
       const hDesc = document.getElementById('heroGoalDesc');
       const hProgText = document.getElementById('heroGoalProgressText');
@@ -396,7 +424,8 @@
       const ringText = document.getElementById('heroRingText');
       const ringCircle = document.getElementById('heroRingCircle');
 
-      const calcP = Math.round(topGoal.progressSummary?.completionPercentage ?? 0);
+      const rawP = topGoal.progressSummary?.completionPercentage ?? 0;
+      const calcP = Math.round(rawP * 100) / 100;
       if (hTitle) hTitle.textContent = topGoal.title;
       if (hDesc) hDesc.textContent = topGoal.description || 'AI active project plan.';
       if (hProgText) hProgText.textContent = `${calcP}%`;
@@ -409,9 +438,7 @@
       if (hUrgency) {
         const u = topGoal.lifecycle?.status ?? topGoal.urgency ?? 'ACTIVE';
         hUrgency.textContent = u;
-        const isUrgent = topGoal.deadlineInfo?.urgencyLevel !== undefined
-          ? topGoal.deadlineInfo.urgencyLevel >= 2
-          : (u === 'URGENT' || u.includes('High') || u.includes('Urgent'));
+        const isUrgent = (topGoal.deadlineInfo?.urgencyLevel ?? 0) >= 2;
 
         if (isUrgent) {
           hUrgency.className = 'text-red-400 font-bold';
@@ -421,8 +448,9 @@
       }
       const doneSubs = topGoal.progressSummary?.completedMilestones ?? 0;
       const totalSubs = topGoal.progressSummary?.totalMilestones ?? 0;
+      const remainingSubs = topGoal.progressSummary?.remainingMilestones ?? 0;
       if (hSubCount) hSubCount.textContent = `${doneSubs} / ${totalSubs} Subtasks`;
-      if (aiCoachText) aiCoachText.innerHTML = `You have <strong>${totalSubs - doneSubs} remaining subtasks</strong> for <em>${topGoal.title}</em>. Complete one today! ✨`;
+      if (aiCoachText) aiCoachText.innerHTML = `You have <strong>${remainingSubs} remaining subtasks</strong> for <em>${topGoal.title}</em>. Complete one today! ✨`;
 
       if (btn1) btn1.onclick = () => window.location.href = `idealab.html?goalId=${topGoal.id}`;
       if (btn2) btn2.onclick = () => window.location.href = `idealab.html?goalId=${topGoal.id}`;
