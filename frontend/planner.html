@@ -14,6 +14,9 @@
   <script src="src/js/services/goalsService.js"></script>
   <script src="src/js/services/plannerService.js"></script>
   <script src="src/js/store.js"></script>
+  <script src="src/js/completion/completionEvents.js"></script>
+  <script src="src/js/completion/completionRenderer.js"></script>
+  <script src="src/js/completion/completionModal.js"></script>
   <script src="router.js"></script>
   <style>
     /* Custom Scrollbar for wide calendar views */
@@ -88,9 +91,9 @@
               <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2A2 2 0 0 1 14 4C14 4.74 13.6 5.39 13 5.73V7H14A7 7 0 0 1 21 14H22A1 1 0 0 1 23 15V18A1 1 0 0 1 22 19H21V20A2 2 0 0 1 19 22H5A2 2 0 0 1 3 20V19H2A1 1 0 0 1 1 18V15A1 1 0 0 1 2 14H3A7 7 0 0 1 10 7H11V5.73C10.4 5.39 10 4.74 10 4A2 2 0 0 1 12 2M7.5 13A2.5 2.5 0 0 0 5 15.5A2.5 2.5 0 0 0 7.5 18A2.5 2.5 0 0 0 10 15.5A2.5 2.5 0 0 0 7.5 13M16.5 13A2.5 2.5 0 0 0 14 15.5A2.5 2.5 0 0 0 16.5 18A2.5 2.5 0 0 0 19 15.5A2.5 2.5 0 0 0 16.5 13Z"/></svg>
             </div>
             <div>
-              <span class="text-[10px] font-bold text-[#A855F7] uppercase tracking-wider font-mono">AI SCHEDULE OPTIMIZER</span>
-              <h3 class="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5">Today's Optimal Study Rhythm</h3>
-              <p class="text-xs text-[#A1A1AA] mt-0.5">3 Pomodoros allocated for DBMS • 2 hours free buffer detected at 5 PM.</p>
+              <span class="text-[10px] font-bold text-[#A855F7] uppercase tracking-wider font-mono">RECOMMENDED GOAL</span>
+              <h3 id="dailyOptimizerTitle" class="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5">Today's Optimal Study Rhythm</h3>
+              <p id="dailyOptimizerDesc" class="text-xs text-[#A1A1AA] mt-0.5">3 Pomodoros allocated for DBMS • 2 hours free buffer detected at 5 PM.</p>
             </div>
           </div>
 
@@ -233,12 +236,13 @@
               <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2A2 2 0 0 1 14 4C14 4.74 13.6 5.39 13 5.73V7H14A7 7 0 0 1 21 14H22A1 1 0 0 1 23 15V18A1 1 0 0 1 22 19H21V20A2 2 0 0 1 19 22H5A2 2 0 0 1 3 20V19H2A1 1 0 0 1 1 18V15A1 1 0 0 1 2 14H3A7 7 0 0 1 10 7H11V5.73C10.4 5.39 10 4.74 10 4A2 2 0 0 1 12 2M7.5 13A2.5 2.5 0 0 0 5 15.5A2.5 2.5 0 0 0 7.5 18A2.5 2.5 0 0 0 10 15.5A2.5 2.5 0 0 0 7.5 13M16.5 13A2.5 2.5 0 0 0 14 15.5A2.5 2.5 0 0 0 16.5 18A2.5 2.5 0 0 0 19 15.5A2.5 2.5 0 0 0 16.5 13Z"/></svg>
             </div>
             <div>
-              <span class="text-[9px] font-bold text-[#A855F7] uppercase tracking-wider font-mono block">AI SCHEDULE OPTIMIZER</span>
-              <h3 class="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5">This Week's Focus</h3>
-              <p class="text-[11px] text-[#A1A1AA] mt-0.5 flex items-center gap-1.5 flex-wrap font-medium">
-                <span>You have <span id="weeklyFocusHoursSub">0h</span> of focus time planned with 94% productivity score.</span>
-                <span id="weeklyCompactDateRange" class="hidden">July 6 – July 12, 2026</span>
+              <span class="text-[9px] font-bold text-[#A855F7] uppercase tracking-wider font-mono block">RECOMMENDED GOAL</span>
+              <h3 id="weeklyOptimizerTitle" class="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5">This Week's Focus</h3>
+              <p id="weeklyOptimizerDesc" class="text-[11px] text-[#A1A1AA] mt-0.5 flex items-center gap-1.5 flex-wrap font-medium">
+                You have 0h of focus time planned with 94% productivity score.
               </p>
+              <span id="weeklyFocusHoursSub" class="hidden">0h</span>
+              <span id="weeklyCompactDateRange" class="hidden">July 6 – July 12, 2026</span>
             </div>
           </div>
           
@@ -382,12 +386,13 @@
               <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2A2 2 0 0 1 14 4C14 4.74 13.6 5.39 13 5.73V7H14A7 7 0 0 1 21 14H22A1 1 0 0 1 23 15V18A1 1 0 0 1 22 19H21V20A2 2 0 0 1 19 22H5A2 2 0 0 1 3 20V19H2A1 1 0 0 1 1 18V15A1 1 0 0 1 2 14H3A7 7 0 0 1 10 7H11V5.73C10.4 5.39 10 4.74 10 4A2 2 0 0 1 12 2M7.5 13A2.5 2.5 0 0 0 5 15.5A2.5 2.5 0 0 0 7.5 18A2.5 2.5 0 0 0 10 15.5A2.5 2.5 0 0 0 7.5 13M16.5 13A2.5 2.5 0 0 0 14 15.5A2.5 2.5 0 0 0 16.5 18A2.5 2.5 0 0 0 19 15.5A2.5 2.5 0 0 0 16.5 13Z"/></svg>
             </div>
             <div>
-              <span class="text-[9px] font-bold text-[#A855F7] uppercase tracking-wider font-mono block">AI SCHEDULE OPTIMIZER</span>
-              <h3 class="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5">This Month's Focus</h3>
-              <p class="text-[11px] text-[#A1A1AA] mt-0.5 flex items-center gap-1.5 flex-wrap font-medium">
-                <span>You have <span id="monthlyFocusHoursSub">0h</span> of focus time planned with 94% productivity score.</span>
-                <span id="monthlyCompactDateRange" class="hidden">July 2026</span>
+              <span class="text-[9px] font-bold text-[#A855F7] uppercase tracking-wider font-mono block">RECOMMENDED GOAL</span>
+              <h3 id="monthlyOptimizerTitle" class="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5">This Month's Focus</h3>
+              <p id="monthlyOptimizerDesc" class="text-[11px] text-[#A1A1AA] mt-0.5 flex items-center gap-1.5 flex-wrap font-medium">
+                You have 0h of focus time planned with 94% productivity score.
               </p>
+              <span id="monthlyFocusHoursSub" class="hidden">0h</span>
+              <span id="monthlyCompactDateRange" class="hidden">July 2026</span>
             </div>
           </div>
           
@@ -2382,65 +2387,35 @@
         return;
       }
 
-        const goals = goalsState.items;
+      const goals = goalsState.items;
       
-      // Extract all active subtasks that have a valid dueDate
+      // Extract all active subtasks
       let milestones = [];
       goals.forEach(goal => {
         const currentStatus = goal.lifecycle?.status ?? goal.status;
         if (goal.archived || goal.deleted || currentStatus === 'archived' || currentStatus === 'deleted' || currentStatus === 'ARCHIVED') return;
         
         if (goal.subtasks && Array.isArray(goal.subtasks)) {
-          const totalSubtasks = goal.subtasks.length;
-          const completedSubtasks = goal.subtasks.filter(s => s.completed).length;
-
-            let originalIndex = 0;
-            goal.subtasks.forEach(sub => {
-            originalIndex++;
+          goal.subtasks.forEach(sub => {
             if (sub.completed || !sub.title || sub.title.trim() === '') return;
             
-            let dueObj = null;
-            if (sub.deadline) {
-              const parts = sub.deadline.split('-');
-              if (parts.length === 3) {
-                const y = parseInt(parts[0], 10);
-                const m = parseInt(parts[1], 10) - 1;
-                const d = parseInt(parts[2], 10);
-                dueObj = new Date(y, m, d);
-              }
-            } else if (sub.dueDate) {
-              const parts = sub.dueDate.split('-');
-              if (parts.length === 3) {
-                const y = parseInt(parts[0], 10);
-                const m = parseInt(parts[1], 10) - 1;
-                const d = parseInt(parts[2], 10);
-                dueObj = new Date(y, m, d);
-              }
-            }
-            
-            if (!dueObj || isNaN(dueObj.getTime())) return;
+            // Only rely on backend provided sortPriority and type, do not parse dates on frontend
+            if (!sub.deadlineInfo) return; // If it doesn't have deadline intelligence, skip it or we could include with lowest priority
 
             milestones.push({
               ...sub,
               goalId: goal.id,
-              goalTitle: goal.title,
-              dueObj: dueObj,
-              originalIndex: originalIndex
+              goalTitle: goal.title
             });
           });
         }
       });
       
-       
+      // Sort solely using backend sortPriority
       milestones.sort((a, b) => {
         const priorityA = a.deadlineInfo?.sortPriority || 0;
         const priorityB = b.deadlineInfo?.sortPriority || 0;
-        if (priorityA !== priorityB) {
-          return priorityB - priorityA;
-        }
-        const timeDiff = a.dueObj.getTime() - b.dueObj.getTime();
-        if (timeDiff !== 0) return timeDiff;
-        return a.originalIndex - b.originalIndex;
+        return priorityB - priorityA;
       });
 
       const subtitleEl = document.getElementById('upcomingMilestonesSubtitle');
@@ -2452,10 +2427,7 @@
           const totalCount = goals.reduce((sum, g) => sum + (g.subtasks || []).length, 0);
           if (milestones.length === 1) {
             const m = milestones[0];
-            const isToday = m.deadlineInfo 
-              ? (m.deadlineInfo.type === 'TODAY') 
-              : (Math.ceil((m.dueObj.getTime() - new Date().setHours(0,0,0,0)) / 86400000) === 0);
-              
+            const isToday = m.deadlineInfo && m.deadlineInfo.type === 'TODAY';
             subtitleEl.textContent = isToday ? '1 milestone due today' : '1 milestone due soon';
           } else {
             subtitleEl.textContent = `${milestones.length} upcoming milestones • ${completedCount}/${totalCount} done`;
@@ -2643,6 +2615,34 @@
       _requestTimeVisualsUpdate();
     }
     window.renderDailyPlanner = renderDailyPlanner;
+
+    function renderPlannerOptimizer(snapshot) {
+      const rec = snapshot || (window.SF_STORE && window.SF_STORE.getSlice('recommended'));
+      if (!rec) return;
+
+      const title = rec.goal ? rec.goal.title : 'AI Schedule Optimizer';
+      const reason = rec.reason ? rec.reason : 'AI generated study plan with optimal pacing.';
+
+      // Daily
+      const dTitle = document.getElementById('dailyOptimizerTitle');
+      const dDesc = document.getElementById('dailyOptimizerDesc');
+      if (dTitle) dTitle.textContent = title;
+      if (dDesc) dDesc.textContent = reason;
+
+      // Weekly
+      const wTitle = document.getElementById('weeklyOptimizerTitle');
+      const wDesc = document.getElementById('weeklyOptimizerDesc');
+      if (wTitle) wTitle.textContent = title;
+      if (wDesc) wDesc.textContent = reason;
+
+      // Monthly
+      const mTitle = document.getElementById('monthlyOptimizerTitle');
+      const mDesc = document.getElementById('monthlyOptimizerDesc');
+      if (mTitle) mTitle.textContent = title;
+      if (mDesc) mDesc.textContent = reason;
+    }
+    window.renderPlannerOptimizer = renderPlannerOptimizer;
+    
 
     // ─────────────────────────────────────────────────────────────────
     // DAILY FLEXIBLE OVERLAP LAYOUT ENGINE
@@ -3189,6 +3189,7 @@
 
       if (window.SF_STORE) {
         window.SF_STORE.subscribe('goals', (snapshot) => renderUpcomingMilestones(snapshot));
+        window.SF_STORE.subscribe('recommended', (snapshot) => renderPlannerOptimizer(snapshot));
         window.SF_STORE.subscribe('planner', (snapshot) => {
           renderDailyPlanner(snapshot);
           const weeklyView = document.getElementById('weeklyView');
@@ -3201,6 +3202,10 @@
           }
         });
         await window.SF_STORE.bootstrap(['user', 'goals', 'planner']);
+        // Dispatch load for recommended since it is not automatically fetched in bootstrap usually, or we can just bootstrap it
+        window.SF_STORE.dispatch('goals/LOAD_RECOMMENDED').catch(() => {
+          console.warn('[Planner] LOAD_RECOMMENDED failed; banner falls back to generic text.');
+        });
       }
 
       const savedUI = typeof _loadPlannerUIState === 'function' ? _loadPlannerUIState() : {};

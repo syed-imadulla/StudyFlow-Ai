@@ -339,11 +339,19 @@ window.SF_STORE = (function () {
     async 'goals/UPDATE'(payload) {
       const { goalId, patch } = payload;
       try {
+        const oldGoal = _state.goals.items.find(g => g.id === goalId || g._id === goalId);
         const updatedGoal = await window.goalsService.updateGoal(goalId, patch);
         const items = _state.goals.items.map(g => g.id === goalId ? { ...g, ...updatedGoal } : g);
         _patch('goals', { items, lastSync: Date.now() });
         if (_state.idealab.activeGoalId === goalId) {
           _patch('idealab', { activeGoal: _clone(updatedGoal) });
+        }
+
+        // Completion transition check
+        if (oldGoal && !oldGoal.completed && updatedGoal.completed) {
+          if (window.CompletionEvents && typeof window.CompletionEvents.emitGoalCompleted === 'function') {
+            window.CompletionEvents.emitGoalCompleted(updatedGoal);
+          }
         }
         return updatedGoal;
       } catch (e) {
@@ -355,8 +363,11 @@ window.SF_STORE = (function () {
     async 'goals/TOGGLE_SUBTASK'(payload) {
       const { goalId, subtaskId, completed } = payload;
       try {
+        const oldGoal = _state.goals.items.find(g => g.id === goalId || g._id === goalId);
+        
         const updatedGoal = await window.goalsService.toggleSubtask(goalId, subtaskId, completed);
         if (!updatedGoal) return null;
+        
         const targetId = updatedGoal.id || updatedGoal._id || goalId;
         const items = _state.goals.items.map(goal =>
           (goal.id === targetId || goal._id === targetId)
@@ -368,6 +379,14 @@ window.SF_STORE = (function () {
         if (_state.idealab.activeGoalId === targetId) {
           _patch('idealab', { activeGoal: _clone(updatedGoal) });
         }
+
+        // Completion transition check
+        if (oldGoal && !oldGoal.completed && updatedGoal.completed) {
+          if (window.CompletionEvents && typeof window.CompletionEvents.emitGoalCompleted === 'function') {
+            window.CompletionEvents.emitGoalCompleted(updatedGoal);
+          }
+        }
+
         return updatedGoal;
       } catch (e) {
         console.error('[SF_STORE] goals/TOGGLE_SUBTASK failed:', e);
