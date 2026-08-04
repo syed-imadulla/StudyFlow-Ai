@@ -34,7 +34,7 @@ window.CompletionModal = {
     if (!modalEl) {
       modalEl = document.createElement('div');
       modalEl.id = 'globalCompletionModal';
-      modalEl.className = 'fixed inset-0 z-[200000] flex items-center justify-center bg-black/80 backdrop-blur-md animate-fadeIn p-4 overflow-y-auto';
+      modalEl.className = 'fixed inset-0 z-[999999999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4';
       document.body.appendChild(modalEl);
       
       modalEl.addEventListener('click', e => {
