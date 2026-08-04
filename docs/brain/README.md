@@ -1,66 +1,50 @@
-# StudyFlow AI - Project Brain
+# README — StudyFlow AI Brain
 
-## Purpose of the Brain
-The Brain is the single source of truth for the StudyFlow AI project. It documents the current architecture, development status, design decisions, roadmap, planner specifications, API contracts, and UI guidelines. Its primary purpose is to provide context for AI assistants and human contributors, reducing the need to re-explain project context and ensuring architectural consistency.
+This folder (`docs/brain/`) is the **persistent project memory** for StudyFlow AI.
 
-## Brain Maintenance Rules
-- Brain is the project's single source of truth.
-- Update the Brain after every completed milestone.
-- Never duplicate architecture across multiple files.
-- Remove obsolete documentation.
-- Do not store debugging history.
-- Stable decisions belong in `DECISIONS.md`.
-- Active work belongs in `SESSION.md`.
+It is the single source of knowledge about the project's architecture, decisions, and current state.
 
-## Development Rules
-1. **Current Architecture Only**: The Brain must always describe the *current* architecture. Do NOT include old debugging history, obsolete architectures, or failed experiments.
-2. **Concise and Readable**: Keep documentation lightweight, professional, and easy to parse.
-3. **No Redundancy**: Avoid duplicating information across files where possible. Use references.
+**Start here when onboarding to this project.**
 
-## How Contributors Should Update It
-- Whenever a milestone finishes, the relevant Brain documents must be updated.
-- When architectural decisions are made, they must be recorded in `DECISIONS.md`.
-- When new endpoints are added, they must be documented in `API.md`.
-- When bugs are actively being investigated, they go into `DEBUG_NOTES.md`. Once resolved, they are removed.
+---
 
-## Development Lifecycle
-Architecture
-↓
-Brain Update
-↓
-Implementation
-↓
-Manual Testing
-↓
-Brain Update
-↓
-Commit
-↓
-Push
-↓
-Next Task
+## Files
 
-## Brain Update Checklist
-Whenever a milestone completes:
-- [ ] Update `CURRENT_STATUS.md`
-- [ ] Update `SESSION.md`
-- [ ] Update `CHANGELOG.md`
-- [ ] Update `ROADMAP.md`
-- [ ] Update `DECISIONS.md` (if architecture changed)
-- [ ] Commit
-- [ ] Push
+| File | Purpose |
+|------|---------|
+| `PROJECT_OVERVIEW.md` | What the project is, technology stack, high-level architecture, module map |
+| `CURRENT_STATUS.md` | Current phase, next phase, roadmap table |
+| `ROADMAP.md` | All phases with status; deferred features |
+| `ARCHITECTURE.md` | Full technical architecture: backend, frontend store, completion flow, event flow |
+| `DECISIONS.md` | All architectural decisions with context and consequences |
+| `CODING_PRINCIPLES.md` | Implementation rules every contributor must follow |
+| `COMPLETED_FEATURES.md` | Summary of every completed phase with rationale and design decisions |
+| `GOALS.md` | Goal, Milestone, and Subtask schemas; completion flow; lifecycle states |
+| `PLANNER.md` | Planner architecture, canonical date helper, frozen rules |
+| `INTEGRATIONS.md` | Cross-module contracts and integration phase mapping |
+| `API.md` | All important API endpoints, DTO shape, and store action reference |
+| `QA_HISTORY.md` | QA validation history through current phase |
+| `CHANGELOG.md` | High-level changelog |
+| `UI_GUIDELINES.md` | Visual design guidelines |
+| `DEBUG_NOTES.md` | Debug notes |
+| `SESSION.md` | Session notes |
 
-## Git Commit Convention
-- `feat(...)`: A new feature
-- `fix(...)`: A bug fix
-- `refactor(...)`: A code change that neither fixes a bug nor adds a feature
-- `docs(...)`: Documentation only changes
-- `style(...)`: Changes that do not affect the meaning of the code (white-space, formatting, etc)
-- `test(...)`: Adding missing tests or correcting existing tests
+---
 
-**Examples:**
-- `feat(goals): implement goal CRUD`
-- `feat(planner): schedule milestone`
-- `fix(planner): resolve daily filtering`
-- `docs(brain): update roadmap`
-- `refactor(store): simplify planner selectors`
+## Quick Summary
+
+StudyFlow AI is an intelligent study planning platform.
+
+**Architecture in one sentence**: The backend owns all business logic and returns enriched DTOs; the frontend is a pure presentation layer that renders what the backend provides, orchestrated by a custom global store.
+
+**Current phase**: ✅ Phase 2.3.0.8 — Goal Completion Experience (COMPLETE)
+
+**Next phase**: ▶ Phase 2.3.0.9 — Goal Archive
+
+---
+
+## Core Rule
+
+> **Persist facts. Derive intelligence. Render only.**
+
+The database stores raw facts. The backend Intelligence Layer derives lifecycle, deadline urgency, progress, and recommendations dynamically. The frontend renders the result without any calculations.
