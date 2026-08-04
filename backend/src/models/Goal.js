@@ -82,6 +82,14 @@ const goalSchema = new mongoose.Schema(
     completedAt: {
       type: Date,
       default: null
+    },
+    archived: {
+      type: Boolean,
+      default: false
+    },
+    archivedAt: {
+      type: Date,
+      default: null
     }
   },
   {
@@ -91,6 +99,10 @@ const goalSchema = new mongoose.Schema(
       transform: function (doc, ret) {
         ret.id = ret._id.toString();
         ret.completed = ret.status === GOAL_STATUS.COMPLETED || ret.completed === true || ret.urgency === 'COMPLETED';
+        ret.archived = !!ret.archived;
+        if (ret.archivedAt) {
+          ret.archivedAt = ret.archivedAt.toISOString();
+        }
         delete ret.__v;
         return ret;
       }

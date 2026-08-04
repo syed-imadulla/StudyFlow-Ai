@@ -28,6 +28,18 @@ window.WorkspaceActions = {
   completeGoal(id) {
     // Dispatch to store if supported, or via specific modal/action
   },
+  
+  archiveGoal(id) {
+    if (window.SF_STORE) {
+      window.SF_STORE.dispatch('goals/UPDATE', { goalId: id, patch: { archived: true } });
+    }
+  },
+
+  restoreGoal(id) {
+    if (window.SF_STORE) {
+      window.SF_STORE.dispatch('goals/UPDATE', { goalId: id, patch: { archived: false } });
+    }
+  },
 
   toggleSubtask(goalId, subtaskId) {
     if (window.SF_STORE) {

@@ -66,6 +66,31 @@ This document summarizes major QA validations completed through Phase 2.3.0.8.
 - ✅ Completion module scripts confirmed absent from `settings.html`, `analytics.html`, `focus.html`, `404.html`.
 - ✅ Completion module scripts confirmed present in `workspace.html`, `dashboard.html`, `planner.html`, `idealab.html`.
 
+## Phase 2.3.0.9 — Goal Archive QA
+
+### Bugs Fixed During Implementation
+- **Bug 4: Archive Store Contract Mismatch**
+  - **Root Cause**: `workspaceActions.js` dispatched the entire goal object to `goals/UPDATE`, but `SF_STORE` expects `{ goalId, patch }`. This caused the backend to receive an invalid ID `[object Object]`.
+  - **Fix**: Updated `workspaceActions.js` to construct the proper payload format.
+- **Bug 5: Mapper Omission**
+  - **Root Cause**: `workspaceMapper.js` did not propagate the new `isArchived` flag from the DTO to the ViewModel. This caused `workspaceRenderer.js` filters to fail because `m.lifecycle.isArchived` was undefined.
+  - **Fix**: Updated `workspaceMapper.js` to map `isArchived: dto.lifecycle.isArchived`.
+
+### Manual QA Validation
+- ✅ Archive Goal
+- ✅ Restore Goal
+- ✅ Completed → Archived transition
+- ✅ Archived → Completed transition
+- ✅ Page refresh persistence
+- ✅ Workspace filters
+- ✅ Dashboard (Hero Card unaffected by archives)
+- ✅ Planner
+- ✅ Goal Completion Experience
+- ✅ Goal Editing
+- ✅ No console errors
+- ✅ No failed network requests
+- ✅ No regressions observed
+
 ---
 
 ## Known Constraints to Preserve

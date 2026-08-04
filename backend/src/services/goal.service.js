@@ -88,6 +88,10 @@ export class GoalService {
         filter.status = { $ne: GOAL_STATUS.COMPLETED };
       }
     }
+    
+    if (query.archived !== undefined) {
+      filter.archived = query.archived === 'true' || query.archived === true;
+    }
 
     const sort = query.sort || '-createdAt';
     const page = parseInt(query.page, 10) || 1;
@@ -216,6 +220,17 @@ export class GoalService {
     } else if (data.completed === false || data.completed === 'false') {
       if (!data.status) data.status = GOAL_STATUS.ACTIVE;
       data.completedAt = null;
+    }
+
+    if (data.archived === true || data.archived === 'true') {
+      data.archived = true;
+      if (!data.archivedAt) data.archivedAt = new Date();
+      data.status = GOAL_STATUS.COMPLETED;
+      data.completed = true;
+      if (!data.completedAt) data.completedAt = new Date();
+    } else if (data.archived === false || data.archived === 'false') {
+      data.archived = false;
+      data.archivedAt = null;
     }
 
     const goal = await Goal.findOneAndUpdate(

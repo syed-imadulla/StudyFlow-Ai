@@ -3,7 +3,7 @@
  * Single source of truth for UI state in the Workspace.
  */
 window.WorkspaceState = {
-  filter: 'ALL', // 'ALL', 'HEALTHY', 'OVERDUE', 'DUE_TODAY', 'BLOCKING', 'COMPLETED'
+  filter: 'ALL', // 'ALL', 'HEALTHY', 'OVERDUE', 'DUE_TODAY', 'BLOCKING', 'COMPLETED', 'ARCHIVED'
   sort: 'PRIORITY', // 'PRIORITY', 'DEADLINE', 'HEALTH', 'PROGRESS', 'REMAINING'
   search: '',
   expandedGoals: [],

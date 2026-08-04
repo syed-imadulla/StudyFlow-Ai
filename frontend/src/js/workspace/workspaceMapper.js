@@ -86,7 +86,8 @@ window.WorkspaceMapper = {
         isOverdue: goal.lifecycle?.isOverdue,
         isDueToday: goal.lifecycle?.isDueToday,
         isDueSoon: goal.lifecycle?.isDueSoon,
-        isCompleted: goal.lifecycle?.isCompleted
+        isCompleted: goal.lifecycle?.isCompleted,
+        isArchived: goal.lifecycle?.isArchived
       },
       
       blockingMilestone,

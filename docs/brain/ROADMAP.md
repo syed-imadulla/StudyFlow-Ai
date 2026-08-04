@@ -12,7 +12,7 @@
 | 2.3.0.6 | Dashboard Intelligence | ✅ Complete |
 | 2.3.0.7 | Planner Awareness | ✅ Complete |
 | 2.3.0.8 | Goal Completion Experience | ✅ Complete |
-| **2.3.0.9** | **Goal Archive** | **▶ Next** |
+| 2.3.0.9 | Goal Archive | ✅ Complete |
 
 ---
 

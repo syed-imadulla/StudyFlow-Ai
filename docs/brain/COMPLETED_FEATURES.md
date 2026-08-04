@@ -127,3 +127,23 @@ This document summarizes every completed implementation phase with rationale, de
 - Scripts excluded from unrelated pages (settings, analytics, focus, 404)
 - No navigation implemented in v1 (Start Next Goal, redirect to IdeaLab) — deferred to future phase
 - Recommendation reused from existing `GET /api/v1/goals/recommended` — no new API
+
+---
+
+## Phase 2.3.0.9 — Goal Archive
+
+**What**: Implemented Goal Archive as the final stage of the Goal Lifecycle. Archived goals are removed from the active workspaces and completed views but retained historically.
+
+**Why**: To prevent the Completed tab from cluttering endlessly while preserving historical goal data for analytics and reference.
+
+**Key implementations**:
+- `Goal.js` schema updated with `archived` (Boolean) and `archivedAt` (Date).
+- Backend `lifecycle.engine.js` extends lifecycle flags with `isArchived`.
+- Action menus and Workspace Actions extended with `archiveGoal` and `restoreGoal`.
+- Workspace `workspaceRenderer.js` updated with new Archived tab filtering.
+
+**Design decisions**:
+- Archive is orthogonal to lifecycle status. A goal remains `lifecycle.status = 'COMPLETED'` and `lifecycle.isCompleted = true`, while gaining `lifecycle.isArchived = true`.
+- Backend owns archive state completely.
+- Workspace filters use `m.lifecycle.isArchived` to toggle visibility.
+- Resolved integration bugs (Store payload shape, Mapper filtering omission) reinforced the rule to audit DTO mappers upon schema expansions.

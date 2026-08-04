@@ -53,10 +53,12 @@ window.WorkspaceRenderer = {
       case 'BLOCKING':
         return models.filter(m => m.subtasks.some(s => s.isBlocking));
       case 'COMPLETED':
-        return models.filter(m => m.lifecycle.isCompleted);
+        return models.filter(m => m.lifecycle.isCompleted && !m.lifecycle.isArchived);
+      case 'ARCHIVED':
+        return models.filter(m => m.lifecycle.isArchived);
       case 'ALL':
       default:
-        return models.filter(m => !m.lifecycle.isCompleted);
+        return models.filter(m => !m.lifecycle.isCompleted && !m.lifecycle.isArchived);
     }
   },
   
@@ -132,6 +134,11 @@ window.WorkspaceRenderer = {
         title = 'No completed goals yet';
         message = 'Keep pushing forward!';
         iconHtml = '<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+        break;
+      case 'ARCHIVED':
+        title = 'No archived goals';
+        message = 'Your archive is empty. Completed goals you archive will appear here.';
+        iconHtml = '<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM6.24 5h11.52l.81.97H5.44l.8-.97zM5 19V8h14v11H5zm6.55-6.55l-.71-.71L9 13.59V10h2v3.59l1.84-1.85.71.71L11.05 15 13.6 17.55l.71-.71L12.46 15z"/></svg>';
         break;
     }
     

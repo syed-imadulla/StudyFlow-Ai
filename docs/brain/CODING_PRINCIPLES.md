@@ -156,4 +156,11 @@ When making a non-obvious design choice, record it in `docs/brain/DECISIONS.md` 
 
 ## 15. Deferred Features Stay Deferred
 
-Features on the deferred list (Goal Archive, Analytics, XP, Badges, Navigation improvements, AI personalization) must not be partially implemented as part of other phases. Each deferred feature has its own dedicated phase.
+Features on the deferred list (Analytics, XP, Badges, Navigation improvements, AI personalization) must not be partially implemented as part of other phases. Each deferred feature has its own dedicated phase.
+
+---
+
+## 16. Audit DTO Mappers on Schema Expansion
+
+Whenever a new field is added to the backend DTO, you **must audit every frontend mapper** that transforms that DTO (e.g., `WorkspaceMapper`). 
+Ensure the new field is either **intentionally propagated** or **intentionally omitted**. This strict discipline prevents integration bugs where a valid backend field is accidentally dropped by the frontend translation layer.

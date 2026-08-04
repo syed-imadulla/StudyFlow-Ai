@@ -24,6 +24,7 @@ export class LifecycleEngine {
       isDueSoon: false,
       isDueToday: false,
       isOverdue: false,
+      isArchived: false,
       daysRemaining: null,
       overdueDays: null,
       completedEarlyBy: null,
@@ -33,6 +34,9 @@ export class LifecycleEngine {
     if (!entity.deadline) {
       if (lifecycle.isCompleted) {
         lifecycle.status = 'COMPLETED';
+        if (entity.archived) {
+          lifecycle.isArchived = true;
+        }
       }
       return lifecycle;
     }
@@ -54,6 +58,9 @@ export class LifecycleEngine {
     if (isNaN(parsedDeadline.getTime())) {
        if (lifecycle.isCompleted) {
          lifecycle.status = 'COMPLETED';
+         if (entity.archived) {
+           lifecycle.isArchived = true;
+         }
        }
        return lifecycle;
     }
@@ -74,6 +81,10 @@ export class LifecycleEngine {
         lifecycle.isCompletedLate = true;
         lifecycle.completedLateBy = diffDays;
         lifecycle.completedEarlyBy = null;
+      }
+      
+      if (entity.archived) {
+        lifecycle.isArchived = true;
       }
       return lifecycle;
     }

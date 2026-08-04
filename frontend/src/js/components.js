@@ -105,7 +105,39 @@
     /**
      * Render Goal Action Overflow Menu (Sprint 1D.2)
      */
-    renderGoalActionMenu(goalId) {
+    renderGoalActionMenu(input) {
+      const goalId = typeof input === 'string' ? input : input.id;
+      const isCompleted = typeof input === 'object' && input.lifecycle ? input.lifecycle.isCompleted : false;
+      const isArchived = typeof input === 'object' && input.lifecycle ? input.lifecycle.isArchived : false;
+      
+      const archiveHtml = (isCompleted && !isArchived) ? `
+        <button
+          role="menuitem"
+          type="button"
+          tabindex="-1"
+          onclick="event.stopPropagation(); window.closeGoalActionMenus(); if(window.WorkspaceActions) window.WorkspaceActions.archiveGoal('${goalId}')"
+          onkeydown="window.handleGoalItemKeyDown('${goalId}', 'archive', event)"
+          class="w-full px-3 py-2 text-left text-xs font-semibold text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1C1C24] transition flex items-center space-x-2.5 focus:outline-none focus:bg-[#1C1C24] focus:text-[#FAFAFA]"
+        >
+          <svg class="w-3.5 h-3.5 fill-current shrink-0 pointer-events-none text-[#A855F7]" viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM6.24 5h11.52l.81.97H5.44l.8-.97zM5 19V8h14v11H5zm6.55-6.55l-.71-.71L9 13.59V10h2v3.59l1.84-1.85.71.71L11.05 15 13.6 17.55l.71-.71L12.46 15z"/></svg>
+          <span>Archive Goal</span>
+        </button>
+      ` : '';
+
+      const restoreHtml = isArchived ? `
+        <button
+          role="menuitem"
+          type="button"
+          tabindex="-1"
+          onclick="event.stopPropagation(); window.closeGoalActionMenus(); if(window.WorkspaceActions) window.WorkspaceActions.restoreGoal('${goalId}')"
+          onkeydown="window.handleGoalItemKeyDown('${goalId}', 'restore', event)"
+          class="w-full px-3 py-2 text-left text-xs font-semibold text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1C1C24] transition flex items-center space-x-2.5 focus:outline-none focus:bg-[#1C1C24] focus:text-[#FAFAFA]"
+        >
+          <svg class="w-3.5 h-3.5 fill-current shrink-0 pointer-events-none text-[#A855F7]" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+          <span>Restore Goal</span>
+        </button>
+      ` : '';
+
       return `
         <div class="goal-action-menu-container relative shrink-0">
           <button
@@ -138,6 +170,8 @@
               <svg class="w-3.5 h-3.5 fill-current shrink-0 pointer-events-none text-[#A855F7]" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
               <span>Edit Goal</span>
             </button>
+            ${archiveHtml}
+            ${restoreHtml}
             <button
               role="menuitem"
               type="button"
@@ -242,7 +276,7 @@
                 ${urgencyBadgeHtml}
                 ${healthBadgeHtml}
               </div>
-              ${this.renderGoalActionMenu(model.id)}
+              ${this.renderGoalActionMenu(model)}
             </div>
             <div>
               <h4 class="text-xs font-bold text-[#FAFAFA] group-hover:text-[#A855F7] transition truncate">${model.title}</h4>
@@ -267,7 +301,7 @@
                   ${urgencyBadgeHtml}
                   ${healthBadgeHtml}
                 </div>
-                ${this.renderGoalActionMenu(model.id)}
+                ${this.renderGoalActionMenu(model)}
               </div>
               <div>
                 <h3 class="text-base font-bold text-[#FAFAFA] truncate">${model.title}</h3>
@@ -326,7 +360,7 @@
                   </div>
                   <span class="text-xs font-mono font-bold text-[#A855F7] w-9 text-right">${model.progress.percentage}%</span>
                 </div>
-                ${this.renderGoalActionMenu(model.id)}
+                ${this.renderGoalActionMenu(model)}
               </div>
             </div>
 
