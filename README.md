@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="frontend/assets/logo.svg" alt="StudyFlow AI Logo" width="80" />
+<img src="frontend/assets/logo2.svg" alt="StudyFlow AI Logo" width="80" />
 
-# StudyFlow AI
+# RAHVIYA
 
 **The AI-first productivity workspace built for deep student focus.**
 
@@ -20,7 +20,7 @@
 
 ## 📖 Description
 
-StudyFlow AI is a full-stack, open-source study productivity suite that combines an AI-guided ideation workflow, smart task planning, focus sessions, and deep analytics — all in a sleek, zero-distraction dark interface inspired by Linear, Raycast, and ChatGPT.
+Rahviya is a full-stack, open-source study productivity suite that combines an AI-guided ideation workflow, smart task planning, focus sessions, and deep analytics — all in a sleek, zero-distraction dark interface inspired by Linear, Raycast, and ChatGPT.
 
 Designed for students who want to work smarter: break down complex subjects into actionable sprints, track focus time, and measure productivity over time.
 
