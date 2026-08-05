@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="frontend/assets/logo3.svg" alt="RAHVIA" width="90" />
+<img src="frontend/assets/logo4.svg" alt="RAHVIA" width="90" />
 
 # RAHVIA
 
