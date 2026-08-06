@@ -48,7 +48,7 @@ export const validateDeadline = (deadline, isNew = false) => {
 };
 
 export const validateCreateGoal = (req, res, next) => {
-  const { title, urgency, status, deadline } = req.body || {};
+  const { title, urgency, priority, status, deadline } = req.body || {};
 
   if (!title || typeof title !== 'string' || title.trim().length === 0) {
     return next(new AppError('Goal title is required and must be a string', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
@@ -56,6 +56,10 @@ export const validateCreateGoal = (req, res, next) => {
 
   if (urgency && !['URGENT', 'UPCOMING', 'ACTIVE', 'COMPLETED'].includes(urgency)) {
     return next(new AppError('Invalid urgency level provided', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
+  }
+
+  if (priority && !['LOW', 'MEDIUM', 'HIGH', 'URGENT'].includes(priority.toUpperCase())) {
+    return next(new AppError('Invalid priority level provided', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
   }
 
   if (status && !Object.values(GOAL_STATUS).includes(status.toUpperCase())) {
@@ -78,13 +82,17 @@ export const validateUpdateGoal = (req, res, next) => {
     return next(new AppError('Invalid Goal ID format', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
   }
 
-  const { title, urgency, status, deadline } = req.body || {};
+  const { title, urgency, priority, status, deadline } = req.body || {};
   if (title !== undefined && (typeof title !== 'string' || title.trim().length === 0)) {
     return next(new AppError('Goal title cannot be empty', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
   }
 
   if (urgency !== undefined && !['URGENT', 'UPCOMING', 'ACTIVE', 'COMPLETED'].includes(urgency)) {
     return next(new AppError('Invalid urgency level provided', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
+  }
+
+  if (priority !== undefined && !['LOW', 'MEDIUM', 'HIGH', 'URGENT'].includes(priority.toUpperCase())) {
+    return next(new AppError('Invalid priority level provided', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
   }
 
   if (status !== undefined && !Object.values(GOAL_STATUS).includes(status.toUpperCase())) {

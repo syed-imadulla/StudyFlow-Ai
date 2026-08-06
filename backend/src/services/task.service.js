@@ -27,12 +27,7 @@ export class TaskService {
     }
 
     if (query.priority && typeof query.priority === 'string') {
-      const upper = query.priority.toUpperCase();
-      if (Object.values(TASK_PRIORITY).includes(upper)) {
-        filter.priority = upper;
-      } else {
-        filter.priority = query.priority;
-      }
+      filter.priority = query.priority;
     }
 
     if (query.goalId) filter.goalId = query.goalId;

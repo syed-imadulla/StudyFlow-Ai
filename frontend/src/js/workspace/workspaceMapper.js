@@ -111,23 +111,19 @@ window.WorkspaceMapper = {
       goalId: goalId,
       title: sub.title || 'Untitled Task',
       completed: !!sub.completed,
-      priority: sub.priority || 'Medium',
+      priority: sub.priority || window.SF_COMPONENTS.PRIORITY.MEDIUM,
       isBlocking: !!sub.isBlocking,
-      
-      // Legacy fallback handling for priority
-      priorityColor: sub.priority === 'High' ? 'danger' : sub.priority === 'Medium' ? 'warning' : sub.priority === 'URGENT' ? 'danger' : 'success',
-      
-      deadline: {
-        type: sub.deadlineInfo?.type,
-        label: sub.deadlineInfo?.label,
-        shortLabel: sub.deadlineInfo?.shortLabel,
-        color: sub.deadlineInfo?.color,
-        badge: sub.deadlineInfo?.badge,
-        icon: sub.deadlineInfo?.icon,
-        sortPriority: sub.deadlineInfo?.sortPriority || 0,
-        urgencyLevel: sub.deadlineInfo?.urgencyLevel || 0,
+      deadline: sub.deadlineInfo ? {
+        type: sub.deadlineInfo.type,
+        label: sub.deadlineInfo.label,
+        shortLabel: sub.deadlineInfo.shortLabel,
+        color: sub.deadlineInfo.color,
+        badge: sub.deadlineInfo.badge,
+        icon: sub.deadlineInfo.icon,
+        sortPriority: sub.deadlineInfo.sortPriority || 0,
+        urgencyLevel: sub.deadlineInfo.urgencyLevel || 0,
         timestamp: timestamp
-      },
+      } : { type: 'NO_DEADLINE', sortPriority: 0, urgencyLevel: 0 },
       
       lifecycle: sub.lifecycle || { status: 'ACTIVE' },
       

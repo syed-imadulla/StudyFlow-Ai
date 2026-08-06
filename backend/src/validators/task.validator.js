@@ -17,14 +17,6 @@ const normalizePayload = (body) => {
     }
   }
 
-  // Normalize priority casing / old values
-  if (body.priority && typeof body.priority === 'string') {
-    const upper = body.priority.toUpperCase();
-    if (Object.values(TASK_PRIORITY).includes(upper)) {
-      body.priority = upper;
-    }
-  }
-
   // Normalize status casing / old values
   if (body.status && typeof body.status === 'string') {
     const upper = body.status.toUpperCase();
@@ -42,8 +34,8 @@ export const validateCreateTask = (req, res, next) => {
     return next(new AppError('Task title is required and must be a non-empty string', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
   }
 
-  if (priority !== undefined && !Object.values(TASK_PRIORITY).includes(priority)) {
-    return next(new AppError('Invalid priority.\nAllowed values:\nLOW, MEDIUM, HIGH, URGENT.', HTTP_STATUS.BAD_REQUEST));
+  if (priority !== undefined && !['LOW', 'MEDIUM', 'HIGH', 'URGENT'].includes(priority)) {
+    return next(new AppError('Invalid priority level provided', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
   }
 
   if (status !== undefined && !Object.values(TASK_STATUS).includes(status)) {
@@ -70,8 +62,8 @@ export const validateUpdateTask = (req, res, next) => {
     return next(new AppError('Task title cannot be empty', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
   }
 
-  if (priority !== undefined && !Object.values(TASK_PRIORITY).includes(priority)) {
-    return next(new AppError('Invalid priority.\nAllowed values:\nLOW, MEDIUM, HIGH, URGENT.', HTTP_STATUS.BAD_REQUEST));
+  if (priority !== undefined && !['LOW', 'MEDIUM', 'HIGH', 'URGENT'].includes(priority)) {
+    return next(new AppError('Invalid priority level provided', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
   }
 
   if (status !== undefined && !Object.values(TASK_STATUS).includes(status)) {

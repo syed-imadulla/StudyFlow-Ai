@@ -54,7 +54,7 @@
             </div>
 
             <span id="focusSprintUrgency" class="px-3.5 py-1.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-bold flex items-center gap-1.5 shrink-0 self-start sm:self-center shadow-[0_0_12px_rgba(239,68,68,0.25)]">
-              🔥 Urgent Priority
+              <!-- Priority gets rendered dynamically here by focusRenderer -->
             </span>
           </div>
 
@@ -267,11 +267,10 @@
       if (titleEl) titleEl.textContent = activeTask.title || 'Focus Task';
       if (subEl) subEl.textContent = `${activeTask.goalTitle || 'Active Project'} • ${activeTask.milestone || 'Active Sprint'}`;
       if (urgEl) {
-        const isUrg = activeTask.urgency === 'URGENT' || (activeTask.urgency && activeTask.urgency.includes('High'));
-        urgEl.textContent = isUrg ? '🔥 Urgent Priority' : `⭐ ${activeTask.urgency || 'Active Priority'}`;
-        urgEl.className = isUrg
-          ? 'px-3.5 py-1.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-bold flex items-center gap-1.5 shrink-0 self-start sm:self-center shadow-[0_0_12px_rgba(239,68,68,0.25)]'
-          : 'px-3.5 py-1.5 rounded-xl bg-[#A855F7]/15 border border-[#A855F7]/30 text-[#A855F7] text-xs font-bold flex items-center gap-1.5 shrink-0 self-start sm:self-center shadow-[0_0_12px_rgba(168,85,247,0.25)]';
+        const priority = activeTask.priority || window.SF_COMPONENTS.PRIORITY.MEDIUM;
+        const pConfig = window.SF_COMPONENTS.getPriorityConfig(priority);
+        urgEl.innerHTML = `<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="${pConfig.icon}"/></svg> <span>${pConfig.label} Priority</span>`;
+        urgEl.className = `px-3.5 py-1.5 rounded-xl bg-${pConfig.color}-500/15 border border-${pConfig.color}-500/30 text-${pConfig.color}-400 text-xs font-bold flex items-center gap-1.5 shrink-0 self-start sm:self-center shadow-[0_0_12px_rgba(0,0,0,0.25)]`;
       }
 
       if (container && Array.isArray(activeTask.checklist)) {

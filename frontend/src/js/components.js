@@ -103,6 +103,31 @@
 
   window.SF_COMPONENTS = {
     /**
+     * Shared Priority Architecture - Immutable Source of Truth
+     */
+    PRIORITY: Object.freeze({
+      LOW: "LOW",
+      MEDIUM: "MEDIUM",
+      HIGH: "HIGH",
+      URGENT: "URGENT",
+      UNKNOWN: "UNKNOWN"
+    }),
+
+    PRIORITY_CONFIG: Object.freeze({
+      LOW: Object.freeze({ label: 'Low', color: 'gray', hex: '#6B7280', icon: 'M19 9l-7 7-7-7', order: 1, weight: 1 }),
+      MEDIUM: Object.freeze({ label: 'Medium', color: 'blue', hex: '#3B82F6', icon: 'M12 4v16m8-8H4', order: 2, weight: 2 }),
+      HIGH: Object.freeze({ label: 'High', color: 'orange', hex: '#F97316', icon: 'M13 10V3L4 14h7v7l9-11h-7z', order: 3, weight: 3 }),
+      URGENT: Object.freeze({ label: 'Urgent', color: 'red', hex: '#EF4444', icon: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z', order: 4, weight: 4 }),
+      UNKNOWN: Object.freeze({ label: 'Unknown', color: 'neutral', hex: '#A1A1AA', icon: 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', order: 0, weight: 0 })
+    }),
+
+    getPriorityConfig(enumValue) {
+      if (!enumValue || typeof enumValue !== 'string') return this.PRIORITY_CONFIG.UNKNOWN;
+      const normalized = enumValue.toUpperCase().trim();
+      return this.PRIORITY_CONFIG[normalized] || this.PRIORITY_CONFIG.UNKNOWN;
+    },
+
+    /**
      * Render Goal Action Overflow Menu (Sprint 1D.2)
      */
     renderGoalActionMenu(input) {
@@ -403,8 +428,7 @@
             goalId: options.goalId || input.goalId,
             title: input.title || 'Task',
             completed: !!input.completed,
-            priority: input.priority || 'MEDIUM',
-            priorityColor: input.priority === 'HIGH' || input.priority === 'URGENT' ? 'danger' : input.priority === 'MEDIUM' ? 'warning' : 'success',
+            priority: input.priority || window.SF_COMPONENTS.PRIORITY.MEDIUM,
             deadline: { shortLabel: input.deadlineInfo?.shortLabel || 'Assigned', color: input.deadlineInfo?.color || 'neutral' },
             _raw: input
           };
@@ -414,8 +438,9 @@
 
       const mode = options.mode || 'dashboard';
       const goalId = sub.goalId;
-      const badgeColor = `bg-${sub.priorityColor}-500/10 border border-${sub.priorityColor}-500/30 text-${sub.priorityColor}-400`;
-      const formattedPriority = sub.priority ? sub.priority.charAt(0).toUpperCase() + sub.priority.slice(1).toLowerCase() : 'Medium';
+      const pConfig = window.SF_COMPONENTS.getPriorityConfig(sub.priority);
+      const badgeColor = `bg-${pConfig.color}-500/10 border border-${pConfig.color}-500/30 text-${pConfig.color}-400`;
+      const formattedPriority = pConfig.label;
       const isScheduled = typeof window.isMilestoneScheduled === 'function' ? window.isMilestoneScheduled(goalId, sub.id) : (sub._raw?.status === 'SCHEDULED');
       const actionPrefix = window.WorkspaceActions ? 'window.WorkspaceActions.' : 'window.';
 
@@ -450,7 +475,7 @@
         }
       };
 
-      const hasDeadline = sub.deadline && sub.deadline.type !== 'NO_DEADLINE';
+      const hasDeadline = sub.deadline && sub.deadline.type && sub.deadline.type !== 'NO_DEADLINE';
       const urgencyBadgeColor = sub.deadline.badge || 'neutral';
       const urgencyBadgeHtml = hasDeadline ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-${urgencyBadgeColor}-500/10 border border-${urgencyBadgeColor}-500/30 text-${urgencyBadgeColor}-400 flex items-center space-x-1 shrink-0 whitespace-nowrap">${getIconSvg(sub.deadline.icon)}<span>${sub.deadline.shortLabel}</span></span>` : '';
 
@@ -950,7 +975,8 @@ window.ScheduleModal = {
   },
 
   getModalHtml() {
-    const badgeColor = this.milestonePriority === 'HIGH' || this.milestonePriority === 'URGENT' ? 'text-red-400 bg-red-500/10 border-red-500/20' : this.milestonePriority === 'MEDIUM' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' : 'text-green-400 bg-green-500/10 border-green-500/20';
+    const pConfig = window.SF_COMPONENTS.getPriorityConfig(this.milestonePriority);
+    const badgeColor = `text-${pConfig.color}-400 bg-${pConfig.color}-500/10 border-${pConfig.color}-500/20`;
 
     return `
       <div class="modal-content-box bg-[#0D0D0D] border border-[#2A2A2A] p-[22px] rounded-[20px] w-full max-w-[420px] shadow-saas relative animate-scaleIn flex flex-col gap-[18px]">
@@ -982,7 +1008,7 @@ window.ScheduleModal = {
             </div>
             <div class="text-[15px] font-bold text-[#FAFAFA] truncate">${this.milestoneTitle}</div>
             <div class="flex items-center space-x-2 mt-1">
-              <span class="px-2 py-[3px] rounded-full text-[9px] font-bold border ${badgeColor}">${this.milestonePriority ? this.milestonePriority.charAt(0).toUpperCase() + this.milestonePriority.slice(1).toLowerCase() : 'Medium'} Priority</span>
+              <span class="px-2 py-[3px] rounded-full text-[9px] font-bold border ${badgeColor}">${pConfig.label} Priority</span>
               <span class="text-[10px] font-medium text-[#6B7280]">Est. ${this.milestoneEstimate}</span>
             </div>
           </div>

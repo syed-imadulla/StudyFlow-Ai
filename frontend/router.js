@@ -436,7 +436,7 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
     const priority = document.getElementById('modalInputPriority').value;
     const autoBreakdown = !isTimeBlock && document.getElementById('modalAiBreakdownCheck').checked;
     const braindump = document.getElementById('modalBraindumpText').value.trim();
-    const tag = category !== 'Uncategorized' ? category : priority;
+    const tag = category;
 
     let sub = '';
     let deadlinePayload = null;
@@ -497,8 +497,8 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
       const newItem = document.createElement('div');
       let tagClass = "bg-[#A855F7]/15 border-[#A855F7]/40 text-[#A855F7]";
       let circleClass = "bg-[#A855F7]";
-      if (tag === 'Review' || tag === 'Medium') { tagClass = "bg-[#FACC15]/15 border-[#FACC15]/40 text-[#FACC15]"; circleClass = "bg-[#FACC15]"; }
-      if (tag === 'Study' || tag === 'Low') { tagClass = "bg-[#151515] border-[#2A2A2A] text-[#A1A1AA]"; circleClass = "bg-[#6B7280]"; }
+      if (tag === 'Review') { tagClass = "bg-[#FACC15]/15 border-[#FACC15]/40 text-[#FACC15]"; circleClass = "bg-[#FACC15]"; }
+      if (tag === 'Study') { tagClass = "bg-[#151515] border-[#2A2A2A] text-[#A1A1AA]"; circleClass = "bg-[#6B7280]"; }
 
       newItem.className = "p-4 rounded-xl bg-[#0A0A0A] border border-[#202020] flex items-center justify-between group hover:border-[#A855F7]/50 transition animate-fadeIn mt-3.5";
       newItem.innerHTML = `

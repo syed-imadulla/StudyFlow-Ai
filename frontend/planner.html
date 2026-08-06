@@ -7821,8 +7821,11 @@
 
         const subject  = event.subject || event.description || 'None';
         const typeStr  = event.type || event.category || '';
-        const priority = event.priority || 'Medium';
-        const priorityColor = priority.toLowerCase() === 'high' ? '#F87171' : priority.toLowerCase() === 'low' ? '#60A5FA' : '#FBBF24';
+        const priority = event.priority || window.SF_COMPONENTS.PRIORITY.MEDIUM;
+        const pConfig = window.SF_COMPONENTS.getPriorityConfig(priority);
+        const priorityColor = pConfig.hex || pConfig.color === 'red' ? '#F87171' : pConfig.color === 'gray' ? '#60A5FA' : pConfig.color === 'blue' ? '#3B82F6' : '#FBBF24'; // Quick inline hex mapping if needed, wait, let's just use the config logic directly, actually let's provide standard hex mappings.
+        // Wait, I didn't add hex in the components.js, let me just add a simple mapper for the hex color.
+        const hexColor = pConfig.color === 'red' ? '#EF4444' : pConfig.color === 'orange' ? '#F97316' : pConfig.color === 'blue' ? '#3B82F6' : '#6B7280';
 
         const isRecurring = !!(event.isRecurring || event.seriesId || (typeof (event.id || event._id || '') === 'string' && (event.id || event._id || '').includes('::')));
         let recLabel = 'None';
@@ -7890,7 +7893,7 @@
             <span style="color:#71717A;">Duration:</span><span style="color:#D8B4FE;font-weight:600;font-family:monospace;">${durLabel}</span>
             <span style="color:#71717A;">Subject:</span><span style="color:#E4E4E7;font-weight:500;">${subject}</span>
             <span style="color:#71717A;">Goal:</span><span style="color:#E4E4E7;font-weight:500;">${goalTitle}</span>
-            <span style="color:#71717A;">Priority:</span><span style="color:${priorityColor};font-weight:600;">${priority}</span>
+            <span style="color:#71717A;">Priority:</span><span style="color:${hexColor};font-weight:600;">${pConfig.label}</span>
             <span style="color:#71717A;">Recurrence:</span><span style="color:${isRecurring ? '#A855F7' : '#A1A1AA'};font-weight:500;">${recLabel}</span>
           </div>
         `;
