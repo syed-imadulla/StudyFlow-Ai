@@ -3,6 +3,19 @@
  * Stable action layer for UI interactions.
  */
 window.WorkspaceActions = {
+  searchTimeout: null,
+  debouncedSearch(value) {
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      window.WorkspaceState.setSearch(value);
+      const announcer = document.getElementById('search-announcer');
+      if (announcer) {
+         const resultsCount = window.WorkspaceState.pipelineResults ? window.WorkspaceState.pipelineResults.length : 0;
+         announcer.textContent = `${resultsCount} goal${resultsCount !== 1 ? 's' : ''} found.`;
+      }
+    }, 250);
+  },
+
   openGoal(id) {
     window.location.href = `idealab.html?goalId=${id}`;
   },

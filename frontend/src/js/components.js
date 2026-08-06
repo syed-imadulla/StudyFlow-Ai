@@ -127,6 +127,109 @@
       return this.PRIORITY_CONFIG[normalized] || this.PRIORITY_CONFIG.UNKNOWN;
     },
 
+    EMPTY_STATES: Object.freeze({
+      workspace_empty: {
+        icon: '<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/><path d="M7 12h2v5H7zm4-3h2v8h-2zm4-3h2v11h-2z"/></svg>',
+        title: 'No Active Workspace Goals',
+        description: 'Get started by creating your first AI Goal Breakdown or structuring blueprints in IdeaLab.',
+        primaryAction: { label: '+ Create AI Goal', onClick: 'window.WorkspaceActions.editGoal(null)' }
+      },
+      search_empty: (query, hasFilters) => ({
+        icon: '<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>',
+        title: 'No Search Results',
+        description: `No goals match "${query}".`,
+        primaryAction: { label: 'Clear Search', onClick: 'window.WorkspaceActions.setSearch(\'\')' },
+        secondaryAction: hasFilters ? { label: 'Clear Filters', onClick: 'window.WorkspaceActions.setFilter(\'ALL\')' } : null
+      }),
+      archive_empty: {
+        icon: '<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM6.24 5h11.52l.83 1H5.42l.82-1zM5 19V8h14v11H5zm8-5.5l5.5-5.5-1.41-1.41L13 10.67V5h-2v5.67L6.91 6.59 5.5 8 11 13.5z"/></svg>',
+        title: 'Archive Empty',
+        description: 'You have no archived goals. Archiving helps you clean up your active workspace without deleting progress.',
+        primaryAction: { label: 'View Active Goals', onClick: 'window.WorkspaceActions.setFilter(\'ALL\')' }
+      },
+      completed_empty: {
+        icon: '<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>',
+        title: 'No Completed Goals',
+        description: 'You haven\'t completed any goals yet. Keep working towards your milestones!',
+        primaryAction: { label: 'Go to Active Goals', onClick: 'window.WorkspaceActions.setFilter(\'ALL\')' }
+      },
+      filter_empty: {
+        icon: '<svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>',
+        title: 'No Goals Found',
+        description: 'Adjust your filters or search query.',
+        primaryAction: { label: 'Clear Filters', onClick: 'window.WorkspaceActions.setFilter(\'ALL\')' }
+      }
+    }),
+
+    toggleSortMenu(event) {
+      if (event) { event.preventDefault(); event.stopPropagation(); }
+      const menu = document.getElementById('sf-menu-workspaceSortSelect');
+      const btn = document.getElementById('workspaceSortSelectBtn');
+      if (!menu || !btn) return;
+      
+      const isHidden = menu.classList.contains('hidden');
+      if (isHidden) {
+        menu.classList.remove('hidden');
+        btn.setAttribute('aria-expanded', 'true');
+        const firstItem = menu.querySelector('[role="option"]');
+        if (firstItem) firstItem.focus();
+      } else {
+        menu.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.focus();
+      }
+    },
+
+    handleSortBtnKeydown(event) {
+      if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown') {
+        window.SF_COMPONENTS.toggleSortMenu(event);
+      }
+    },
+
+    selectSort(value, label) {
+      const select = document.getElementById('workspaceSortSelect');
+      const display = document.getElementById('sf-display-workspaceSortSelect');
+      if (select && display) {
+        select.value = value;
+        display.innerText = label;
+        select.dispatchEvent(new Event('change'));
+      }
+      
+      const menu = document.getElementById('sf-menu-workspaceSortSelect');
+      if (menu) {
+        menu.querySelectorAll('[role="option"]').forEach(opt => opt.setAttribute('aria-selected', 'false'));
+        if (document.activeElement && document.activeElement.getAttribute('role') === 'option') {
+          document.activeElement.setAttribute('aria-selected', 'true');
+        }
+      }
+      
+      window.SF_COMPONENTS.toggleSortMenu();
+    },
+
+    handleSortOptionKeydown(event, value) {
+      const menu = document.getElementById('sf-menu-workspaceSortSelect');
+      if (!menu) return;
+      
+      const items = Array.from(menu.querySelectorAll('[role="option"]'));
+      const currentIndex = items.indexOf(document.activeElement);
+      
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        const nextIndex = (currentIndex + 1) % items.length;
+        items[nextIndex].focus();
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        const prevIndex = (currentIndex - 1 + items.length) % items.length;
+        items[prevIndex].focus();
+      } else if (event.key === 'Escape' || event.key === 'Tab') {
+        event.preventDefault();
+        window.SF_COMPONENTS.toggleSortMenu();
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        document.activeElement.click();
+      }
+    },
+
     /**
      * Render Goal Action Overflow Menu (Sprint 1D.2)
      */
@@ -326,7 +429,7 @@
         `;
       } else if (mode === 'grid') {
         return `
-          <div role="button" tabindex="0" aria-label="Open Goal Grid: ${model.title}" onclick="${clickAction}" onkeydown="if(event.key==='Enter'||event.key===' ')(${clickAction})" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] flex flex-col justify-between space-y-4 hover:border-[#A855F7]/50 hover:shadow-[0_10px_30px_rgba(168,85,247,0.12)] transition-all duration-200 cursor-pointer relative group">
+          <div role="button" tabindex="0" aria-label="Open Goal Grid: ${model.title}" onclick="${clickAction}" onkeydown="if(event.key==='Enter'||event.key===' ')(${clickAction})" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] flex flex-col justify-between h-full space-y-4 hover:border-[#A855F7]/50 hover:shadow-[0_10px_30px_rgba(168,85,247,0.12)] transition-all duration-200 cursor-pointer relative group">
             <div class="space-y-3">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap items-center gap-2 min-w-0">
@@ -708,15 +811,119 @@
     /**
      * Render Empty State
      */
-    renderEmptyState({ title = 'No items found', message = 'Get started by creating your first item below.', iconHtml = '📭', actionHtml = '' }) {
+    renderEmptyState({ icon, title, description, primaryAction, secondaryAction }) {
+      const iconContent = icon || '<svg aria-hidden="true" class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/><path d="M7 12h2v5H7zm4-3h2v8h-2zm4-3h2v11h-2z"/></svg>';
+      const primaryHtml = primaryAction ? `<button onclick="${primaryAction.onClick}" class="btn btn-primary px-5 py-2.5 text-xs font-bold shadow-[0_0_20px_rgba(168,85,247,0.3)]">${primaryAction.label}</button>` : '';
+      const secondaryHtml = secondaryAction ? `<button onclick="${secondaryAction.onClick}" class="btn btn-secondary px-5 py-2.5 text-xs font-bold ml-2 shadow-[0_0_20px_rgba(255,255,255,0.05)]">${secondaryAction.label}</button>` : '';
+      
       return `
-        <div class="p-8 rounded-2xl bg-[#0A0A0A]/60 border border-dashed border-[#2A2A2A] text-center space-y-3 my-4 animate-fadeIn">
-          <div class="w-12 h-12 rounded-2xl bg-[#151515] border border-[#252525] flex items-center justify-center text-2xl mx-auto text-[#A855F7] shadow-[0_0_15px_rgba(168,85,247,0.15)]">${iconHtml}</div>
-          <h4 class="text-sm font-bold text-[#FAFAFA]">${title}</h4>
-          <p class="text-xs text-[#6B7280] max-w-sm mx-auto leading-relaxed">${message}</p>
-          ${actionHtml ? `<div class="pt-2">${actionHtml}</div>` : ''}
+        <div class="p-8 rounded-2xl bg-[#0A0A0A]/60 border border-dashed border-[#2A2A2A] text-center space-y-3 my-4 motion-safe:animate-fadeIn">
+          <div aria-hidden="true" class="w-12 h-12 rounded-2xl bg-[#151515] border border-[#252525] flex items-center justify-center text-2xl mx-auto text-[#A855F7] shadow-[0_0_15px_rgba(168,85,247,0.15)]">${iconContent}</div>
+          <h4 class="text-sm font-bold text-[#FAFAFA]">${title || 'No items found'}</h4>
+          <p class="text-xs text-[#6B7280] max-w-sm mx-auto leading-relaxed">${description || 'Get started by creating your first item below.'}</p>
+          ${(primaryHtml || secondaryHtml) ? `<div class="pt-4 flex items-center justify-center">${primaryHtml}${secondaryHtml}</div>` : ''}
         </div>
       `;
+    },
+
+    /**
+     * Render Goal Card Skeleton
+     */
+    renderGoalCardSkeleton(mode = 'compact') {
+      if (mode === 'compact') {
+        return `
+          <div aria-hidden="true" class="relative p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] space-y-2.5 flex flex-col pointer-events-none">
+            <div class="flex items-center justify-between gap-2">
+              <div class="h-4 w-20 bg-white/5 rounded motion-safe:animate-pulse"></div>
+              <div class="w-6 h-6 rounded bg-white/5 motion-safe:animate-pulse"></div>
+            </div>
+            <div>
+              <div class="h-4 w-3/4 bg-white/5 rounded mt-1 motion-safe:animate-pulse"></div>
+              <div class="h-3 w-1/2 bg-white/5 rounded mt-2 motion-safe:animate-pulse"></div>
+            </div>
+            <div class="space-y-1 pt-1 border-t border-[#1C1C1C]">
+              <div class="flex items-center justify-between mt-1">
+                <div class="h-3 w-16 bg-white/5 rounded motion-safe:animate-pulse"></div>
+                <div class="h-3 w-6 bg-white/5 rounded motion-safe:animate-pulse"></div>
+              </div>
+              <div class="h-1.5 w-full bg-[#151515] rounded-full overflow-hidden mt-1">
+                <div class="h-full bg-white/10 w-1/3 motion-safe:animate-pulse rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (mode === 'grid') {
+        return `
+          <div aria-hidden="true" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] flex flex-col justify-between space-y-4 pointer-events-none min-h-[180px]">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <div class="h-5 w-24 bg-white/5 rounded motion-safe:animate-pulse"></div>
+                <div class="w-8 h-8 rounded bg-white/5 motion-safe:animate-pulse"></div>
+              </div>
+              <div>
+                <div class="h-5 w-3/4 bg-white/5 rounded mt-1 motion-safe:animate-pulse"></div>
+                <div class="h-3 w-full bg-white/5 rounded mt-3 motion-safe:animate-pulse"></div>
+                <div class="h-3 w-2/3 bg-white/5 rounded mt-2 motion-safe:animate-pulse"></div>
+              </div>
+            </div>
+            <div class="space-y-3 pt-4 border-t border-[#1C1C1C]">
+              <div class="flex items-center justify-between mt-1">
+                <div class="h-3 w-20 bg-white/5 rounded motion-safe:animate-pulse"></div>
+                <div class="h-3 w-8 bg-white/5 rounded motion-safe:animate-pulse"></div>
+              </div>
+              <div class="h-1.5 w-full bg-[#0A0A0A] rounded-full overflow-hidden mt-1">
+                <div class="h-full bg-white/10 w-1/3 motion-safe:animate-pulse rounded-full"></div>
+              </div>
+              <div class="flex items-center pt-1">
+                <div class="w-full py-2 bg-[#151515] rounded-xl h-8 motion-safe:animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (mode === 'expanded') {
+        return `
+          <div aria-hidden="true" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] space-y-4 pointer-events-none min-h-[220px]">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#1C1C1C]">
+              <div class="flex items-start space-x-3.5 min-w-0 flex-1">
+                <div class="w-10 h-10 rounded-xl bg-white/5 motion-safe:animate-pulse shrink-0 mt-1"></div>
+                <div class="min-w-0 flex-1 space-y-2">
+                  <div class="h-5 w-1/3 bg-white/5 rounded motion-safe:animate-pulse"></div>
+                  <div class="flex flex-wrap items-center gap-2 mt-2">
+                    <div class="h-5 w-20 bg-white/5 rounded motion-safe:animate-pulse"></div>
+                    <div class="h-6 w-32 bg-white/5 rounded motion-safe:animate-pulse"></div>
+                  </div>
+                  <div class="h-3 w-2/3 bg-white/5 rounded mt-3 motion-safe:animate-pulse"></div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between md:justify-end space-x-4 shrink-0 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-[#1C1C1C]">
+                <div class="text-right">
+                  <div class="h-2 w-16 bg-white/5 rounded ml-auto mb-1 motion-safe:animate-pulse"></div>
+                  <div class="h-4 w-20 bg-white/5 rounded motion-safe:animate-pulse"></div>
+                </div>
+                <div class="w-px h-8 bg-[#1C1C1C] hidden md:block"></div>
+                <div class="flex items-center space-x-3">
+                  <div class="w-24 bg-[#0A0A0A] h-2 rounded-full overflow-hidden border border-[#202020]">
+                    <div class="bg-white/10 h-full rounded-full w-1/3 motion-safe:animate-pulse"></div>
+                  </div>
+                  <div class="h-3 w-6 bg-white/5 rounded motion-safe:animate-pulse"></div>
+                </div>
+                <div class="w-8 h-8 rounded bg-white/5 motion-safe:animate-pulse"></div>
+              </div>
+            </div>
+            <div class="space-y-2 pt-1">
+              <div class="flex items-center justify-between mb-2 px-1">
+                <div class="h-3 w-48 bg-white/5 rounded motion-safe:animate-pulse"></div>
+                <div class="h-3 w-20 bg-white/5 rounded motion-safe:animate-pulse"></div>
+              </div>
+              <div class="space-y-2.5">
+                <div class="h-16 w-full bg-[#0A0A0A] rounded-xl border border-[#202020] motion-safe:animate-pulse"></div>
+                <div class="h-16 w-full bg-[#0A0A0A] rounded-xl border border-[#202020] motion-safe:animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      return '';
     },
 
     /**

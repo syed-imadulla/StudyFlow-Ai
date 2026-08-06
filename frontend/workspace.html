@@ -48,57 +48,59 @@
           <h1 class="text-3xl font-extrabold tracking-tight text-[#FAFAFA] font-sans">Workspace & Active Goals</h1>
           <p class="text-[#A1A1AA] text-sm mt-1">Manage hierarchical AI deliverables, subtasks, and assigned intermediate deadlines.</p>
         </div>
-        <div class="flex items-center space-x-3">
-          <div class="flex items-center space-x-1 bg-[#0A0A0A] p-1 rounded-xl border border-[#202020]">
-            <button class="ws-tab px-4 py-2 rounded-lg bg-[#A855F7] text-[#FAFAFA] font-bold text-xs shadow-[0_0_20px_rgba(168,85,247,0.25)] transition" data-target="tasks">Hierarchical Tasks</button>
-            <button class="ws-tab px-4 py-2 rounded-lg text-[#A1A1AA] hover:text-[#FAFAFA] font-semibold text-xs transition" data-target="goals">Goal Summary</button>
-            <button class="ws-tab px-4 py-2 rounded-lg text-[#A1A1AA] hover:text-[#FAFAFA] font-semibold text-xs transition" data-target="resources">AI Resources</button>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          <div class="flex items-center gap-1 bg-[#0A0A0A] p-1 rounded-xl border border-[#202020] overflow-x-auto no-scrollbar whitespace-nowrap">
+            <button class="ws-tab px-4 py-2 rounded-lg bg-[#A855F7] text-[#FAFAFA] font-bold text-xs shadow-[0_0_20px_rgba(168,85,247,0.25)] transition shrink-0" data-target="tasks">Hierarchical Tasks</button>
+            <button class="ws-tab px-4 py-2 rounded-lg text-[#A1A1AA] hover:text-[#FAFAFA] font-semibold text-xs transition shrink-0" data-target="goals">Goal Summary</button>
+            <button class="ws-tab px-4 py-2 rounded-lg text-[#A1A1AA] hover:text-[#FAFAFA] font-semibold text-xs transition shrink-0" data-target="resources">AI Resources</button>
           </div>
-          <button onclick="window.WorkspaceActions.createGoal()" class="btn btn-primary px-5 py-2.5 text-xs font-bold shadow-[0_0_20px_rgba(168,85,247,0.25)] flex items-center space-x-1">
+          <button onclick="window.WorkspaceActions.createGoal()" class="btn btn-primary px-5 py-2.5 text-xs font-bold shadow-[0_0_20px_rgba(168,85,247,0.25)] flex items-center justify-center gap-1 shrink-0">
             <span>+ Create AI Goal</span>
           </button>
         </div>
       </header>
 
       <!-- Workspace Controls -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- Discovery Search Bar -->
-          <div class="relative w-48 sm:w-56 shrink-0">
-            <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#6B7280]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <input type="text" id="workspaceSearchInput" placeholder="Search goals..." oninput="window.WorkspaceState.setSearch(this.value)" class="w-full bg-[#0A0A0A] border border-[#202020] text-[#FAFAFA] text-xs font-medium rounded-full pl-9 pr-3 py-1.5 focus:outline-none focus:border-[#A855F7] hover:border-[#303030] transition-colors shadow-inner" />
-          </div>
-          
-          <button onclick="window.WorkspaceActions.setFilter('ALL')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#A855F7] bg-[#A855F7]/10 text-[#A855F7]" data-filter="ALL">All Goals</button>
-          <button onclick="window.WorkspaceActions.setFilter('HEALTHY')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="HEALTHY">Healthy</button>
-          <button onclick="window.WorkspaceActions.setFilter('OVERDUE')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="OVERDUE">Overdue</button>
-          <button onclick="window.WorkspaceActions.setFilter('DUE_TODAY')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="DUE_TODAY">Due Today</button>
-          <button onclick="window.WorkspaceActions.setFilter('BLOCKING')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="BLOCKING">Blocking</button>
-          <button onclick="window.WorkspaceActions.setFilter('COMPLETED')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="COMPLETED">Completed</button>
-          <button onclick="window.WorkspaceActions.setFilter('ARCHIVED')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="ARCHIVED">Archived</button>
+      <div class="flex flex-wrap items-center gap-4 pt-2">
+        <!-- Discovery Search Bar -->
+        <div class="relative w-full md:w-64 shrink-0">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#6B7280]" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <input type="text" id="workspaceSearchInput" placeholder="Search goals..." aria-label="Search goals" oninput="window.WorkspaceActions.debouncedSearch(this.value)" class="w-full bg-[#0A0A0A] border border-[#202020] text-[#FAFAFA] text-xs font-medium rounded-full pl-9 pr-3 py-1.5 focus:outline-none focus:border-[#A855F7] focus:ring-1 focus:ring-[#A855F7] hover:border-[#303030] transition-colors shadow-inner" />
+          <div id="search-announcer" aria-live="polite" class="sr-only"></div>
         </div>
         
-        <div class="flex items-center gap-3">
+        <!-- Filters Row -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <button onclick="window.WorkspaceActions.setFilter('ALL')" class="ws-filter-chip shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-150 border-[#A855F7] bg-[#A855F7]/10 text-[#A855F7]" data-filter="ALL" aria-pressed="true">All Goals</button>
+          <button onclick="window.WorkspaceActions.setFilter('HEALTHY')" class="ws-filter-chip shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-150 border-[#202020] bg-transparent text-[#6B7280] hover:border-[#A855F7]/40 hover:text-[#FAFAFA]" data-filter="HEALTHY" aria-pressed="false">Healthy</button>
+          <button onclick="window.WorkspaceActions.setFilter('OVERDUE')" class="ws-filter-chip shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-150 border-[#202020] bg-transparent text-[#6B7280] hover:border-[#A855F7]/40 hover:text-[#FAFAFA]" data-filter="OVERDUE" aria-pressed="false">Overdue</button>
+          <button onclick="window.WorkspaceActions.setFilter('DUE_TODAY')" class="ws-filter-chip shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-150 border-[#202020] bg-transparent text-[#6B7280] hover:border-[#A855F7]/40 hover:text-[#FAFAFA]" data-filter="DUE_TODAY" aria-pressed="false">Due Today</button>
+          <button onclick="window.WorkspaceActions.setFilter('BLOCKING')" class="ws-filter-chip shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-150 border-[#202020] bg-transparent text-[#6B7280] hover:border-[#A855F7]/40 hover:text-[#FAFAFA]" data-filter="BLOCKING" aria-pressed="false">Blocking</button>
+          <button onclick="window.WorkspaceActions.setFilter('COMPLETED')" class="ws-filter-chip shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-150 border-[#202020] bg-transparent text-[#6B7280] hover:border-[#A855F7]/40 hover:text-[#FAFAFA]" data-filter="COMPLETED" aria-pressed="false">Completed</button>
+          <button onclick="window.WorkspaceActions.setFilter('ARCHIVED')" class="ws-filter-chip shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-150 border-[#202020] bg-transparent text-[#6B7280] hover:border-[#A855F7]/40 hover:text-[#FAFAFA]" data-filter="ARCHIVED" aria-pressed="false">Archived</button>
+        </div>
+        
+        <div class="flex items-center gap-3 ml-auto shrink-0">
           <span class="text-xs text-[#A1A1AA] font-semibold shrink-0">Sort By</span>
-          <div class="relative sf-custom-select-container w-[180px]">
-            <select id="workspaceSortSelect" class="hidden" onchange="window.WorkspaceActions.setSort(this.value)">
+          <div class="relative sf-custom-select-container w-[160px]">
+            <select id="workspaceSortSelect" class="hidden" onchange="window.WorkspaceActions.setSort(this.value)" aria-hidden="true" tabindex="-1">
               <option value="PRIORITY">Priority</option>
               <option value="DEADLINE">Deadline</option>
               <option value="HEALTH">Goal Health</option>
               <option value="PROGRESS">Progress</option>
               <option value="REMAINING">Remaining Milestones</option>
             </select>
-            <button type="button" onclick="document.getElementById('sf-menu-workspaceSortSelect').classList.toggle('hidden')" class="w-full px-3 py-2 bg-[#0E0E0E] border border-[#202020] hover:border-[#A855F7]/50 text-[#FAFAFA] text-xs font-bold rounded-xl focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group cursor-pointer">
+            <button type="button" id="workspaceSortSelectBtn" aria-haspopup="listbox" aria-expanded="false" onclick="window.SF_COMPONENTS.toggleSortMenu(event)" onkeydown="window.SF_COMPONENTS.handleSortBtnKeydown(event)" class="w-full px-3 py-2 bg-[#0E0E0E] border border-[#202020] hover:border-[#A855F7]/50 text-[#FAFAFA] text-xs font-bold rounded-xl focus:outline-none focus:border-[#A855F7] focus:ring-1 focus:ring-[#A855F7] transition-all duration-200 flex items-center justify-between group cursor-pointer">
               <span id="sf-display-workspaceSortSelect" class="flex items-center gap-2">Priority</span>
-              <svg class="w-3 h-3 text-[#6B7280] group-hover:text-[#FAFAFA] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              <svg class="w-3 h-3 text-[#6B7280] group-hover:text-[#FAFAFA] transition-transform" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
-            <div id="sf-menu-workspaceSortSelect" class="hidden absolute right-0 mt-1 w-full bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5">
-              <div onclick="document.getElementById('workspaceSortSelect').value='PRIORITY'; document.getElementById('sf-display-workspaceSortSelect').innerText='Priority'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Priority</div>
-              <div onclick="document.getElementById('workspaceSortSelect').value='DEADLINE'; document.getElementById('sf-display-workspaceSortSelect').innerText='Deadline'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Deadline</div>
-              <div onclick="document.getElementById('workspaceSortSelect').value='RECENT_UPDATED'; document.getElementById('sf-display-workspaceSortSelect').innerText='Recently Updated'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Recently Updated</div>
-              <div onclick="document.getElementById('workspaceSortSelect').value='RECENT_CREATED'; document.getElementById('sf-display-workspaceSortSelect').innerText='Recently Created'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Recently Created</div>
-              <div onclick="document.getElementById('workspaceSortSelect').value='PROGRESS'; document.getElementById('sf-display-workspaceSortSelect').innerText='Progress'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Progress</div>
-              <div onclick="document.getElementById('workspaceSortSelect').value='ALPHABETICAL'; document.getElementById('sf-display-workspaceSortSelect').innerText='Alphabetical'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Alphabetical</div>
+            <div id="sf-menu-workspaceSortSelect" role="listbox" aria-labelledby="workspaceSortSelectBtn" tabindex="-1" class="hidden absolute right-0 mt-1 w-full bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5">
+              <button role="option" aria-selected="true" type="button" onclick="window.SF_COMPONENTS.selectSort('PRIORITY', 'Priority')" onkeydown="window.SF_COMPONENTS.handleSortOptionKeydown(event, 'PRIORITY')" class="w-full text-left px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 focus:bg-white/5 focus:outline-none focus:ring-1 focus:ring-[#A855F7] text-[#A1A1AA] hover:text-[#FAFAFA] focus:text-[#FAFAFA]">Priority</button>
+              <button role="option" aria-selected="false" type="button" onclick="window.SF_COMPONENTS.selectSort('DEADLINE', 'Deadline')" onkeydown="window.SF_COMPONENTS.handleSortOptionKeydown(event, 'DEADLINE')" class="w-full text-left px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 focus:bg-white/5 focus:outline-none focus:ring-1 focus:ring-[#A855F7] text-[#A1A1AA] hover:text-[#FAFAFA] focus:text-[#FAFAFA]">Deadline</button>
+              <button role="option" aria-selected="false" type="button" onclick="window.SF_COMPONENTS.selectSort('RECENT_UPDATED', 'Recently Updated')" onkeydown="window.SF_COMPONENTS.handleSortOptionKeydown(event, 'RECENT_UPDATED')" class="w-full text-left px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 focus:bg-white/5 focus:outline-none focus:ring-1 focus:ring-[#A855F7] text-[#A1A1AA] hover:text-[#FAFAFA] focus:text-[#FAFAFA]">Recently Updated</button>
+              <button role="option" aria-selected="false" type="button" onclick="window.SF_COMPONENTS.selectSort('RECENT_CREATED', 'Recently Created')" onkeydown="window.SF_COMPONENTS.handleSortOptionKeydown(event, 'RECENT_CREATED')" class="w-full text-left px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 focus:bg-white/5 focus:outline-none focus:ring-1 focus:ring-[#A855F7] text-[#A1A1AA] hover:text-[#FAFAFA] focus:text-[#FAFAFA]">Recently Created</button>
+              <button role="option" aria-selected="false" type="button" onclick="window.SF_COMPONENTS.selectSort('PROGRESS', 'Progress')" onkeydown="window.SF_COMPONENTS.handleSortOptionKeydown(event, 'PROGRESS')" class="w-full text-left px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 focus:bg-white/5 focus:outline-none focus:ring-1 focus:ring-[#A855F7] text-[#A1A1AA] hover:text-[#FAFAFA] focus:text-[#FAFAFA]">Progress</button>
+              <button role="option" aria-selected="false" type="button" onclick="window.SF_COMPONENTS.selectSort('ALPHABETICAL', 'Alphabetical')" onkeydown="window.SF_COMPONENTS.handleSortOptionKeydown(event, 'ALPHABETICAL')" class="w-full text-left px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 focus:bg-white/5 focus:outline-none focus:ring-1 focus:ring-[#A855F7] text-[#A1A1AA] hover:text-[#FAFAFA] focus:text-[#FAFAFA]">Alphabetical</button>
             </div>
           </div>
         </div>
@@ -112,8 +114,10 @@
       </section>
 
       <!-- Tab 2: Goal Boards Grid View -->
-      <section id="goalsView" class="ws-panel hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="goalsCardsContainer">
-        <!-- Populated via renderWorkspaceGoals() -->
+      <section id="goalsView" class="ws-panel hidden">
+        <div id="goalsCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <!-- Populated via renderWorkspaceGoals() -->
+        </div>
       </section>
 
       <!-- Tab 3: AI Resources -->
@@ -145,7 +149,7 @@
       const rawGoals = goalsSlice.items || [];
       
       // Delegate entirely to the new WorkspaceRenderer
-      window.WorkspaceRenderer.render(rawGoals);
+      window.WorkspaceRenderer.render(rawGoals, goalsSlice.loading);
       
       // Update Filter Chips UI state using the new unified filters object
       const f = window.WorkspaceState.filters;
@@ -162,9 +166,11 @@
         else if (filterName === 'ARCHIVED') isActive = f.archived === true;
 
         if (isActive) {
-          chip.className = 'ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#A855F7] bg-[#A855F7]/10 text-[#A855F7]';
+          chip.className = 'ws-filter-chip shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-150 border-[#A855F7] bg-[#A855F7]/10 text-[#A855F7]';
+          chip.setAttribute('aria-pressed', 'true');
         } else {
-          chip.className = 'ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]';
+          chip.className = 'ws-filter-chip shrink-0 whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold border transition-all duration-150 border-[#202020] bg-transparent text-[#6B7280] hover:border-[#A855F7]/40 hover:text-[#FAFAFA]';
+          chip.setAttribute('aria-pressed', 'false');
         }
       });
       
@@ -176,10 +182,21 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-      const container = document.getElementById('goalsDynamicContainer');
-      const cardsContainer = document.getElementById('goalsView');
-      if (container && window.SF_COMPONENTS) container.innerHTML = window.SF_COMPONENTS.renderSkeleton('compact', 2);
-      if (cardsContainer && window.SF_COMPONENTS) cardsContainer.innerHTML = window.SF_COMPONENTS.renderSkeleton('grid', 2);
+      // Horizontal scroll support for filters
+      const scrollContainer = document.querySelector('.overflow-x-auto');
+      if (scrollContainer) {
+        scrollContainer.addEventListener('wheel', (evt) => {
+          if (evt.deltaY !== 0) {
+            evt.preventDefault();
+            scrollContainer.scrollLeft += evt.deltaY;
+          }
+        }, { passive: false });
+      }
+
+      // Show initial skeletons using the orchestrator
+      if (window.WorkspaceRenderer) {
+        window.WorkspaceRenderer.render([], true);
+      }
 
       // Subscribe WorkspaceState to re-render when filters/sort changes
       window.WorkspaceState.subscribe(() => renderWorkspaceGoals());
