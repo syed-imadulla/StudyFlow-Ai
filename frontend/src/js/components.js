@@ -251,13 +251,21 @@
         }
       };
 
-      const hasDeadline = model.deadline && model.deadline.type && model.deadline.type !== 'NO_DEADLINE';
-      const urgencyBadgeColor = model.deadline.badge || 'neutral';
-      
-      const urgencyBadgeHtml = hasDeadline ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 bg-${urgencyBadgeColor}-500/10 border border-${urgencyBadgeColor}-500/30 text-${urgencyBadgeColor}-400 flex items-center space-x-1 whitespace-nowrap">${getIconSvg(model.deadline.icon)}<span>${model.deadline.type}</span></span>` : '';
-      
-      const healthColor = model.health.color || 'success';
-      const healthBadgeHtml = `<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 bg-${healthColor}-500/10 border border-${healthColor}-500/30 text-${healthColor}-400 flex items-center space-x-1 whitespace-nowrap">${getIconSvg('shield')}<span>${model.health.label}</span></span>`;
+      const getHealthIcon = (status) => {
+         switch(status) {
+            case 'COMPLETED': return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
+            case 'ARCHIVED': return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM6.24 5h11.52l.83 1H5.42l.82-1zM5 19V8h14v11H5zm8-5.5l5.5-5.5-1.41-1.41L13 10.67V5h-2v5.67L6.91 6.59 5.5 8 11 13.5z"/></svg>`;
+            case 'OVERDUE': return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
+            case 'DUE_TODAY': return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>`;
+            case 'AT_RISK': return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>`;
+            case 'HEALTHY': return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`;
+            default: return `<svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`;
+         }
+      };
+
+      const healthColor = model.health.color || 'green';
+      const healthStatus = model.health.status || 'HEALTHY';
+      const healthBadgeHtml = `<span class="px-2.5 py-[3px] rounded text-[10px] font-bold tracking-wider uppercase shrink-0 bg-${healthColor}-500/10 border border-${healthColor}-500/30 text-${healthColor}-400 flex items-center space-x-1.5 whitespace-nowrap shadow-sm">${getHealthIcon(healthStatus)}<span>${model.health.label}</span></span>`;
 
       const blockingHtml = model.blockingMilestone ? `
         <div class="mt-2 text-xs font-semibold text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-lg flex items-center w-max shrink-0">
@@ -273,7 +281,6 @@
           <div role="button" tabindex="0" aria-label="Open Goal: ${model.title}" onclick="${clickAction}" onkeydown="if(event.key==='Enter'||event.key===' ')(${clickAction})" class="relative p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] hover:border-[#A855F7]/50 hover:shadow-lg transition-all duration-200 cursor-pointer space-y-2.5 group flex flex-col">
             <div class="flex items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-1.5 min-w-0">
-                ${urgencyBadgeHtml}
                 ${healthBadgeHtml}
               </div>
               ${this.renderGoalActionMenu(model)}
@@ -298,7 +305,6 @@
             <div class="space-y-3">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap items-center gap-2 min-w-0">
-                  ${urgencyBadgeHtml}
                   ${healthBadgeHtml}
                 </div>
                 ${this.renderGoalActionMenu(model)}
@@ -336,7 +342,6 @@
                 <div class="min-w-0 flex-1 space-y-2">
                   <h3 class="text-base font-bold text-[#FAFAFA] truncate leading-tight">${model.title}</h3>
                   <div class="flex flex-wrap items-center gap-2">
-                    ${urgencyBadgeHtml}
                     ${healthBadgeHtml}
                     <button onclick="${clickAction}" class="px-3 py-1 rounded-lg bg-[#A855F7] text-white hover:bg-[#9333EA] transition text-[11px] font-bold flex items-center space-x-1.5 shadow-[0_0_15px_rgba(168,85,247,0.3)] shrink-0" title="Restructure & Refine Main Goal in IdeaLab">
                       <svg class="w-3.5 h-3.5 inline shrink-0 fill-current drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
@@ -398,8 +403,8 @@
             goalId: options.goalId || input.goalId,
             title: input.title || 'Task',
             completed: !!input.completed,
-            priority: input.priority || 'Medium',
-            priorityColor: input.priority === 'High' ? 'danger' : input.priority === 'Medium' ? 'warning' : 'success',
+            priority: input.priority || 'MEDIUM',
+            priorityColor: input.priority === 'HIGH' || input.priority === 'URGENT' ? 'danger' : input.priority === 'MEDIUM' ? 'warning' : 'success',
             deadline: { shortLabel: input.deadlineInfo?.shortLabel || 'Assigned', color: input.deadlineInfo?.color || 'neutral' },
             _raw: input
           };
@@ -410,6 +415,7 @@
       const mode = options.mode || 'dashboard';
       const goalId = sub.goalId;
       const badgeColor = `bg-${sub.priorityColor}-500/10 border border-${sub.priorityColor}-500/30 text-${sub.priorityColor}-400`;
+      const formattedPriority = sub.priority ? sub.priority.charAt(0).toUpperCase() + sub.priority.slice(1).toLowerCase() : 'Medium';
       const isScheduled = typeof window.isMilestoneScheduled === 'function' ? window.isMilestoneScheduled(goalId, sub.id) : (sub._raw?.status === 'SCHEDULED');
       const actionPrefix = window.WorkspaceActions ? 'window.WorkspaceActions.' : 'window.';
 
@@ -461,7 +467,7 @@
               </div>
             </div>
             <div class="flex items-center space-x-2 shrink-0">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor} shrink-0">${sub.priority}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor} shrink-0">${formattedPriority}</span>
               ${urgencyBadgeHtml}
               <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-300 ml-1">
                 <button onclick="${actionPrefix}openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
@@ -497,7 +503,7 @@
               </div>
             </div>
             <div class="flex items-center space-x-2 shrink-0">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor} shrink-0">${sub.priority}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor} shrink-0">${formattedPriority}</span>
               ${urgencyBadgeHtml}
               <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-300 ml-1">
                 <button onclick="${actionPrefix}openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
@@ -883,13 +889,13 @@ window.ScheduleModal = {
   
   open(goalId, milestoneId) {
     const goal = window.SF_STORE?.state?.goals?.items?.find(g => g.id === goalId) || { title: 'Goal' };
-    const milestone = goal.subtasks?.find(s => s.id === milestoneId) || { title: 'Milestone', priority: 'High', estimate: '1 hr' };
+    const milestone = goal.subtasks?.find(s => s.id === milestoneId) || { title: 'Milestone', priority: 'HIGH', estimate: '1 hr' };
     
     this.goalId = goalId;
     this.milestoneId = milestoneId;
     this.goalTitle = goal.title;
     this.milestoneTitle = milestone.title;
-    this.milestonePriority = milestone.priority || 'High';
+    this.milestonePriority = milestone.priority || 'HIGH';
     this.milestoneEstimate = milestone.estimate || '1 hr';
     
     const now = new Date();
@@ -944,7 +950,7 @@ window.ScheduleModal = {
   },
 
   getModalHtml() {
-    const badgeColor = this.milestonePriority === 'High' ? 'text-red-400 bg-red-500/10 border-red-500/20' : this.milestonePriority === 'Medium' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' : 'text-green-400 bg-green-500/10 border-green-500/20';
+    const badgeColor = this.milestonePriority === 'HIGH' || this.milestonePriority === 'URGENT' ? 'text-red-400 bg-red-500/10 border-red-500/20' : this.milestonePriority === 'MEDIUM' ? 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' : 'text-green-400 bg-green-500/10 border-green-500/20';
 
     return `
       <div class="modal-content-box bg-[#0D0D0D] border border-[#2A2A2A] p-[22px] rounded-[20px] w-full max-w-[420px] shadow-saas relative animate-scaleIn flex flex-col gap-[18px]">
@@ -976,7 +982,7 @@ window.ScheduleModal = {
             </div>
             <div class="text-[15px] font-bold text-[#FAFAFA] truncate">${this.milestoneTitle}</div>
             <div class="flex items-center space-x-2 mt-1">
-              <span class="px-2 py-[3px] rounded-full text-[9px] font-bold border ${badgeColor}">${this.milestonePriority} Priority</span>
+              <span class="px-2 py-[3px] rounded-full text-[9px] font-bold border ${badgeColor}">${this.milestonePriority ? this.milestonePriority.charAt(0).toUpperCase() + this.milestonePriority.slice(1).toLowerCase() : 'Medium'} Priority</span>
               <span class="text-[10px] font-medium text-[#6B7280]">Est. ${this.milestoneEstimate}</span>
             </div>
           </div>

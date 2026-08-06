@@ -13,8 +13,8 @@ const subtaskSchema = new mongoose.Schema({
   },
   priority: {
     type: String,
-    enum: ['Low', 'Medium', 'High', 'URGENT'],
-    default: 'Medium'
+    enum: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'],
+    default: 'MEDIUM'
   },
   completed: {
     type: Boolean,
@@ -60,6 +60,20 @@ const goalSchema = new mongoose.Schema(
       type: String,
       default: '',
       trim: true
+    },
+    priority: {
+      type: String,
+      enum: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'],
+      default: 'MEDIUM'
+    },
+    category: {
+      type: String,
+      default: 'Uncategorized',
+      trim: true
+    },
+    estimate: {
+      type: String,
+      default: ''
     },
     status: {
       type: String,

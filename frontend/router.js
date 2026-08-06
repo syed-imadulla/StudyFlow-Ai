@@ -523,83 +523,121 @@ window.toggleCustomDropdown = function (menuId, arrowId) {
   }
 };
 
+window._editGoalOriginalState = null;
+window._editGoalMilestones = [];
+
+window.renderEditGoalMilestones = function() {
+  const container = document.getElementById('editGoalMilestonesContainer');
+  if (!container) return;
+  container.innerHTML = window._editGoalMilestones.map((m, i) => `
+    <div class="flex items-center gap-2 mb-2 group">
+      <div class="flex flex-col gap-0.5">
+        <button type="button" onclick="window.moveEditGoalMilestone(${i}, -1)" class="text-[#6B7280] hover:text-[#FAFAFA] p-0 leading-none ${i === 0 ? 'invisible' : ''}">&#9650;</button>
+        <button type="button" onclick="window.moveEditGoalMilestone(${i}, 1)" class="text-[#6B7280] hover:text-[#FAFAFA] p-0 leading-none ${i === window._editGoalMilestones.length - 1 ? 'invisible' : ''}">&#9660;</button>
+      </div>
+      <input type="text" class="input py-2 text-xs bg-[#0A0A0A] border-[#2A2A2A] flex-1" value="${(m.title || '').replace(/"/g, '&quot;')}" onchange="window._editGoalMilestones[${i}].title = this.value" required placeholder="Milestone title" />
+      <button type="button" onclick="window.removeEditGoalMilestone(${i})" class="text-red-500 hover:text-red-400 p-1 opacity-50 hover:opacity-100">✕</button>
+    </div>
+  `).join('');
+};
+
+window.moveEditGoalMilestone = function(idx, dir) {
+  if (idx + dir < 0 || idx + dir >= window._editGoalMilestones.length) return;
+  const temp = window._editGoalMilestones[idx];
+  window._editGoalMilestones[idx] = window._editGoalMilestones[idx + dir];
+  window._editGoalMilestones[idx + dir] = temp;
+  window.renderEditGoalMilestones();
+};
+
+window.removeEditGoalMilestone = function(idx) {
+  window._editGoalMilestones.splice(idx, 1);
+  window.renderEditGoalMilestones();
+};
+
+window.addEditGoalMilestone = function() {
+  window._editGoalMilestones.push({
+    id: 'sub_' + Math.random().toString(36).substr(2, 7),
+    title: '',
+    completed: false,
+    priority: 'HIGH',
+    estimate: '1 hr'
+  });
+  window.renderEditGoalMilestones();
+};
+
 window.openEditGoalModal = function (goalId) {
   const goal = window.SF_STORE?.getSlice('goals')?.items?.find(g => g.id === goalId);
   if (!goal) return;
+
+  window._editGoalOriginalState = JSON.parse(JSON.stringify(goal));
+  window._editGoalMilestones = (goal.subtasks || []).map(s => ({ ...s }));
 
   let modalEl = document.getElementById('globalEditGoalModal');
   if (!modalEl) {
     modalEl = document.createElement('div');
     modalEl.id = 'globalEditGoalModal';
     modalEl.className = 'fixed inset-0 z-[999999999] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fadeIn p-4';
-    modalEl.innerHTML = `
-      <div class="bg-[#0D0D0D] border border-[#2A2A2A] p-6 rounded-[20px] w-full max-w-md shadow-saas space-y-5">
-        <div class="flex items-center justify-between pb-3 border-b border-[#1C1C1C]">
-          <h3 class="text-base font-bold text-[#FAFAFA]">Edit Goal</h3>
-          <button onclick="document.getElementById('globalEditGoalModal').style.display='none'" class="text-[#6B7280] hover:text-[#FAFAFA]">✕</button>
-        </div>
-        <form id="globalEditGoalForm" class="space-y-4" onsubmit="event.preventDefault(); window.submitEditGoal();">
-          <input id="editGoalIdHidden" type="hidden" />
-          <div>
-            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Title</label>
-            <input id="editGoalTitle" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" required />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Description</label>
-            <input id="editGoalDesc" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" />
-          </div>
-          <div class="relative sf-custom-select-container">
-            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Priority / Urgency</label>
-            <select id="editGoalUrgency" class="hidden">
-              <option value="High">High / Urgent</option>
-              <option value="Focus">Focus</option>
-              <option value="Review">Review</option>
-              <option value="Study">Study</option>
-              <option value="Medium">Medium</option>
-            </select>
-            <button type="button" onclick="document.getElementById('sf-menu-editGoalUrgency').classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
-              <span id="sf-display-editGoalUrgency" class="flex items-center gap-2 text-white">High / Urgent</span>
-              <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <div id="sf-menu-editGoalUrgency" class="hidden absolute left-0 right-0 mt-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5 max-h-40 overflow-y-auto">
-              ${['High / Urgent', 'Focus', 'Review', 'Study', 'Medium'].map(t => {
-                const val = t.split(' / ')[0];
-                return `<div onclick="document.getElementById('editGoalUrgency').value='${val}'; document.getElementById('sf-display-editGoalUrgency').innerText='${t}'; document.getElementById('sf-menu-editGoalUrgency').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">${t}</div>`;
-              }).join('')}
-            </div>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Deadline</label>
-            <div id="modalEditDeadlineContainer"></div>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Subtasks (One per line)</label>
-            <textarea id="editGoalSubtasks" rows="3" class="input py-2 text-xs bg-[#0A0A0A] border-[#2A2A2A] resize-none"></textarea>
-          </div>
-          <div class="flex items-center justify-end space-x-3 pt-2">
-            <button type="button" onclick="document.getElementById('globalEditGoalModal').style.display='none'" class="btn btn-ghost px-4 py-2 text-xs">Cancel</button>
-            <button type="submit" class="btn btn-primary px-5 py-2 text-xs font-bold shadow-[0_0_20px_rgba(168,85,247,0.25)]">Save Changes →</button>
-          </div>
-        </form>
-      </div>
-    `;
     document.body.appendChild(modalEl);
   }
 
-  document.getElementById('editGoalIdHidden').value = goal.id;
-  document.getElementById('editGoalTitle').value = goal.title || '';
-  document.getElementById('editGoalDesc').value = goal.description || '';
-  const urgencyValue = goal.urgency === 'URGENT' ? 'High' : goal.urgency === 'UPCOMING' ? 'Medium' : 'Focus';
-  const urgencyDisplay = urgencyValue === 'High' ? 'High / Urgent' : urgencyValue;
-  const eInput = document.getElementById('editGoalUrgency');
-  eInput.value = urgencyValue;
-  document.getElementById('sf-display-editGoalUrgency').innerText = urgencyDisplay;
-  document.getElementById('editGoalSubtasks').value = (goal.subtasks || []).map(s => s.title).join('\n');
+  modalEl.innerHTML = `
+    <div class="bg-[#0D0D0D] border border-[#2A2A2A] p-6 rounded-[20px] w-full max-w-md shadow-saas space-y-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-[#1C1C1C]">
+        <h3 class="text-base font-bold text-[#FAFAFA]">Edit Goal</h3>
+        <button onclick="document.getElementById('globalEditGoalModal').style.display='none'" class="text-[#6B7280] hover:text-[#FAFAFA]">✕</button>
+      </div>
+      <form id="globalEditGoalForm" class="space-y-4" onsubmit="event.preventDefault(); window.submitEditGoal();">
+        <input id="editGoalIdHidden" type="hidden" value="${goal.id}" />
+        <div>
+          <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Title</label>
+          <input id="editGoalTitle" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" value="${(goal.title || '').replace(/"/g, '&quot;')}" required />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Description</label>
+          <input id="editGoalDesc" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" value="${(goal.description || '').replace(/"/g, '&quot;')}" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Category</label>
+            <input id="editGoalCategory" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" value="${(goal.category || '').replace(/"/g, '&quot;')}" placeholder="e.g. Study, Project" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Estimate</label>
+            <input id="editGoalEstimate" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" value="${(goal.estimate || '').replace(/"/g, '&quot;')}" placeholder="e.g. 2 hrs" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Priority</label>
+          <select id="editGoalPriority" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A] w-full text-white">
+            <option value="LOW" ${goal.priority === 'LOW' ? 'selected' : ''}>Low</option>
+            <option value="MEDIUM" ${goal.priority === 'MEDIUM' || !goal.priority ? 'selected' : ''}>Medium</option>
+            <option value="HIGH" ${goal.priority === 'HIGH' ? 'selected' : ''}>High</option>
+            <option value="URGENT" ${goal.priority === 'URGENT' ? 'selected' : ''}>Urgent</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Deadline</label>
+          <div id="modalEditDeadlineContainer"></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase">Milestones</label>
+            <button type="button" onclick="window.addEditGoalMilestone()" class="text-[#A855F7] hover:text-[#D8B4FE] text-[10px] font-bold">+ ADD</button>
+          </div>
+          <div id="editGoalMilestonesContainer" class="space-y-1"></div>
+        </div>
+        <div class="flex items-center justify-end space-x-3 pt-2">
+          <button type="button" onclick="document.getElementById('globalEditGoalModal').style.display='none'" class="btn btn-ghost px-4 py-2 text-xs">Cancel</button>
+          <button type="submit" class="btn btn-primary px-5 py-2 text-xs font-bold shadow-[0_0_20px_rgba(168,85,247,0.25)]">Save Changes →</button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  window.renderEditGoalMilestones();
   
   if (window.createDeadlineSelector) {
-    if (!window.editDeadlineSelector) {
-      window.editDeadlineSelector = window.createDeadlineSelector(document.getElementById('modalEditDeadlineContainer'));
-    }
+    window.editDeadlineSelector = window.createDeadlineSelector(document.getElementById('modalEditDeadlineContainer'));
     window.editDeadlineSelector.setValue(goal.deadline || goal.deadlineInfo?.label || goal.finalDeadline || null);
   }
 
@@ -608,49 +646,63 @@ window.openEditGoalModal = function (goalId) {
 
 window.submitEditGoal = async function () {
   const goalId = document.getElementById('editGoalIdHidden').value;
-  const title = document.getElementById('editGoalTitle').value.trim();
-  const description = document.getElementById('editGoalDesc').value.trim();
-  const tag = document.getElementById('editGoalUrgency').value;
-  const urgency = tag === 'High' ? 'URGENT' : (tag === 'Medium' || tag === 'Review' ? 'UPCOMING' : 'ACTIVE');
-  const subtasksText = document.getElementById('editGoalSubtasks').value;
+  if (!goalId) return;
 
-  if (!title || !goalId) return;
-
-  const validation = window.editDeadlineSelector.validate();
+  const validation = window.editDeadlineSelector ? window.editDeadlineSelector.validate() : { valid: true };
   if (!validation.valid) {
     if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
       window.SF_COMPONENTS.showToast(validation.error, 'error');
     }
     return;
   }
-  const deadlinePayload = window.editDeadlineSelector.getValue();
 
-  const existing = window.SF_STORE?.getSlice('goals')?.items?.find(g => g.id === goalId);
-  const lines = subtasksText.split('\n').map(l => l.trim()).filter(Boolean);
-  const subtasks = lines.map((line, idx) => {
-    const oldSub = existing?.subtasks?.find(s => s.title.toLowerCase() === line.toLowerCase()) || existing?.subtasks?.[idx];
-    return {
-      id: oldSub?.id || ('sub_' + Math.random().toString(36).substr(2, 7)),
-      title: line,
-      completed: oldSub ? oldSub.completed : false,
-      priority: oldSub?.priority || 'High',
-      estimate: oldSub?.estimate || '2 Pomodoros',
-      deadline: oldSub?.deadline || null
-    };
-  });
+  const patch = {};
+  const newTitle = document.getElementById('editGoalTitle').value.trim();
+  const newDesc = document.getElementById('editGoalDesc').value.trim();
+  const newCat = document.getElementById('editGoalCategory').value.trim();
+  const newEst = document.getElementById('editGoalEstimate').value.trim();
+  const newPri = document.getElementById('editGoalPriority').value;
+  const newDeadline = window.editDeadlineSelector ? window.editDeadlineSelector.getValue() : null;
+
+  const orig = window._editGoalOriginalState;
+  
+  if (newTitle !== (orig.title || '')) patch.title = newTitle;
+  if (newDesc !== (orig.description || '')) patch.description = newDesc;
+  if (newCat !== (orig.category || '')) patch.category = newCat;
+  if (newEst !== (orig.estimate || '')) patch.estimate = newEst;
+  if (newPri !== (orig.priority || 'MEDIUM')) patch.priority = newPri;
+  
+  if (JSON.stringify(newDeadline) !== JSON.stringify(orig.deadline)) {
+    patch.deadline = newDeadline;
+  }
+
+  const origMilestones = orig.subtasks || [];
+  let milestonesChanged = false;
+  if (origMilestones.length !== window._editGoalMilestones.length) {
+    milestonesChanged = true;
+  } else {
+    for (let i = 0; i < origMilestones.length; i++) {
+      const o = origMilestones[i];
+      const n = window._editGoalMilestones[i];
+      if (o.id !== n.id || o.title !== n.title || o.completed !== n.completed) {
+        milestonesChanged = true;
+        break;
+      }
+    }
+  }
+
+  if (milestonesChanged) {
+    patch.subtasks = window._editGoalMilestones;
+  }
+
+  if (Object.keys(patch).length === 0) {
+    document.getElementById('globalEditGoalModal').style.display = 'none';
+    return; // nothing changed
+  }
 
   document.getElementById('globalEditGoalModal').style.display = 'none';
   try {
-    await window.SF_STORE.dispatch('goals/UPDATE', {
-      goalId,
-      patch: {
-        title,
-        description,
-        urgency,
-        deadline: deadlinePayload,
-        subtasks
-      }
-    });
+    await window.SF_STORE.dispatch('goals/UPDATE', { goalId, patch });
     if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
       window.SF_COMPONENTS.showToast('Goal updated successfully.', 'success');
     }

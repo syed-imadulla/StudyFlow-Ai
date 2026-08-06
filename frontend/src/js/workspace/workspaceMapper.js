@@ -136,22 +136,26 @@ window.WorkspaceMapper = {
   },
   
   _getHealthLabel(status) {
-    switch(status) {
-      case 'HEALTHY': return 'Healthy';
-      case 'NEEDS_ATTENTION': return 'Needs Attention';
-      case 'AT_RISK': return 'At Risk';
-      case 'CRITICAL': return 'Critical';
-      default: return 'Unknown';
-    }
+    const map = {
+      'COMPLETED': 'Completed',
+      'ARCHIVED': 'Archived',
+      'OVERDUE': 'Overdue',
+      'DUE_TODAY': 'Due Today',
+      'AT_RISK': 'At Risk',
+      'HEALTHY': 'Healthy'
+    };
+    return map[status] || 'Healthy';
   },
-  
+
   _getHealthColor(status) {
-    switch(status) {
-      case 'HEALTHY': return 'success';
-      case 'NEEDS_ATTENTION': return 'warning';
-      case 'AT_RISK': return 'orange'; // Can map to a specific tailwind color
-      case 'CRITICAL': return 'danger';
-      default: return 'neutral';
-    }
+    const map = {
+      'COMPLETED': 'green',
+      'ARCHIVED': 'gray',
+      'OVERDUE': 'red',
+      'DUE_TODAY': 'yellow',
+      'AT_RISK': 'orange',
+      'HEALTHY': 'green'
+    };
+    return map[status] || 'green';
   }
 };

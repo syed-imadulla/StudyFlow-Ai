@@ -11,8 +11,15 @@ export class GoalProgressService {
    * @param {number} fallbackProgress - Existing progress logic value to use if no milestones
    * @returns {Object} { progressSummary, goalHealth }
    */
-  static calculate(milestones, fallbackProgress = 0) {
+  static calculate(milestones, goalLifecycle, fallbackProgress = 0) {
     if (!milestones || milestones.length === 0) {
+      let status = 'HEALTHY';
+      if (goalLifecycle?.isCompleted) status = 'COMPLETED';
+      else if (goalLifecycle?.isArchived) status = 'ARCHIVED';
+      else if (goalLifecycle?.isOverdue) status = 'OVERDUE';
+      else if (goalLifecycle?.isDueToday) status = 'DUE_TODAY';
+      else if (goalLifecycle?.isDueSoon) status = 'AT_RISK';
+
       return {
         progressSummary: {
           totalMilestones: 0,
@@ -27,8 +34,8 @@ export class GoalProgressService {
           nextMilestone: null
         },
         goalHealth: {
-          status: 'HEALTHY',
-          score: 100
+          status,
+          score: status === 'HEALTHY' ? 100 : (status === 'OVERDUE' ? 0 : 50)
         }
       };
     }
@@ -105,24 +112,27 @@ export class GoalProgressService {
       };
     }
 
-    // Goal Health Scoring Formula
-    // Base 100
-    // -15 per overdue milestone
-    // -5 per completed late milestone
-    // +5 per completed early milestone (not currently tracked at goalProgress level, but let's see if we can derive it)
+    // Goal Health Scoring Formula (Legacy, kept for backward compatibility if needed)
     let score = 100;
     score -= (overdue * 15);
     score -= (completedLate * 5);
-    
-    // Additional minus if nextMilestone is overdue (already counted, but we can just use the counts)
-    
+    if (goalLifecycle?.isOverdue) score = 0;
     score = Math.max(0, Math.min(100, score));
 
+    // Determine Health Status based on strict Hierarchy:
+    // COMPLETED -> ARCHIVED -> OVERDUE -> DUE_TODAY -> AT_RISK -> HEALTHY
     let healthStatus = 'HEALTHY';
-    if (score >= 90) healthStatus = 'HEALTHY';
-    else if (score >= 70) healthStatus = 'NEEDS_ATTENTION';
-    else if (score >= 40) healthStatus = 'AT_RISK';
-    else healthStatus = 'CRITICAL';
+    if (goalLifecycle?.isCompleted) {
+      healthStatus = 'COMPLETED';
+    } else if (goalLifecycle?.isArchived) {
+      healthStatus = 'ARCHIVED';
+    } else if (goalLifecycle?.isOverdue) {
+      healthStatus = 'OVERDUE';
+    } else if (goalLifecycle?.isDueToday) {
+      healthStatus = 'DUE_TODAY';
+    } else if (goalLifecycle?.isDueSoon || overdue > 0) {
+      healthStatus = 'AT_RISK';
+    }
 
     return {
       progressSummary: {

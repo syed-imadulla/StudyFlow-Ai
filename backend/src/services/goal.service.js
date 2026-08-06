@@ -27,13 +27,14 @@ const attachDynamicProgress = (goalDoc) => {
     });
   }
 
-  const { progressSummary, goalHealth } = GoalProgressService.calculate(goal.subtasks || [], fallbackProgress);
+  goal.lifecycle = GoalLifecycleService.calculate(goal);
+  goal.deadlineInfo = DeadlineIntelligenceService.calculate(goal, goal.lifecycle);
+
+  const { progressSummary, goalHealth } = GoalProgressService.calculate(goal.subtasks || [], goal.lifecycle, fallbackProgress);
   goal.progressSummary = progressSummary;
   goal.goalHealth = goalHealth;
   goal.progress = progressSummary.completionPercentage;
 
-  goal.lifecycle = GoalLifecycleService.calculate(goal);
-  goal.deadlineInfo = DeadlineIntelligenceService.calculate(goal, goal.lifecycle);
   return goal;
 };
 
@@ -158,7 +159,7 @@ export class GoalService {
         lines = ['Complete Milestone 1', 'Complete Milestone 2', 'Final Review'];
       }
 
-      const priorities = ['High', 'High', 'Medium', 'Low'];
+      const priorities = ['HIGH', 'HIGH', 'MEDIUM', 'LOW'];
       data.subtasks = lines.map((line, idx) => {
         const stepDays = Math.max(1, Math.round(((idx + 1) / lines.length) * totalDays));
         
@@ -241,7 +242,20 @@ export class GoalService {
     if (!goal) {
       throw new AppError('Goal not found', HTTP_STATUS.NOT_FOUND, ERROR_CODES.GOAL_NOT_FOUND);
     }
-    return attachDynamicProgress(goal);
+
+    const needsLifecycleRecalc = 
+      'deadline' in data || 
+      'deadlineTime' in data || 
+      'subtasks' in data || 
+      'completed' in data || 
+      'status' in data || 
+      'archived' in data;
+
+    if (needsLifecycleRecalc) {
+      return attachDynamicProgress(goal);
+    } else {
+      return goal.toJSON ? goal.toJSON() : goal;
+    }
   }
 
   /**

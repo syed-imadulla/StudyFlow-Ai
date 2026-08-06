@@ -23,7 +23,7 @@ async function insert() {
         _id: new mongoose.Types.ObjectId(),
         title: "Complete Milestone 1",
         estimate: "Sprint 1 • 1.5h",
-        priority: "High",
+        priority: "HIGH",
         deadlineDisplay: "Tomorrow",
         completed: false
       },
@@ -31,7 +31,7 @@ async function insert() {
         _id: new mongoose.Types.ObjectId(),
         title: "Complete Milestone 2",
         estimate: "Sprint 1 • 1.5h",
-        priority: "Medium",
+        priority: "MEDIUM",
         deadlineDisplay: "In 7 days",
         completed: false
       },
@@ -39,7 +39,7 @@ async function insert() {
         _id: new mongoose.Types.ObjectId(),
         title: "Complete Milestone 3",
         estimate: "Sprint 1 • 1.5h",
-        priority: "Low",
+        priority: "LOW",
         deadlineDisplay: "Yesterday",
         completed: true
       },
@@ -47,7 +47,7 @@ async function insert() {
         _id: new mongoose.Types.ObjectId(),
         title: "Complete Milestone 4",
         estimate: "Sprint 1 • 1.5h",
-        priority: "High",
+        priority: "HIGH",
         deadlineDisplay: "Today",
         completed: false
       }

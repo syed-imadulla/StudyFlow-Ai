@@ -4,7 +4,7 @@ let content = fs.readFileSync('frontend/src/js/components.js', 'utf8');
 
 // 1. Replace the task card action buttons for both 'dashboard' and 'workspace' modes
 const oldDashboardButtons = `<div class="flex items-center space-x-2.5 shrink-0">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold \${badgeColor}">\${sub.priority || 'High'}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold \${badgeColor}">\${sub.priority ? sub.priority.charAt(0).toUpperCase() + sub.priority.slice(1).toLowerCase() : 'High'}</span>
               <button onclick="window.openScheduleMilestoneModal('\${goalId}', '\${sub.id}')" class="p-1.5 rounded-lg bg-[#151515] hover:bg-[#38BDF8]/20 text-[#38BDF8] transition" title="Schedule Milestone">
                 <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
               </button>
@@ -14,7 +14,7 @@ const oldDashboardButtons = `<div class="flex items-center space-x-2.5 shrink-0"
             </div>`;
 
 const oldWorkspaceButtons = `<div class="flex items-center space-x-2.5 shrink-0">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold \${badgeColor}">\${sub.priority || 'High'}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold \${badgeColor}">\${sub.priority ? sub.priority.charAt(0).toUpperCase() + sub.priority.slice(1).toLowerCase() : 'High'}</span>
               <div class="flex items-center bg-[#151520] rounded-lg border border-[#252535] p-0.5 space-x-0.5">
                 <button onclick="window.openSubtaskIdeaLab('\${goalId}', '\${sub.id}')" class="p-1.5 rounded-md hover:bg-[#A855F7]/20 text-[#A855F7] transition flex items-center justify-center" title="Open IdeaLab Guide">
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
@@ -29,7 +29,7 @@ const oldWorkspaceButtons = `<div class="flex items-center space-x-2.5 shrink-0"
             </div>`;
 
 const newButtons = `<div class="flex items-center space-x-3 shrink-0">
-              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold \${badgeColor}">\${sub.priority || 'High'}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold \${badgeColor}">\${sub.priority ? sub.priority.charAt(0).toUpperCase() + sub.priority.slice(1).toLowerCase() : 'High'}</span>
               <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-[10px] p-0.5 space-x-1 hover:border-[#303040] shadow-sm transition">
                 <button onclick="window.openSubtaskIdeaLab('\${goalId}', '\${sub.id}')" class="p-1 w-7 h-7 rounded-lg hover:bg-[#A855F7]/15 text-[#A855F7] transition flex items-center justify-center hover:shadow-[0_0_12px_rgba(168,85,247,0.3)] group relative" title="AI IdeaLab">
                   <svg class="w-3.5 h-3.5 fill-current group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
