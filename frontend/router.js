@@ -356,24 +356,31 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
             <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Time Range (e.g. 18:00 - 19:30)</label>
             <input id="modalInputSub" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A]" />
           </div>
-          <div class="relative sf-custom-select-container">
-            <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Priority / Urgency</label>
-            <select id="modalInputTag" class="hidden">
-              <option value="High">High / Urgent</option>
-              <option value="Focus">Focus</option>
-              <option value="Review">Review</option>
-              <option value="Study">Study</option>
-              <option value="Medium">Medium</option>
-            </select>
-            <button type="button" onclick="document.getElementById('sf-menu-modalInputTag').classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
-              <span id="sf-display-modalInputTag" class="flex items-center gap-2 text-white">High / Urgent</span>
-              <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <div id="sf-menu-modalInputTag" class="hidden absolute left-0 right-0 mt-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5 max-h-40 overflow-y-auto">
-              ${['High / Urgent', 'Focus', 'Review', 'Study', 'Medium'].map(t => {
-                const val = t.split(' / ')[0];
-                return `<div onclick="document.getElementById('modalInputTag').value='${val}'; document.getElementById('sf-display-modalInputTag').innerText='${t}'; document.getElementById('sf-menu-modalInputTag').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">${t}</div>`;
-              }).join('')}
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Category</label>
+              <input id="modalInputCategory" type="text" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A] w-full text-white" placeholder="e.g. Study, Project" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Priority</label>
+              <div class="relative sf-custom-select-container">
+                <select id="modalInputPriority" class="hidden">
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM" selected>Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="URGENT">Urgent</option>
+                </select>
+                <button type="button" onclick="document.getElementById('sf-menu-modalInputPriority').classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
+                  <span id="sf-display-modalInputPriority" class="flex items-center gap-2 text-white">Medium</span>
+                  <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div id="sf-menu-modalInputPriority" class="hidden absolute left-0 right-0 mt-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5">
+                  <div onclick="document.getElementById('modalInputPriority').value='LOW'; document.getElementById('sf-display-modalInputPriority').innerText='Low'; document.getElementById('sf-menu-modalInputPriority').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs font-semibold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">Low</div>
+                  <div onclick="document.getElementById('modalInputPriority').value='MEDIUM'; document.getElementById('sf-display-modalInputPriority').innerText='Medium'; document.getElementById('sf-menu-modalInputPriority').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs font-semibold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">Medium</div>
+                  <div onclick="document.getElementById('modalInputPriority').value='HIGH'; document.getElementById('sf-display-modalInputPriority').innerText='High'; document.getElementById('sf-menu-modalInputPriority').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs font-semibold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">High</div>
+                  <div onclick="document.getElementById('modalInputPriority').value='URGENT'; document.getElementById('sf-display-modalInputPriority').innerText='Urgent'; document.getElementById('sf-menu-modalInputPriority').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs font-semibold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">Urgent</div>
+                </div>
+              </div>
             </div>
           </div>
           <div id="aiBreakdownToggleWrapper" class="pt-2 border-t border-[#1C1C1C]">
@@ -425,9 +432,11 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
 
   window.submitGlobalAdd = async function () {
     const title = document.getElementById('modalInputTitle').value.trim();
-    const tag = document.getElementById('modalInputTag').value;
+    const category = document.getElementById('modalInputCategory').value.trim() || 'Uncategorized';
+    const priority = document.getElementById('modalInputPriority').value;
     const autoBreakdown = !isTimeBlock && document.getElementById('modalAiBreakdownCheck').checked;
     const braindump = document.getElementById('modalBraindumpText').value.trim();
+    const tag = category !== 'Uncategorized' ? category : priority;
 
     let sub = '';
     let deadlinePayload = null;
@@ -454,6 +463,8 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
           await window.SF_STORE.dispatch('goals/CREATE_WITH_SUBTASKS', {
             title,
             description: 'Created via AI Goal Breakdown Modal',
+            category,
+            priority,
             deadline: deadlinePayload,
             rawDump: braindump
           });
@@ -464,6 +475,8 @@ window.openAddItemModal = function (targetContainerId, isTimeBlock = false) {
           await window.SF_STORE.dispatch('goals/CREATE', {
             title,
             description: 'Created via Add Item Modal',
+            category,
+            priority,
             deadline: deadlinePayload
           });
           if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
@@ -608,12 +621,24 @@ window.openEditGoalModal = function (goalId) {
         </div>
         <div>
           <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Priority</label>
-          <select id="editGoalPriority" class="input py-2.5 text-xs bg-[#0A0A0A] border-[#2A2A2A] w-full text-white">
-            <option value="LOW" ${goal.priority === 'LOW' ? 'selected' : ''}>Low</option>
-            <option value="MEDIUM" ${goal.priority === 'MEDIUM' || !goal.priority ? 'selected' : ''}>Medium</option>
-            <option value="HIGH" ${goal.priority === 'HIGH' ? 'selected' : ''}>High</option>
-            <option value="URGENT" ${goal.priority === 'URGENT' ? 'selected' : ''}>Urgent</option>
-          </select>
+          <div class="relative sf-custom-select-container">
+            <select id="editGoalPriority" class="hidden">
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="URGENT">Urgent</option>
+            </select>
+            <button type="button" onclick="document.getElementById('sf-menu-editGoalPriority').classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
+              <span id="sf-display-editGoalPriority" class="flex items-center gap-2 text-white">${goal.priority ? goal.priority.charAt(0) + goal.priority.slice(1).toLowerCase() : 'Medium'}</span>
+              <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="sf-menu-editGoalPriority" class="hidden absolute left-0 right-0 mt-1 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5">
+              <div onclick="document.getElementById('editGoalPriority').value='LOW'; document.getElementById('sf-display-editGoalPriority').innerText='Low'; document.getElementById('sf-menu-editGoalPriority').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs font-semibold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">Low</div>
+              <div onclick="document.getElementById('editGoalPriority').value='MEDIUM'; document.getElementById('sf-display-editGoalPriority').innerText='Medium'; document.getElementById('sf-menu-editGoalPriority').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs font-semibold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">Medium</div>
+              <div onclick="document.getElementById('editGoalPriority').value='HIGH'; document.getElementById('sf-display-editGoalPriority').innerText='High'; document.getElementById('sf-menu-editGoalPriority').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs font-semibold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">High</div>
+              <div onclick="document.getElementById('editGoalPriority').value='URGENT'; document.getElementById('sf-display-editGoalPriority').innerText='Urgent'; document.getElementById('sf-menu-editGoalPriority').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs font-semibold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-white">Urgent</div>
+            </div>
+          </div>
         </div>
         <div>
           <label class="block text-xs font-semibold text-[#A1A1AA] uppercase mb-1.5">Deadline</label>
@@ -635,10 +660,20 @@ window.openEditGoalModal = function (goalId) {
   `;
 
   window.renderEditGoalMilestones();
-  
+  // Sync hidden select value for editGoalPriority so submitEditGoal reads it correctly
+  const priSelect = document.getElementById('editGoalPriority');
+  if (priSelect) priSelect.value = goal.priority || 'MEDIUM';
+
   if (window.createDeadlineSelector) {
-    window.editDeadlineSelector = window.createDeadlineSelector(document.getElementById('modalEditDeadlineContainer'));
-    window.editDeadlineSelector.setValue(goal.deadline || goal.deadlineInfo?.label || goal.finalDeadline || null);
+    let initialDeadline = null;
+    if (goal.deadline) {
+      initialDeadline = {
+        mode: 'SPECIFIC_DATE',
+        date: goal.deadline.substring(0, 10),
+        time: goal.deadlineTime || ''
+      };
+    }
+    window.editDeadlineSelector = window.createDeadlineSelector(document.getElementById('modalEditDeadlineContainer'), initialDeadline);
   }
 
   modalEl.style.display = 'flex';
