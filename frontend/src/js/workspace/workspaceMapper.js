@@ -44,6 +44,15 @@ window.WorkspaceMapper = {
       description: goal.description || 'AI Goal Blueprint',
       
       rawStatus: goal.status,
+      createdAt: goal.createdAt || Date.now(),
+      updatedAt: goal.updatedAt || Date.now(),
+      
+      // Discovery Pipeline Fields
+      priority: goal.priority || 'LOW',
+      category: goal.category || 'Uncategorized',
+      source: goal.source || 'MANUAL',
+      metadata: goal.metadata || {},
+      searchText: `${goal.title || ''} ${goal.description || ''} ${goal.category || ''} ${rawSubtasks.map(s => `${s.title || ''} ${s.description || ''}`).join(' ')} ${goal.source === 'AI' || goal.metadata?.aiGenerated ? 'AI Generated' : 'Manual'}`.toLowerCase(),
       
       // Health mapping
       health: goal.goalHealth ? {

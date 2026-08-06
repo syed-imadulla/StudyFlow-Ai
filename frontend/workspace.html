@@ -23,6 +23,12 @@
   <script src="src/js/workspace/workspaceState.js"></script>
   <script src="src/js/workspace/workspaceActions.js"></script>
   <script src="src/js/workspace/workspaceMapper.js"></script>
+  <!-- Discovery Pipeline -->
+  <script src="src/js/discovery/comparators.js"></script>
+  <script src="src/js/discovery/searchEngine.js"></script>
+  <script src="src/js/discovery/filterEngine.js"></script>
+  <script src="src/js/discovery/sortEngine.js"></script>
+  <script src="src/js/discovery/discoveryPipeline.js"></script>
   <script src="src/js/workspace/workspaceRenderer.js"></script>
   
   <script src="router.js"></script>
@@ -57,6 +63,12 @@
       <!-- Workspace Controls -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
         <div class="flex flex-wrap items-center gap-2">
+          <!-- Discovery Search Bar -->
+          <div class="relative w-48 sm:w-56 shrink-0">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#6B7280]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <input type="text" id="workspaceSearchInput" placeholder="Search goals..." oninput="window.WorkspaceState.setSearch(this.value)" class="w-full bg-[#0A0A0A] border border-[#202020] text-[#FAFAFA] text-xs font-medium rounded-full pl-9 pr-3 py-1.5 focus:outline-none focus:border-[#A855F7] hover:border-[#303030] transition-colors shadow-inner" />
+          </div>
+          
           <button onclick="window.WorkspaceActions.setFilter('ALL')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#A855F7] bg-[#A855F7]/10 text-[#A855F7]" data-filter="ALL">All Goals</button>
           <button onclick="window.WorkspaceActions.setFilter('HEALTHY')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="HEALTHY">Healthy</button>
           <button onclick="window.WorkspaceActions.setFilter('OVERDUE')" class="ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]" data-filter="OVERDUE">Overdue</button>
@@ -83,9 +95,10 @@
             <div id="sf-menu-workspaceSortSelect" class="hidden absolute right-0 mt-1 w-full bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5">
               <div onclick="document.getElementById('workspaceSortSelect').value='PRIORITY'; document.getElementById('sf-display-workspaceSortSelect').innerText='Priority'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Priority</div>
               <div onclick="document.getElementById('workspaceSortSelect').value='DEADLINE'; document.getElementById('sf-display-workspaceSortSelect').innerText='Deadline'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Deadline</div>
-              <div onclick="document.getElementById('workspaceSortSelect').value='HEALTH'; document.getElementById('sf-display-workspaceSortSelect').innerText='Goal Health'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Goal Health</div>
+              <div onclick="document.getElementById('workspaceSortSelect').value='RECENT_UPDATED'; document.getElementById('sf-display-workspaceSortSelect').innerText='Recently Updated'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Recently Updated</div>
+              <div onclick="document.getElementById('workspaceSortSelect').value='RECENT_CREATED'; document.getElementById('sf-display-workspaceSortSelect').innerText='Recently Created'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Recently Created</div>
               <div onclick="document.getElementById('workspaceSortSelect').value='PROGRESS'; document.getElementById('sf-display-workspaceSortSelect').innerText='Progress'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Progress</div>
-              <div onclick="document.getElementById('workspaceSortSelect').value='REMAINING'; document.getElementById('sf-display-workspaceSortSelect').innerText='Remaining Milestones'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Remaining Milestones</div>
+              <div onclick="document.getElementById('workspaceSortSelect').value='ALPHABETICAL'; document.getElementById('sf-display-workspaceSortSelect').innerText='Alphabetical'; document.getElementById('workspaceSortSelect').dispatchEvent(new Event('change')); document.getElementById('sf-menu-workspaceSortSelect').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center text-xs font-bold transition-all duration-150 hover:bg-white/5 text-[#A1A1AA] hover:text-[#FAFAFA]">Alphabetical</div>
             </div>
           </div>
         </div>
@@ -134,10 +147,21 @@
       // Delegate entirely to the new WorkspaceRenderer
       window.WorkspaceRenderer.render(rawGoals);
       
-      // Update Filter Chips UI state
-      const currentFilter = window.WorkspaceState.filter;
+      // Update Filter Chips UI state using the new unified filters object
+      const f = window.WorkspaceState.filters;
       document.querySelectorAll('.ws-filter-chip').forEach(chip => {
-        if (chip.dataset.filter === currentFilter) {
+        const filterName = chip.dataset.filter;
+        let isActive = false;
+        
+        if (filterName === 'ALL') isActive = !window.WorkspaceState.hasFilters;
+        else if (filterName === 'HEALTHY') isActive = f.health && f.health.includes('HEALTHY');
+        else if (filterName === 'OVERDUE') isActive = f.deadline && f.deadline.includes('OVERDUE');
+        else if (filterName === 'DUE_TODAY') isActive = f.deadline && f.deadline.includes('TODAY');
+        else if (filterName === 'BLOCKING') isActive = f.status && f.status.includes('BLOCKING');
+        else if (filterName === 'COMPLETED') isActive = f.completed === true;
+        else if (filterName === 'ARCHIVED') isActive = f.archived === true;
+
+        if (isActive) {
           chip.className = 'ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#A855F7] bg-[#A855F7]/10 text-[#A855F7]';
         } else {
           chip.className = 'ws-filter-chip px-3 py-1.5 rounded-full text-xs font-bold border transition-colors border-[#202020] bg-transparent text-[#6B7280] hover:border-[#303030]';
