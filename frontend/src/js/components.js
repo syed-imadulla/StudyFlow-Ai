@@ -285,7 +285,7 @@
             id="goal-menu-dropdown-${goalId}"
             role="menu"
             aria-labelledby="goal-menu-btn-${goalId}"
-            class="hidden custom-dropdown-menu absolute right-0 top-full mt-1.5 w-44 rounded-xl bg-[#0E0E0E]/95 backdrop-blur-xl border border-[#2A2A2A] shadow-[0_10px_30px_rgba(0,0,0,0.9),0_0_20px_rgba(168,85,247,0.2)] py-1.5 z-[100] transform origin-top-right transition-all duration-150 ease-out scale-95 opacity-0"
+            class="hidden custom-dropdown-menu absolute right-0 top-full mt-1.5 w-44 rounded-xl bg-[#0E0E0E]/95 backdrop-blur-xl border border-[#2A2A2A] shadow-[0_10px_30px_rgba(0,0,0,0.9),0_0_20px_rgba(168,85,247,0.2)] py-1.5 z-[100] transform origin-top-right transition duration-150 ease-out scale-95 opacity-0"
           >
             <button
               role="menuitem"
@@ -406,7 +406,7 @@
 
       if (mode === 'compact') {
         return `
-          <div role="button" tabindex="0" aria-label="Open Goal: ${model.title}" onclick="${clickAction}" onkeydown="if(event.key==='Enter'||event.key===' ')(${clickAction})" class="relative p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] hover:border-[#A855F7]/50 hover:shadow-lg transition-all duration-200 cursor-pointer space-y-2.5 group flex flex-col">
+          <div role="button" tabindex="0" aria-label="Open Goal: ${model.title}" onclick="${clickAction}" onkeydown="if(event.key==='Enter'||event.key===' ')(${clickAction})" class="relative p-3.5 rounded-xl bg-[#0A0A0A] border border-[#202020] hover:border-[#A855F7]/50 hover:shadow-lg transition duration-150 cursor-pointer space-y-2.5 group flex flex-col">
             <div class="flex items-center justify-between gap-2">
               <div class="flex flex-wrap items-center gap-1.5 min-w-0">
                 ${healthBadgeHtml}
@@ -429,7 +429,7 @@
         `;
       } else if (mode === 'grid') {
         return `
-          <div role="button" tabindex="0" aria-label="Open Goal Grid: ${model.title}" onclick="${clickAction}" onkeydown="if(event.key==='Enter'||event.key===' ')(${clickAction})" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] flex flex-col justify-between h-full space-y-4 hover:border-[#A855F7]/50 hover:shadow-[0_10px_30px_rgba(168,85,247,0.12)] transition-all duration-200 cursor-pointer relative group">
+          <div role="button" tabindex="0" aria-label="Open Goal Grid: ${model.title}" onclick="${clickAction}" onkeydown="if(event.key==='Enter'||event.key===' ')(${clickAction})" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] flex flex-col justify-between h-full space-y-4 hover:border-[#A855F7]/50 hover:shadow-[0_10px_30px_rgba(168,85,247,0.12)] transition duration-150 cursor-pointer relative group">
             <div class="space-y-3">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex flex-wrap items-center gap-2 min-w-0">
@@ -461,7 +461,7 @@
       } else if (mode === 'expanded') {
         const subtasksHtml = (model.subtasks || []).map(sub => this.renderTaskCard(sub, { mode: 'workspace', goalId: model.id })).join('');
         return `
-          <div id="goal-${model.id}" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] space-y-4 shadow-saas animate-fadeIn relative group hover:border-[#A855F7]/40 transition-all duration-200">
+          <div id="goal-${model.id}" class="card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] space-y-4 shadow-saas animate-fadeIn relative group hover:border-[#A855F7]/40 transition duration-150">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#1C1C1C]">
               <div class="flex items-start space-x-3.5 min-w-0 flex-1">
                 <div class="w-10 h-10 rounded-xl bg-[#A855F7]/15 border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7] font-bold text-sm shrink-0 shadow-[0_0_15px_rgba(168,85,247,0.2)] mt-1">
@@ -550,18 +550,18 @@
       let scheduleBtnHtml = '';
       if (mode === 'workspace') {
         scheduleBtnHtml = isScheduled ? `
-          <button onclick="${actionPrefix}viewInPlanner ? ${actionPrefix}viewInPlanner() : window.location.href='planner.html'" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="View in Planner">
+          <button onclick="${actionPrefix}viewInPlanner ? ${actionPrefix}viewInPlanner() : window.location.href='planner.html'" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="View in Planner">
             <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
           </button>
         ` : `
-          <button onclick="${actionPrefix}scheduleMilestone('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Schedule to Planner">
+          <button onclick="${actionPrefix}scheduleMilestone('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Schedule to Planner">
             <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
           </button>
         `;
       } else {
         if (isScheduled) {
           scheduleBtnHtml = `
-            <button onclick="${actionPrefix}viewInPlanner ? ${actionPrefix}viewInPlanner() : window.location.href='planner.html'" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="View in Planner">
+            <button onclick="${actionPrefix}viewInPlanner ? ${actionPrefix}viewInPlanner() : window.location.href='planner.html'" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="View in Planner">
               <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
             </button>
           `;
@@ -597,12 +597,12 @@
             <div class="flex items-center space-x-2 shrink-0">
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor} shrink-0">${formattedPriority}</span>
               ${urgencyBadgeHtml}
-              <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-300 ml-1">
-                <button onclick="${actionPrefix}openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
+              <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-150 ml-1">
+                <button onclick="${actionPrefix}openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                 </button>
                 ${scheduleBtnHtml}
-                <button onclick="${actionPrefix}startFocus()" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
+                <button onclick="${actionPrefix}startFocus()" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
                   <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 </button>
               </div>
@@ -633,12 +633,12 @@
             <div class="flex items-center space-x-2 shrink-0">
               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${badgeColor} shrink-0">${formattedPriority}</span>
               ${urgencyBadgeHtml}
-              <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-300 ml-1">
-                <button onclick="${actionPrefix}openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
+              <div class="flex items-center bg-[#111116] border border-[#20202A] rounded-xl p-1 space-x-1 hover:border-[#303040] shadow-sm transition duration-150 ml-1">
+                <button onclick="${actionPrefix}openSubtaskIdeaLab('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#A855F7]/10 text-[#A855F7]/80 hover:text-[#A855F7] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="AI IdeaLab">
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                 </button>
                 ${scheduleBtnHtml}
-                <button onclick="${actionPrefix}startFocus()" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition-all duration-200 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
+                <button onclick="${actionPrefix}startFocus()" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
                   <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 </button>
               </div>
@@ -961,7 +961,7 @@
 
       const modalHtml = `
         <div id="sf-confirm-modal" class="sf-confirm-overlay fixed inset-0 z-[200000] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fadeIn transition-opacity duration-200" role="dialog" aria-modal="true" aria-labelledby="sf-confirm-title">
-          <div id="sf-confirm-card" class="bg-[#0E0E0E]/95 border border-[#2A2A2A] rounded-2xl p-6 max-w-md w-full mx-4 shadow-[0_0_50px_rgba(168,85,247,0.15)] relative transform transition-all duration-200 scale-95 opacity-0">
+          <div id="sf-confirm-card" class="bg-[#0E0E0E]/95 border border-[#2A2A2A] rounded-2xl p-6 max-w-md w-full mx-4 shadow-[0_0_50px_rgba(168,85,247,0.15)] relative transform transition duration-200 scale-95 opacity-0">
             <div class="flex items-start space-x-4">
               <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.2)]">
                 ${trashSvg}
@@ -1054,7 +1054,14 @@
     /**
      * Show Floating Toast Notification
      */
-    showToast(message, type = 'info', duration = 3500) {
+    showToast(message, type = 'info', duration) {
+      let displayDuration = duration;
+      if (displayDuration === undefined) {
+        if (type === 'success') displayDuration = 2000;
+        else if (type === 'warning') displayDuration = 4000;
+        else if (type === 'error') displayDuration = 0;
+        else displayDuration = 3000;
+      }
       let container = document.getElementById('sf-toast-container');
       if (!container) {
         container = document.createElement('div');
@@ -1081,7 +1088,7 @@
         borderGlow = 'border-red-500/40 text-red-400 bg-[#0D0D0D]/95 shadow-[0_0_20px_rgba(239,68,68,0.2)]';
       }
 
-      toastEl.className = `pointer-events-auto flex items-center justify-between p-3.5 rounded-xl border backdrop-blur-md transition-all duration-300 transform translate-y-2 opacity-0 ${borderGlow}`;
+      toastEl.className = `pointer-events-auto flex items-center justify-between p-3.5 rounded-xl border backdrop-blur-md transition duration-200 ease-out transform translate-y-2 opacity-0 ${borderGlow}`;
       toastEl.innerHTML = `
         <div class="flex items-center space-x-3 overflow-hidden">
           <span class="shrink-0 flex items-center">${icon}</span>
@@ -1098,15 +1105,17 @@
       });
 
       // Auto dismiss
-      setTimeout(() => {
-        if (document.getElementById(toastId)) {
-          toastEl.style.opacity = '0';
-          toastEl.style.transform = 'translateY(8px)';
-          setTimeout(() => {
-            if (toastEl && toastEl.parentNode) toastEl.remove();
-          }, 250);
-        }
-      }, duration);
+      if (displayDuration > 0) {
+        setTimeout(() => {
+          if (document.getElementById(toastId)) {
+            toastEl.style.opacity = '0';
+            toastEl.style.transform = 'translateY(8px)';
+            setTimeout(() => {
+              if (toastEl && toastEl.parentNode) toastEl.remove();
+            }, 200);
+          }
+        }, displayDuration);
+      }
     }
   };
 
@@ -1196,7 +1205,7 @@ window.ScheduleModal = {
             </div>
             <h3 class="text-[17px] font-bold text-[#FAFAFA] tracking-tight">Schedule to Planner</h3>
           </div>
-          <button onclick="window.ScheduleModal.close()" class="w-7 h-7 flex items-center justify-center rounded-full text-[#6B7280] hover:bg-[#1A1A24] hover:text-[#FAFAFA] transition duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0">
+          <button onclick="window.ScheduleModal.close()" class="w-7 h-7 flex items-center justify-center rounded-full text-[#6B7280] hover:bg-[#1A1A24] hover:text-[#FAFAFA] transition duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0">
             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
           </button>
         </div>
@@ -1227,16 +1236,16 @@ window.ScheduleModal = {
           <!-- Date Picker -->
           <div id="sm-date-wrapper" class="relative">
             <label class="block text-[11px] font-bold text-[#8A8A98] uppercase tracking-wider mb-2">Date</label>
-            <div onclick="window.ScheduleModal.toggleDatePicker()" class="w-full bg-[#111116] border border-[#2A2A35] hover:border-[#A855F7]/50 rounded-[12px] px-[15px] py-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 ease-out group shadow-sm">
+            <div onclick="window.ScheduleModal.toggleDatePicker()" class="w-full bg-[#111116] border border-[#2A2A35] hover:border-[#A855F7]/50 rounded-[12px] px-[15px] py-[13px] flex items-center justify-between cursor-pointer transition duration-150 ease-out group shadow-sm">
               <span id="sm-date-display" class="text-[14px] font-semibold text-[#A1A1AA]">Choose a date</span>
               <svg class="w-[18px] h-[18px] text-[#6B7280] group-hover:text-[#A855F7] transition duration-200 ease-out" viewBox="0 0 24 24"><path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"/></svg>
             </div>
             
             <div id="sm-date-dropdown" class="hidden absolute top-[calc(100%+8px)] left-0 min-w-[220px] bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-3 z-[999999999] animate-scaleIn origin-top">
               <div class="flex items-center justify-between mb-2">
-                <button type="button" onclick="window.ScheduleModal.changeMonth(-1); event.stopPropagation();" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#1A1A24] hover:text-[#FAFAFA] text-[#A1A1AA] transition-all duration-200 ease-out">&lsaquo;</button>
+                <button type="button" onclick="window.ScheduleModal.changeMonth(-1); event.stopPropagation();" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#1A1A24] hover:text-[#FAFAFA] text-[#A1A1AA] transition duration-200 ease-out">&lsaquo;</button>
                 <div id="sm-calendar-title" class="text-[12px] font-bold text-[#FAFAFA] tracking-wide"></div>
-                <button type="button" onclick="window.ScheduleModal.changeMonth(1); event.stopPropagation();" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#1A1A24] hover:text-[#FAFAFA] text-[#A1A1AA] transition-all duration-200 ease-out">&rsaquo;</button>
+                <button type="button" onclick="window.ScheduleModal.changeMonth(1); event.stopPropagation();" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-[#1A1A24] hover:text-[#FAFAFA] text-[#A1A1AA] transition duration-200 ease-out">&rsaquo;</button>
               </div>
               <div class="grid grid-cols-7 gap-1 text-center text-[9px] font-bold text-[#6B7280] mb-2">
                 <div>SU</div><div>MO</div><div>TU</div><div>WE</div><div>TH</div><div>FR</div><div>SA</div>
@@ -1248,7 +1257,7 @@ window.ScheduleModal = {
           <!-- Time Picker -->
           <div id="sm-time-wrapper" class="relative">
             <label class="block text-[11px] font-bold text-[#8A8A98] uppercase tracking-wider mb-2">Time</label>
-            <div onclick="window.ScheduleModal.toggleTimePicker()" class="w-full bg-[#111116] border border-[#2A2A35] hover:border-[#A855F7]/50 rounded-[12px] px-[15px] py-[13px] flex items-center justify-between cursor-pointer transition-all duration-200 ease-out group shadow-sm">
+            <div onclick="window.ScheduleModal.toggleTimePicker()" class="w-full bg-[#111116] border border-[#2A2A35] hover:border-[#A855F7]/50 rounded-[12px] px-[15px] py-[13px] flex items-center justify-between cursor-pointer transition duration-150 ease-out group shadow-sm">
               <span id="sm-time-display" class="text-[14px] font-semibold text-[#A1A1AA]">Choose a time</span>
               <svg class="w-[18px] h-[18px] text-[#6B7280] group-hover:text-[#A855F7] transition duration-200 ease-out" viewBox="0 0 24 24"><path fill="currentColor" d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
             </div>
@@ -1264,18 +1273,18 @@ window.ScheduleModal = {
             <span id="sm-duration-display" class="text-[12px] font-semibold text-[#A855F7]">60 min</span>
           </div>
           <div class="flex items-center gap-2.5 flex-wrap">
-             <div onclick="window.ScheduleModal.selectDuration(30)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">30m</div>
-             <div onclick="window.ScheduleModal.selectDuration(45)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">45m</div>
-             <div onclick="window.ScheduleModal.selectDuration(60)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">60m</div>
-             <div onclick="window.ScheduleModal.selectDuration(90)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">90m</div>
-             <div onclick="window.ScheduleModal.selectDuration(120)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">120m</div>
+             <div onclick="window.ScheduleModal.selectDuration(30)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition duration-150 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">30m</div>
+             <div onclick="window.ScheduleModal.selectDuration(45)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition duration-150 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">45m</div>
+             <div onclick="window.ScheduleModal.selectDuration(60)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition duration-150 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">60m</div>
+             <div onclick="window.ScheduleModal.selectDuration(90)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition duration-150 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">90m</div>
+             <div onclick="window.ScheduleModal.selectDuration(120)" class="duration-chip px-3.5 py-2 rounded-full text-[13px] font-bold cursor-pointer transition duration-150 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95">120m</div>
           </div>
         </div>
 
         <!-- Footer -->
         <div class="flex items-center justify-end space-x-2 pt-3 border-t border-[#22222E]">
-          <button type="button" onclick="window.ScheduleModal.close()" class="px-4.5 py-2 rounded-[10px] text-[13px] font-bold text-[#8A8A98] hover:text-[#FAFAFA] transition duration-200 ease-out hover:bg-[#1A1A24]">Cancel</button>
-          <button type="button" onclick="window.ScheduleModal.submit()" id="scheduleSubmitBtn" class="px-6 py-2.5 rounded-[10px] bg-gradient-to-r from-[#A855F7] to-[#9333EA] hover:from-[#9333EA] hover:to-[#7E22CE] text-white text-[13.5px] font-bold shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all duration-200 ease-out flex items-center space-x-1.5 hover:-translate-y-0.5 active:translate-y-0">
+          <button type="button" onclick="window.ScheduleModal.close()" class="px-4.5 py-2 rounded-[10px] text-[13px] font-bold text-[#8A8A98] hover:text-[#FAFAFA] transition duration-150 ease-out hover:bg-[#1A1A24]">Cancel</button>
+          <button type="button" onclick="window.ScheduleModal.submit()" id="scheduleSubmitBtn" class="px-6 py-2.5 rounded-[10px] bg-gradient-to-r from-[#A855F7] to-[#9333EA] hover:from-[#9333EA] hover:to-[#7E22CE] text-white text-[13.5px] font-bold shadow-[0_0_20px_rgba(168,85,247,0.4)] transition duration-150 ease-out flex items-center space-x-1.5 hover:-translate-y-0.5 active:translate-y-0">
             <span id="scheduleSubmitText">Schedule to Planner</span>
             <svg id="scheduleSubmitSpinner" class="animate-spin -mr-1 ml-2 h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -1303,9 +1312,9 @@ window.ScheduleModal = {
     chips.forEach(chip => {
       const val = parseInt(chip.innerText);
       if (val === this.duration) {
-        chip.className = "duration-chip px-3 py-1.5 rounded-full text-[12px] font-bold cursor-pointer transition-all duration-200 ease-out bg-[#A855F7]/20 border border-[#A855F7]/50 text-[#FAFAFA] shadow-[0_0_12px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95";
+        chip.className = "duration-chip px-3 py-1.5 rounded-full text-[12px] font-bold cursor-pointer transition duration-150 ease-out bg-[#A855F7]/20 border border-[#A855F7]/50 text-[#FAFAFA] shadow-[0_0_12px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95";
       } else {
-        chip.className = "duration-chip px-3 py-1.5 rounded-full text-[12px] font-bold cursor-pointer transition-all duration-200 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95";
+        chip.className = "duration-chip px-3 py-1.5 rounded-full text-[12px] font-bold cursor-pointer transition duration-150 ease-out border border-[#2A2A35] text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1A1A24] hover:scale-105 active:scale-95";
       }
     });
     
@@ -1367,7 +1376,7 @@ window.ScheduleModal = {
       const isSelected = (this.date.getDate() === i && this.date.getMonth() === this.currentMonth && this.date.getFullYear() === this.currentYear);
       const isToday = (new Date().getDate() === i && new Date().getMonth() === new Date().getMonth() && new Date().getFullYear() === new Date().getFullYear());
       
-      let classes = "p-1 text-center text-[11px] font-bold rounded-[6px] cursor-pointer transition-all duration-200 ease-out flex items-center justify-center w-6 h-6 mx-auto ";
+      let classes = "p-1 text-center text-[11px] font-bold rounded-[6px] cursor-pointer transition duration-150 ease-out flex items-center justify-center w-6 h-6 mx-auto ";
       if (isSelected) {
         classes += "bg-[#A855F7] text-white shadow-[0_0_12px_rgba(168,85,247,0.5)] scale-110";
       } else if (isToday) {
@@ -1424,17 +1433,17 @@ window.ScheduleModal = {
     let hrHtml = '';
     for (let i = 1; i <= 12; i++) {
       const isSel = i === hr12;
-      hrHtml += `<div onclick="window.ScheduleModal.selectHour(${i}, event)" class="py-0.5 rounded text-[11px] cursor-pointer text-center transition-all duration-150 ${isSel ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">${String(i).padStart(2, '0')}</div>`;
+      hrHtml += `<div onclick="window.ScheduleModal.selectHour(${i}, event)" class="py-0.5 rounded text-[11px] cursor-pointer text-center transition duration-150 ${isSel ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">${String(i).padStart(2, '0')}</div>`;
     }
 
     let minHtml = '';
     for (let i = 0; i < 60; i += 5) {
       const isSel = i === m || (Math.abs(i - m) < 5 && i <= m && (i+5 > m));
-      minHtml += `<div onclick="window.ScheduleModal.selectMinute(${i}, event)" class="py-0.5 rounded text-[11px] cursor-pointer text-center transition-all duration-150 ${isSel ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">${String(i).padStart(2, '0')}</div>`;
+      minHtml += `<div onclick="window.ScheduleModal.selectMinute(${i}, event)" class="py-0.5 rounded text-[11px] cursor-pointer text-center transition duration-150 ${isSel ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">${String(i).padStart(2, '0')}</div>`;
     }
 
-    let ampmHtml = `<div onclick="window.ScheduleModal.selectAmPm('AM', event)" class="py-1 rounded text-[11px] cursor-pointer text-center transition-all duration-150 ${ampm === 'AM' ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">AM</div>`;
-    ampmHtml += `<div onclick="window.ScheduleModal.selectAmPm('PM', event)" class="py-1 rounded text-[11px] cursor-pointer text-center transition-all duration-150 ${ampm === 'PM' ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">PM</div>`;
+    let ampmHtml = `<div onclick="window.ScheduleModal.selectAmPm('AM', event)" class="py-1 rounded text-[11px] cursor-pointer text-center transition duration-150 ${ampm === 'AM' ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">AM</div>`;
+    ampmHtml += `<div onclick="window.ScheduleModal.selectAmPm('PM', event)" class="py-1 rounded text-[11px] cursor-pointer text-center transition duration-150 ${ampm === 'PM' ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}">PM</div>`;
     
     container.innerHTML = `<div class="grid grid-cols-3 gap-1 text-center h-32 select-none"><div class="flex flex-col border-r border-[#2A2A38]/60 pr-1 overflow-hidden"><div class="text-[9px] font-bold text-[#A855F7] pb-1 sticky top-0 bg-[#12121A]">HR</div><div class="overflow-y-auto space-y-0.5 flex-1 sf-scrollbar pr-0.5">${hrHtml}</div></div><div class="flex flex-col border-r border-[#2A2A38]/60 px-1 overflow-hidden"><div class="text-[9px] font-bold text-[#A855F7] pb-1 sticky top-0 bg-[#12121A]">MIN</div><div class="overflow-y-auto space-y-0.5 flex-1 sf-scrollbar pr-0.5">${minHtml}</div></div><div class="flex flex-col pl-1 overflow-hidden"><div class="text-[9px] font-bold text-[#A855F7] pb-1 sticky top-0 bg-[#12121A]">AM/PM</div><div class="overflow-y-auto space-y-1 flex-1 sf-scrollbar pr-0.5">${ampmHtml}</div></div></div>`;
   },
@@ -1472,7 +1481,7 @@ window.ScheduleModal = {
       document.getElementById('scheduleSubmitSpinner').classList.add('hidden');
       document.getElementById('scheduleSubmitText').innerHTML = '✓ Scheduled';
       btn.style.opacity = '1';
-      btn.className = "px-7 py-3 rounded-[12px] bg-[#16A34A] text-white text-[14px] font-bold shadow-[0_0_24px_rgba(22,163,74,0.4)] transition-all duration-200 ease-out flex items-center justify-center space-x-2";
+      btn.className = "px-7 py-3 rounded-[12px] bg-[#16A34A] text-white text-[14px] font-bold shadow-[0_0_24px_rgba(22,163,74,0.4)] transition duration-150 ease-out flex items-center justify-center space-x-2";
       
       setTimeout(() => {
         this.close();
@@ -1529,9 +1538,9 @@ window.createDeadlineSelector = function(containerElement, initialValue = null) 
   containerElement.innerHTML = `
     <div class="space-y-3">
       <div class="flex p-1 space-x-1 bg-[#0A0A0A] rounded-xl border border-[#202020] text-xs">
-        <button type="button" data-mode="NONE" class="flex-1 py-1.5 px-3 rounded-lg text-center font-medium transition-all duration-200 hover:text-white text-[#A1A1AA]">No Deadline</button>
-        <button type="button" data-mode="SPECIFIC_DATE" class="flex-1 py-1.5 px-3 rounded-lg text-center font-medium transition-all duration-200 hover:text-white text-[#A1A1AA]">Specific Date</button>
-        <button type="button" data-mode="DURATION" class="flex-1 py-1.5 px-3 rounded-lg text-center font-medium transition-all duration-200 hover:text-white text-[#A1A1AA]">Duration</button>
+        <button type="button" data-mode="NONE" class="flex-1 py-1.5 px-3 rounded-lg text-center font-medium transition duration-150 hover:text-white text-[#A1A1AA]">No Deadline</button>
+        <button type="button" data-mode="SPECIFIC_DATE" class="flex-1 py-1.5 px-3 rounded-lg text-center font-medium transition duration-150 hover:text-white text-[#A1A1AA]">Specific Date</button>
+        <button type="button" data-mode="DURATION" class="flex-1 py-1.5 px-3 rounded-lg text-center font-medium transition duration-150 hover:text-white text-[#A1A1AA]">Duration</button>
       </div>
 
       <div class="relative transition-all duration-300" style="min-height: 48px;" id="deadline-panels-container">
@@ -1544,7 +1553,7 @@ window.createDeadlineSelector = function(containerElement, initialValue = null) 
           <div class="flex items-center gap-2">
             <div class="relative sf-custom-select-container flex-grow">
               <input type="date" id="dl-date" class="hidden" value="${state.date}" />
-              <button type="button" id="btn-dl-date" onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
+              <button type="button" id="btn-dl-date" onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition duration-150 flex items-center justify-between group">
                 <span id="sf-display-dl-date" class="flex items-center gap-2 text-white">${state.date ? new Date(state.date + 'T00:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'}) : 'mm/dd/yyyy'}</span>
                 <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
               </button>
@@ -1566,7 +1575,7 @@ window.createDeadlineSelector = function(containerElement, initialValue = null) 
             </div>
             <div class="relative sf-custom-select-container w-[130px]">
               <input type="time" id="dl-time" class="hidden" value="${state.time}" />
-              <button type="button" id="btn-dl-time" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-mono font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
+              <button type="button" id="btn-dl-time" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-mono font-semibold focus:outline-none focus:border-[#A855F7] transition duration-150 flex items-center justify-between group">
                 <span id="sf-display-dl-time" class="flex items-center gap-2 text-white text-[11px]">${state.time ? (() => { let [h,m]=state.time.split(':'); return (h%12||12)+':'+m+' '+(h>=12?'PM':'AM'); })() : 'Time'}</span>
                 <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </button>
@@ -1591,13 +1600,13 @@ window.createDeadlineSelector = function(containerElement, initialValue = null) 
                 <option value="weeks" ${state.unit === 'weeks' ? 'selected' : ''}>Weeks</option>
                 <option value="months" ${state.unit === 'months' ? 'selected' : ''}>Months</option>
               </select>
-              <button type="button" id="btn-dl-unit" onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition-all duration-200 flex items-center justify-between group">
+              <button type="button" id="btn-dl-unit" onclick="this.nextElementSibling.classList.toggle('hidden')" class="w-full px-3 py-2.5 rounded-xl bg-[#0A0A0A] border border-[#2A2A2A] hover:border-[#A855F7]/60 text-white text-xs font-semibold focus:outline-none focus:border-[#A855F7] transition duration-150 flex items-center justify-between group">
                 <span id="sf-display-dl-unit" class="flex items-center gap-2 text-white capitalize">${state.unit}</span>
                 <svg class="w-3.5 h-3.5 text-[#A1A1AA] group-hover:text-white transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </button>
               <div id="sf-menu-dl-unit" class="hidden absolute left-0 right-0 bottom-full mb-2 bg-[#12121A]/95 backdrop-blur-xl border border-[#2A2A38] rounded-xl shadow-[0_12px_35px_rgba(0,0,0,0.85)] p-1 z-[999999999] space-y-0.5 origin-bottom animate-scaleIn">
                 ${['days', 'weeks', 'months'].map(t => {
-                  return `<div onclick="document.getElementById('dl-unit').value='${t}'; document.getElementById('dl-unit').dispatchEvent(new Event('change')); document.getElementById('sf-display-dl-unit').innerText='${t.charAt(0).toUpperCase() + t.slice(1)}'; document.getElementById('sf-menu-dl-unit').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition-all duration-150 hover:bg-[#20202A] text-[#A1A1AA] hover:text-white capitalize">${t}</div>`;
+                  return `<div onclick="document.getElementById('dl-unit').value='${t}'; document.getElementById('dl-unit').dispatchEvent(new Event('change')); document.getElementById('sf-display-dl-unit').innerText='${t.charAt(0).toUpperCase() + t.slice(1)}'; document.getElementById('sf-menu-dl-unit').classList.add('hidden');" class="px-2.5 py-1.5 rounded-lg cursor-pointer flex items-center gap-2 text-xs transition duration-150 hover:bg-[#20202A] text-[#A1A1AA] hover:text-white capitalize">${t}</div>`;
                 }).join('')}
               </div>
             </div>
@@ -1658,15 +1667,15 @@ window.createDeadlineSelector = function(containerElement, initialValue = null) 
     const isPM = h24 >= 12;
     timeMenu.querySelectorAll('[data-col="hr"]').forEach(el => {
       const v = parseInt(el.dataset.val, 10);
-      el.className = `py-0.5 rounded text-[11px] cursor-pointer transition-all duration-150 text-center ${v === hr12 ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}`;
+      el.className = `py-0.5 rounded text-[11px] cursor-pointer transition duration-150 text-center ${v === hr12 ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}`;
     });
     timeMenu.querySelectorAll('[data-col="min"]').forEach(el => {
       const v = parseInt(el.dataset.val, 10);
-      el.className = `py-0.5 rounded text-[11px] cursor-pointer transition-all duration-150 text-center ${v === m ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}`;
+      el.className = `py-0.5 rounded text-[11px] cursor-pointer transition duration-150 text-center ${v === m ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}`;
     });
     timeMenu.querySelectorAll('[data-col="ampm"]').forEach(el => {
       const v = el.dataset.val;
-      el.className = `py-1 rounded text-[11px] cursor-pointer transition-all duration-150 text-center ${v === (isPM ? 'PM' : 'AM') ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}`;
+      el.className = `py-1 rounded text-[11px] cursor-pointer transition duration-150 text-center ${v === (isPM ? 'PM' : 'AM') ? 'bg-[#A855F7] text-white font-bold shadow-[0_0_10px_rgba(168,85,247,0.4)]' : 'hover:bg-[#20202A] text-[#A1A1AA] hover:text-white'}`;
     });
   };
 
@@ -1757,7 +1766,7 @@ window.createDeadlineSelector = function(containerElement, initialValue = null) 
       const isSelected = selectedDate && (selectedDate.getDate() === i && selectedDate.getMonth() === currentMonth && selectedDate.getFullYear() === currentYear);
       const isToday = (today.getDate() === i && today.getMonth() === currentMonth && today.getFullYear() === currentYear);
       
-      let classes = "p-1 text-center text-[11px] font-bold rounded-[8px] cursor-pointer transition-all duration-200 ease-out flex items-center justify-center w-7 h-7 mx-auto ";
+      let classes = "p-1 text-center text-[11px] font-bold rounded-[8px] cursor-pointer transition duration-150 ease-out flex items-center justify-center w-7 h-7 mx-auto ";
       if (isSelected) {
         classes += "bg-[#A855F7] text-white shadow-[0_0_10px_rgba(168,85,247,0.5)]";
       } else if (isToday) {

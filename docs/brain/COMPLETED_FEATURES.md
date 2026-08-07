@@ -147,3 +147,47 @@ This document summarizes every completed implementation phase with rationale, de
 - Backend owns archive state completely.
 - Workspace filters use `m.lifecycle.isArchived` to toggle visibility.
 - Resolved integration bugs (Store payload shape, Mapper filtering omission) reinforced the rule to audit DTO mappers upon schema expansions.
+
+---
+
+## Phase 2.3.1.3 — Workspace UX & Polish
+
+**What**: Final polish pass for the Workspace interface, resolving inconsistencies, aligning visual hierarchies, and establishing a unified transition language.
+
+**Why**: The Workspace interface needed to move from a functional prototype to a cohesive, production-ready, snappy experience.
+
+**Implementation Details**:
+
+**Batch 1 (Performance & Accessibility)**
+- Debounced Search
+- Keyboard Navigation
+- Accessibility
+- Focus Improvements
+
+**Batch 2 (Loading & Empty States)**
+- Skeleton Cards
+- Empty State Framework
+- Context-aware Empty States
+
+**Batch 3 (Responsive Layout)**
+- Mobile
+- Tablet
+- Desktop
+- Ultrawide
+
+**Batch 4 (Visual Polish)**
+- Consistency Improvements
+- Alignment Fixes
+- Badge Polish
+
+**Batch 5 (Micro-interactions)**
+- Toast Improvements
+- Hover Improvements
+- Transition Optimization
+- Performance Improvements
+
+**Design decisions**:
+- No fundamental redesigns. 
+- Replaced `transition-all` with `transition` where appropriate to optimize compositing and prevent layout thrashing on hovers.
+- Standardized all interactive elements to `duration-150` for crisp, unified feedback.
+- Context-aware toast durations mapped to severity levels (Success: 2s, Info: 3s, Warning: 4s, Error: Persistent).

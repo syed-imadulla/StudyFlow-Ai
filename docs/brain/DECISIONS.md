@@ -130,3 +130,11 @@ Future implementations must understand and respect these decisions.
 
 - **Status**: Accepted (Phase 2.3.0.8 polish)
 - **Decision**: `CompletionModal.lastCompletedGoalId` guards against duplicate modal renders from retries, rapid updates, or optimistic UI glitches. It allows different goals to complete consecutively while suppressing duplicate events for the same goal.
+
+---
+
+## Workspace UI and Architecture Are Frozen
+
+- **Status**: Accepted (Phase 2.3.1.3 Release Freeze)
+- **Decision**: The Workspace UI, DiscoveryPipeline, SearchEngine, FilterEngine, SortEngine, Comparators, WorkspaceRenderer, WorkspaceMapper, Goal Health, Goal Editing, and Priority Architecture are officially frozen.
+- **Constraints**: Micro-interactions intentionally remain subtle. The UI design is considered final. Future work should extend functionality without redesigning the Workspace or altering the core architecture.

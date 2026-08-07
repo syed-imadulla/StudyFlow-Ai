@@ -1,8 +1,8 @@
 # Current Status
 
-- **Current Phase**: ✅ Phase 2.3.0.9 — Goal Archive (COMPLETE)
-- **Next Phase**: ▶ Phase 2.3.1 (TBD)
-- **Overall Status**: Stable. Backend is the single source of truth. Frontend is a pure intelligence consumer. Goal Archive is fully implemented and manually verified.
+- **Current Phase**: ✅ Phase 2.3.1.3 — Workspace UX & Polish (COMPLETE)
+- **Next Phase**: ▶ Next active roadmap item becomes the next unfinished phase (Phase 3 — Focus Module).
+- **Overall Status**: Stable. Workspace UX is fully complete. Goal Discovery is frozen. Goal Management is frozen. Workspace is considered production-ready.
 - **Known Issues**: None
 
 ---
@@ -20,3 +20,6 @@
 | 2.3.0.7 | Planner Awareness | ✅ Complete |
 | 2.3.0.8 | Goal Completion Experience | ✅ Complete |
 | 2.3.0.9 | Goal Archive | ✅ Complete |
+| 2.3.1.1 | Workspace Health & UI | ✅ Complete |
+| 2.3.1.2 | Workspace Filter & Priority Polish | ✅ Complete |
+| 2.3.1.3 | Workspace UX & Polish | ✅ Complete |

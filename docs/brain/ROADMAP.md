@@ -13,6 +13,9 @@
 | 2.3.0.7 | Planner Awareness | ✅ Complete |
 | 2.3.0.8 | Goal Completion Experience | ✅ Complete |
 | 2.3.0.9 | Goal Archive | ✅ Complete |
+| 2.3.1.1 | Workspace Health & UI | ✅ Complete |
+| 2.3.1.2 | Workspace Filter & Priority Polish | ✅ Complete |
+| 2.3.1.3 | Workspace UX & Polish | ✅ COMPLETE (2026-08-07) |
 
 ---
 
