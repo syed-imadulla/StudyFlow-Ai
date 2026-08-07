@@ -393,7 +393,7 @@
 
       const healthColor = model.health.color || 'green';
       const healthStatus = model.health.status || 'HEALTHY';
-      const healthBadgeHtml = `<span class="px-2.5 py-[3px] rounded text-[10px] font-bold tracking-wider uppercase shrink-0 bg-${healthColor}-500/10 border border-${healthColor}-500/30 text-${healthColor}-400 flex items-center space-x-1.5 whitespace-nowrap shadow-sm">${getHealthIcon(healthStatus)}<span>${model.health.label}</span></span>`;
+      const healthBadgeHtml = `<span class="px-2.5 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase shrink-0 bg-${healthColor}-500/10 border border-${healthColor}-500/30 text-${healthColor}-400 flex items-center space-x-1 whitespace-nowrap shadow-sm">${getHealthIcon(healthStatus)}<span>${model.health.label}</span></span>`;
 
       const blockingHtml = model.blockingMilestone ? `
         <div class="mt-2 text-xs font-semibold text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-1.5 rounded-lg flex items-center w-max shrink-0">
