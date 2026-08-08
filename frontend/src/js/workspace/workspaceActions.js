@@ -76,8 +76,28 @@ window.WorkspaceActions = {
     window.location.href = 'planner.html';
   },
   
-  startFocus() {
-    window.location.href = 'focus.html';
+  startFocus(goalId = null, milestoneId = null) {
+    if (window.SF_STORE) {
+      window.SF_STORE.dispatch('focus/START_SESSION', { goalId, milestoneId })
+        .then(() => {
+          window.location.href = 'focus.html';
+        })
+        .catch((err) => {
+          if (err.message && err.message.includes('already exists')) {
+             if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
+               window.SF_COMPONENTS.showToast('You already have an active Focus session.', 'warning');
+             } else {
+               alert('You already have an active Focus session.');
+             }
+          } else {
+             if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
+               window.SF_COMPONENTS.showToast('Failed to start Focus session.', 'error');
+             }
+          }
+        });
+    } else {
+      window.location.href = 'focus.html';
+    }
   },
 
   expandGoal(id) {

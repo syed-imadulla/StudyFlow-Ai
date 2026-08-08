@@ -291,6 +291,17 @@
               role="menuitem"
               type="button"
               tabindex="-1"
+              onclick="event.stopPropagation(); window.closeGoalActionMenus(); if(window.WorkspaceActions) window.WorkspaceActions.startFocus('${goalId}', null)"
+              onkeydown="window.handleGoalItemKeyDown('${goalId}', 'start-focus', event)"
+              class="w-full px-3 py-2 text-left text-xs font-semibold text-[#FACC15] hover:text-[#FDE047] hover:bg-[#FACC15]/10 transition flex items-center space-x-2.5 focus:outline-none focus:bg-[#FACC15]/10 focus:text-[#FDE047]"
+            >
+              <svg class="w-3.5 h-3.5 fill-current shrink-0 pointer-events-none" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              <span>Start Focus</span>
+            </button>
+            <button
+              role="menuitem"
+              type="button"
+              tabindex="-1"
               onclick="event.stopPropagation(); window.closeGoalActionMenus(); window.openEditGoalModal('${goalId}')"
               onkeydown="window.handleGoalItemKeyDown('${goalId}', 'edit', event)"
               class="w-full px-3 py-2 text-left text-xs font-semibold text-[#A1A1AA] hover:text-[#FAFAFA] hover:bg-[#1C1C24] transition flex items-center space-x-2.5 focus:outline-none focus:bg-[#1C1C24] focus:text-[#FAFAFA]"
@@ -602,7 +613,7 @@
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                 </button>
                 ${scheduleBtnHtml}
-                <button onclick="${actionPrefix}startFocus()" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
+                <button onclick="${actionPrefix}startFocus('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
                   <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 </button>
               </div>
@@ -638,7 +649,7 @@
                   <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
                 </button>
                 ${scheduleBtnHtml}
-                <button onclick="${actionPrefix}startFocus()" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
+                <button onclick="${actionPrefix}startFocus('${goalId}', '${sub.id}')" class="w-7 h-7 rounded-lg hover:bg-[#FACC15]/10 text-[#FACC15]/80 hover:text-[#FACC15] transition duration-150 ease-out flex items-center justify-center hover:shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:-translate-y-0.5 active:translate-y-0" title="Start Focus Timer">
                   <svg class="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 </button>
               </div>

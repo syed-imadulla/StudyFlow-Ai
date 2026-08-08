@@ -57,9 +57,45 @@ export class FocusController {
       data: session
     });
   });
+  
+  static getActiveSession = catchAsync(async (req, res) => {
+    const session = await FocusService.getActiveSession(req.user._id);
+    res.status(HTTP_STATUS.OK).json({
+      status: 'success',
+      statusCode: HTTP_STATUS.OK,
+      data: session // null if no active session
+    });
+  });
+  
+  static pauseSession = catchAsync(async (req, res) => {
+    const session = await FocusService.pauseSession(req.user._id, req.params.id);
+    res.status(HTTP_STATUS.OK).json({
+      status: 'success',
+      statusCode: HTTP_STATUS.OK,
+      data: session
+    });
+  });
+  
+  static resumeSession = catchAsync(async (req, res) => {
+    const session = await FocusService.resumeSession(req.user._id, req.params.id);
+    res.status(HTTP_STATUS.OK).json({
+      status: 'success',
+      statusCode: HTTP_STATUS.OK,
+      data: session
+    });
+  });
 
   static endSession = catchAsync(async (req, res) => {
     const session = await FocusService.endSession(req.user._id, req.params.id, req.body);
+    res.status(HTTP_STATUS.OK).json({
+      status: 'success',
+      statusCode: HTTP_STATUS.OK,
+      data: session
+    });
+  });
+  
+  static abortSession = catchAsync(async (req, res) => {
+    const session = await FocusService.abortSession(req.user._id, req.params.id);
     res.status(HTTP_STATUS.OK).json({
       status: 'success',
       statusCode: HTTP_STATUS.OK,

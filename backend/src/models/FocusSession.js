@@ -43,6 +43,15 @@ const focusSessionSchema = new mongoose.Schema(
       ref: 'Task',
       default: null
     },
+    milestoneId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null
+    },
+    plannerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Planner',
+      default: null
+    },
     interruptions: {
       type: Number,
       default: 0,
@@ -51,6 +60,15 @@ const focusSessionSchema = new mongoose.Schema(
     pauseCount: {
       type: Number,
       default: 0,
+      min: 0
+    },
+    lastPausedAt: {
+      type: Date,
+      default: null
+    },
+    totalPausedTime: {
+      type: Number,
+      default: 0, // In seconds
       min: 0
     },
     notes: {

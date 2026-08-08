@@ -12,6 +12,14 @@ router.get('/sprint-task', FocusController.getSprintTask);
 router.get('/ai-suggestion', FocusController.getAISuggestion);
 router.get('/distraction-history', FocusController.getDistractionHistory);
 
+// Lifecycle routes
+router.get('/active', FocusController.getActiveSession);
+router.post('/start', validateCreateFocusSession, FocusController.startSession);
+router.post('/:id/pause', validateUpdateFocusSession, FocusController.pauseSession);
+router.post('/:id/resume', validateUpdateFocusSession, FocusController.resumeSession);
+router.post('/:id/complete', validateUpdateFocusSession, FocusController.endSession);
+router.post('/:id/abort', validateUpdateFocusSession, FocusController.abortSession);
+
 // Standard CRUD routes
 router.route('/')
   .get(FocusController.getSessions)

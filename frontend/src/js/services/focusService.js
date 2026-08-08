@@ -8,6 +8,14 @@
  *   focusService.getTimerConfig()        → Promise<TimerConfig>
  *   focusService.getAISuggestion()       → Promise<{ message: string }>
  *   focusService.getWeeklyDistraction()  → Promise<DistractionData>
+ *   
+ *   // Session Lifecycle
+ *   focusService.getActiveSession()      → Promise<FocusSession | null>
+ *   focusService.startSession(payload)   → Promise<FocusSession>
+ *   focusService.pauseSession(id)        → Promise<FocusSession>
+ *   focusService.resumeSession(id)       → Promise<FocusSession>
+ *   focusService.completeSession(id, patch) → Promise<FocusSession>
+ *   focusService.abortSession(id)        → Promise<FocusSession>
  */
 
 window.focusService = (function () {
@@ -61,5 +69,42 @@ window.focusService = (function () {
     return window.SF_HTTP.request('/focus/distraction-history', MOCK_WEEKLY_DISTRACTION);
   }
 
-  return { getActiveSprintTask, getTimerConfig, getAISuggestion, getWeeklyDistraction };
+  // ─── Session Lifecycle ────────────────────────────────────────────────────
+  
+  async function getActiveSession() {
+    return window.SF_HTTP.request('/focus/active', null, 'GET');
+  }
+
+  async function startSession(payload) {
+    return window.SF_HTTP.request('/focus/start', null, { method: 'POST', body: JSON.stringify(payload) });
+  }
+
+  async function pauseSession(id) {
+    return window.SF_HTTP.request(`/focus/${id}/pause`, null, { method: 'POST' });
+  }
+
+  async function resumeSession(id) {
+    return window.SF_HTTP.request(`/focus/${id}/resume`, null, { method: 'POST' });
+  }
+
+  async function completeSession(id, patch = {}) {
+    return window.SF_HTTP.request(`/focus/${id}/complete`, null, { method: 'POST', body: JSON.stringify(patch) });
+  }
+
+  async function abortSession(id) {
+    return window.SF_HTTP.request(`/focus/${id}/abort`, null, { method: 'POST' });
+  }
+
+  return { 
+    getActiveSprintTask, 
+    getTimerConfig, 
+    getAISuggestion, 
+    getWeeklyDistraction,
+    getActiveSession,
+    startSession,
+    pauseSession,
+    resumeSession,
+    completeSession,
+    abortSession
+  };
 })();

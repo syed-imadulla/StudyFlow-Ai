@@ -1,5 +1,6 @@
 import { FocusSession } from '../models/FocusSession.js';
 import { Goal } from '../models/Goal.js';
+import { Planner } from '../models/Planner.js';
 import { AppError } from '../utils/AppError.js';
 import { HTTP_STATUS, FOCUS_SESSION_TYPE, FOCUS_SESSION_STATUS, ERROR_CODES } from '../constants/index.js';
 import { GoalLifecycleService } from './goalLifecycle.service.js';
@@ -9,10 +10,58 @@ export class FocusService {
    * Create a new focus session
    */
   static async createSession(userId, payload) {
+    // Phase 3.3: Validate Planner ownership and inherit goal/milestone
+    if (payload.plannerId) {
+      const planner = await Planner.findOne({ 
+        user: userId,
+        $or: [
+          { _id: payload.plannerId },
+          { seriesId: payload.plannerId },
+          { originalSeriesId: payload.plannerId }
+        ]
+      });
+      if (!planner) {
+        throw new AppError('Planner not found or does not belong to user', HTTP_STATUS.NOT_FOUND, 'ERR_PLANNER_NOT_FOUND');
+      }
+      
+      // Override payload with Authoritative Planner relationships
+      payload.goalId = planner.goalId || null;
+      payload.milestoneId = planner.milestoneId || null;
+    }
+
+    // Phase 3.2: Validate Goal and Milestone ownership
+    if (payload.goalId) {
+      const goal = await Goal.findOne({ _id: payload.goalId, user: userId });
+      if (!goal) {
+        throw new AppError('Goal not found or does not belong to user', HTTP_STATUS.NOT_FOUND, 'ERR_GOAL_NOT_FOUND');
+      }
+
+      if (payload.milestoneId) {
+        const milestone = goal.subtasks.id(payload.milestoneId);
+        if (!milestone) {
+          throw new AppError('Milestone not found in the specified Goal', HTTP_STATUS.BAD_REQUEST, 'ERR_MILESTONE_NOT_FOUND');
+        }
+      }
+    } else if (payload.milestoneId) {
+      // Reject milestone without a goal
+      throw new AppError('milestoneId requires a goalId', HTTP_STATUS.BAD_REQUEST, 'ERR_INVALID_PAYLOAD');
+    }
+
+    // Check for existing active session
+    const existing = await FocusSession.findOne({ 
+      user: userId, 
+      status: { $in: [FOCUS_SESSION_STATUS.IN_PROGRESS, FOCUS_SESSION_STATUS.PAUSED] }
+    });
+    
+    if (existing) {
+      throw new AppError('An active focus session already exists', HTTP_STATUS.CONFLICT, 'ERR_DUPLICATE_ACTIVE_SESSION');
+    }
+
     return FocusSession.create({
       ...payload,
       user: userId,
-      startTime: payload.startTime ? new Date(payload.startTime) : new Date()
+      startTime: payload.startTime ? new Date(payload.startTime) : new Date(),
+      status: FOCUS_SESSION_STATUS.IN_PROGRESS
     });
   }
 
@@ -94,9 +143,58 @@ export class FocusService {
     }
   }
 
-  // Backward compatible methods
+  // Session Lifecycle Methods (Phase 3.1)
+  
   static async startSession(userId, payload) {
     return this.createSession(userId, payload);
+  }
+  
+  static async getActiveSession(userId) {
+    return FocusSession.findOne({ 
+      user: userId, 
+      status: { $in: [FOCUS_SESSION_STATUS.IN_PROGRESS, FOCUS_SESSION_STATUS.PAUSED] } 
+    });
+  }
+
+  static async pauseSession(userId, sessionId) {
+    const session = await FocusSession.findOne({ _id: sessionId, user: userId });
+    if (!session) {
+      throw new AppError('Focus session not found', HTTP_STATUS.NOT_FOUND, ERROR_CODES.FOCUS_SESSION_NOT_FOUND);
+    }
+    
+    if (session.status !== FOCUS_SESSION_STATUS.IN_PROGRESS) {
+      throw new AppError('Only IN_PROGRESS sessions can be paused', HTTP_STATUS.BAD_REQUEST, 'ERR_INVALID_TRANSITION');
+    }
+    
+    session.status = FOCUS_SESSION_STATUS.PAUSED;
+    session.lastPausedAt = new Date();
+    session.pauseCount = (session.pauseCount || 0) + 1;
+    
+    await session.save();
+    return session;
+  }
+
+  static async resumeSession(userId, sessionId) {
+    const session = await FocusSession.findOne({ _id: sessionId, user: userId });
+    if (!session) {
+      throw new AppError('Focus session not found', HTTP_STATUS.NOT_FOUND, ERROR_CODES.FOCUS_SESSION_NOT_FOUND);
+    }
+    
+    if (session.status !== FOCUS_SESSION_STATUS.PAUSED) {
+      throw new AppError('Only PAUSED sessions can be resumed', HTTP_STATUS.BAD_REQUEST, 'ERR_INVALID_TRANSITION');
+    }
+    
+    const now = new Date();
+    if (session.lastPausedAt) {
+      const pausedSeconds = Math.floor((now.getTime() - session.lastPausedAt.getTime()) / 1000);
+      session.totalPausedTime = (session.totalPausedTime || 0) + pausedSeconds;
+    }
+    
+    session.status = FOCUS_SESSION_STATUS.IN_PROGRESS;
+    session.lastPausedAt = null;
+    
+    await session.save();
+    return session;
   }
 
   static async endSession(userId, sessionId, patch = {}) {
@@ -104,13 +202,61 @@ export class FocusService {
     if (!session) {
       throw new AppError('Focus session not found', HTTP_STATUS.NOT_FOUND, ERROR_CODES.FOCUS_SESSION_NOT_FOUND);
     }
+    
+    if (![FOCUS_SESSION_STATUS.IN_PROGRESS, FOCUS_SESSION_STATUS.PAUSED].includes(session.status)) {
+      throw new AppError(`Cannot complete a session in ${session.status} state`, HTTP_STATUS.BAD_REQUEST, 'ERR_INVALID_TRANSITION');
+    }
 
-    session.endTime = new Date();
-    if (patch.duration !== undefined) session.duration = patch.duration;
+    const now = new Date();
+    session.endTime = now;
+    
+    // If completing while paused, add the final pause segment to totalPausedTime
+    if (session.status === FOCUS_SESSION_STATUS.PAUSED && session.lastPausedAt) {
+      const pausedSeconds = Math.floor((now.getTime() - session.lastPausedAt.getTime()) / 1000);
+      session.totalPausedTime = (session.totalPausedTime || 0) + pausedSeconds;
+      session.lastPausedAt = null; // Clear it to cleanly finalize
+    }
+
+    // Server authoritative duration calculation
+    const totalElapsedSeconds = Math.floor((now.getTime() - session.startTime.getTime()) / 1000);
+    const activeDurationSeconds = Math.max(0, totalElapsedSeconds - (session.totalPausedTime || 0));
+    
+    session.duration = activeDurationSeconds;
+    
     if (patch.interruptions !== undefined) session.interruptions = patch.interruptions;
-    if (patch.pauseCount !== undefined) session.pauseCount = patch.pauseCount;
     if (patch.notes !== undefined) session.notes = patch.notes;
     session.status = FOCUS_SESSION_STATUS.COMPLETED;
+
+    await session.save();
+    return session;
+  }
+  
+  static async abortSession(userId, sessionId) {
+    const session = await FocusSession.findOne({ _id: sessionId, user: userId });
+    if (!session) {
+      throw new AppError('Focus session not found', HTTP_STATUS.NOT_FOUND, ERROR_CODES.FOCUS_SESSION_NOT_FOUND);
+    }
+    
+    if (![FOCUS_SESSION_STATUS.IN_PROGRESS, FOCUS_SESSION_STATUS.PAUSED].includes(session.status)) {
+      throw new AppError(`Cannot abort a session in ${session.status} state`, HTTP_STATUS.BAD_REQUEST, 'ERR_INVALID_TRANSITION');
+    }
+
+    const now = new Date();
+    session.endTime = now;
+    
+    // Same paused duration tracking
+    if (session.status === FOCUS_SESSION_STATUS.PAUSED && session.lastPausedAt) {
+      const pausedSeconds = Math.floor((now.getTime() - session.lastPausedAt.getTime()) / 1000);
+      session.totalPausedTime = (session.totalPausedTime || 0) + pausedSeconds;
+      session.lastPausedAt = null;
+    }
+
+    // Server authoritative duration calculation
+    const totalElapsedSeconds = Math.floor((now.getTime() - session.startTime.getTime()) / 1000);
+    const activeDurationSeconds = Math.max(0, totalElapsedSeconds - (session.totalPausedTime || 0));
+    
+    session.duration = activeDurationSeconds;
+    session.status = FOCUS_SESSION_STATUS.ABORTED;
 
     await session.save();
     return session;

@@ -11,6 +11,8 @@ const ALLOWED_FIELDS = [
   'duration',
   'goalId',
   'taskId',
+  'milestoneId',
+  'plannerId',
   'interruptions',
   'pauseCount',
   'notes'
@@ -77,6 +79,12 @@ const validateFocusPayload = (req, next) => {
   }
   if (body.taskId !== undefined && body.taskId !== null && !mongoose.Types.ObjectId.isValid(body.taskId)) {
     return next(new AppError('Invalid Task ID reference format', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
+  }
+  if (body.milestoneId !== undefined && body.milestoneId !== null && !mongoose.Types.ObjectId.isValid(body.milestoneId)) {
+    return next(new AppError('Invalid Milestone ID reference format', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
+  }
+  if (body.plannerId !== undefined && body.plannerId !== null && !mongoose.Types.ObjectId.isValid(body.plannerId)) {
+    return next(new AppError('Invalid Planner ID reference format', HTTP_STATUS.BAD_REQUEST, ERROR_CODES.VALIDATION));
   }
 
   // Validate numerical counts

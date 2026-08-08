@@ -233,21 +233,38 @@
         const slice = window.SF_STORE.getSlice('focus');
         const el = document.getElementById('distractCount');
         if (el) el.textContent = slice?.distractionCount || 0;
+        
+        // Update timer UI based on store state
+        if (slice) {
+          timerTotal = slice.timerTotal || 1500;
+          timerRemaining = slice.timerRemaining || 1500;
+          updateTimerDisplay();
+          
+          if (slice.isRunning && !timerInterval) {
+            startLocalTimerTick();
+          } else if (!slice.isRunning && timerInterval) {
+            stopLocalTimerTick();
+          }
+          
+          const btnText = document.getElementById('startBtnText');
+          const icon = document.getElementById('startIcon');
+          if (slice.isRunning) {
+            if (btnText) btnText.textContent = 'Pause Focus';
+            if (icon) icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+          } else {
+            if (btnText) btnText.textContent = slice.activeSessionId ? 'Resume Focus' : 'Start Focus';
+            if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+          }
+        }
+        
         renderFocusTask();
       });
 
       // Bootstrap store: loads user settings + focus + goals
       await window.SF_STORE.bootstrap(['user', 'goals', 'focus']);
-
-      // Apply timer config from store
-      const focusSlice = window.SF_STORE.getSlice('focus');
-      if (focusSlice.timerConfig) {
-        timerTotal     = focusSlice.timerConfig.focus;
-        timerRemaining = focusSlice.timerConfig.focus;
-        updateTimerDisplay();
-      }
-
+      
       // Apply AI suggestion from store
+      const focusSlice = window.SF_STORE.getSlice('focus');
       const suggestionEl = document.querySelector('.ai-suggestion-text');
       if (suggestionEl && focusSlice.aiSuggestion?.message) {
         suggestionEl.textContent = focusSlice.aiSuggestion.message;
@@ -300,36 +317,66 @@
       const disp = document.getElementById('timerDisplay');
       if (disp) disp.textContent = `${m}:${s}`;
     }
-
-    function toggleTimer() {
-      const btnText = document.getElementById('startBtnText');
-      const icon = document.getElementById('startIcon');
-      if (!isRunning) {
-        isRunning = true;
-        if (btnText) btnText.textContent = 'Pause Focus';
-        if (icon) icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-        timerInterval = setInterval(() => {
-          if (timerRemaining > 0) {
-            timerRemaining--;
-            updateTimerDisplay();
-          } else {
-            clearInterval(timerInterval);
-            isRunning = false;
-            if (btnText) btnText.textContent = 'Start Focus';
-            if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-            alert('✨ Focus Session Completed! Time for a well-deserved break.');
-          }
-        }, 1000);
-      } else {
+    
+    function startLocalTimerTick() {
+      if (timerInterval) return;
+      timerInterval = setInterval(() => {
+        const slice = window.SF_STORE.getSlice('focus');
+        if (!slice || !slice.isRunning) {
+          stopLocalTimerTick();
+          return;
+        }
+        if (timerRemaining > 0) {
+          window.SF_STORE.dispatch('focus/TIMER_TICK');
+        } else {
+          stopLocalTimerTick();
+          window.SF_STORE.dispatch('focus/COMPLETE_SESSION');
+          alert('✨ Focus Session Completed! Time for a well-deserved break.');
+        }
+      }, 1000);
+    }
+    
+    function stopLocalTimerTick() {
+      if (timerInterval) {
         clearInterval(timerInterval);
-        isRunning = false;
-        if (btnText) btnText.textContent = 'Resume Focus';
-        if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+        timerInterval = null;
       }
     }
 
-    function resetTimer() {
-      setTimerMode(timerTotal);
+    async function toggleTimer() {
+      const btn = document.getElementById('startFocusBtn');
+      if (btn) btn.disabled = true; // prevent double clicks
+      
+      try {
+        const slice = window.SF_STORE.getSlice('focus');
+        if (!slice.isRunning) {
+          if (slice.activeSessionId) {
+            await window.SF_STORE.dispatch('focus/RESUME_SESSION');
+          } else {
+            await window.SF_STORE.dispatch('focus/START_SESSION');
+          }
+        } else {
+          await window.SF_STORE.dispatch('focus/PAUSE_SESSION');
+        }
+      } catch (e) {
+        alert('Error updating session: ' + e.message);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    async function resetTimer() {
+      const slice = window.SF_STORE.getSlice('focus');
+      if (slice.activeSessionId) {
+        if (confirm('Abort the current session?')) {
+          await window.SF_STORE.dispatch('focus/ABORT_SESSION');
+          const max = slice.timerConfig?.focus || 1500;
+          window.SF_STORE.dispatch('focus/SET_TIMER_MODE', { seconds: max });
+        }
+      } else {
+        const max = slice.timerConfig?.focus || 1500;
+        window.SF_STORE.dispatch('focus/SET_TIMER_MODE', { seconds: max });
+      }
     }
 
     function selectVibe(selectedBtn) {
