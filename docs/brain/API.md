@@ -2,8 +2,7 @@
 
 ## Authentication
 
-All goal and planner endpoints require a valid JWT token via the `authenticate` middleware.
-
+All goal and planner endpoints require a valid JWT token via the `authenticate` middleware..........
 ---
 
 ## Goal API
