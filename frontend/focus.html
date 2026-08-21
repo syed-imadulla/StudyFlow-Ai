@@ -42,14 +42,14 @@
         <div class="xl:col-span-8 flex flex-col space-y-6">
                  <!-- Active Sprint Task Banner -->
           <div class="bg-[#0A0A0E] border border-[#1C1C24] p-6 rounded-[24px] flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] relative overflow-hidden group hover:border-[#A855F7]/40 transition duration-300">
-            <div class="flex items-center space-x-4 pl-1">
+            <div class="flex items-center space-x-4 pl-1 min-w-0 flex-1">
               <div class="w-12 h-12 rounded-2xl bg-[#1E1035] border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7] shrink-0 shadow-[0_0_20px_rgba(168,85,247,0.3)] group-hover:scale-105 transition">
                 <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.58-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l7.51-3.49L17.5 6.5 9.99 9.99 6.5 17.5zm5.5-6.6c.61 0 1.1.49 1.1 1.1s-.49 1.1-1.1 1.1-1.1-.49-1.1-1.1.49-1.1 1.1-1.1z"/></svg>
               </div>
-              <div>
-                <span class="text-[10px] font-bold text-[#A855F7] uppercase tracking-wider font-mono">ACTIVE SPRINT TASK</span>
-                <h2 id="focusSprintTitle" class="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5">Create ER Diagram</h2>
-                <p id="focusSprintSubtitle" class="text-xs text-[#A1A1AA] mt-0.5">DBMS Mini Project • Milestone 2</p>
+              <div class="min-w-0 flex-1">
+                <span class="text-[10px] font-bold text-[#A855F7] uppercase tracking-wider font-mono">CURRENT FOCUS</span>
+                <h2 id="focusSprintTitle" class="text-lg sm:text-xl font-bold text-white tracking-tight mt-0.5 truncate">Create ER Diagram</h2>
+                <p id="focusSprintSubtitle" class="text-xs text-[#A1A1AA] mt-0.5 truncate">DBMS Mini Project • Milestone 2</p>
               </div>
             </div>
 
@@ -124,28 +124,58 @@
                     <svg class="w-4 h-4 text-[#A855F7]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span>Focus Timer</span>
                   </div>
-                  <div class="relative">
-                    <button type="button" onclick="window.toggleCustomDropdown('timerModeMenu', 'timerModeArrow')" class="px-3 py-1 rounded-xl bg-[#12121A] border border-[#20202E] text-xs font-semibold text-[#D4D4D8] hover:text-white flex items-center space-x-1.5 transition">
-                      <span id="timerModeSelectedText">Pomodoro</span>
-                      <svg class="w-3.5 h-3.5 text-[#A855F7] transition-transform duration-200 custom-dropdown-arrow" id="timerModeArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div id="timerModeMenu" class="hidden custom-dropdown-menu absolute right-0 mt-2 w-32 rounded-xl bg-[#0E0E0E] border border-[#2A2A2A] shadow-xl py-1 z-50 overflow-hidden">
-                      <button type="button" onclick="window.selectCustomDropdownItem('timerModeMenu', 'timerModeArrow', 'timerModeSelectedText', 'Pomodoro'); setTimerMode(1500);" class="w-full text-left px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#A855F7]">Pomodoro</button>
-                      <button type="button" onclick="window.selectCustomDropdownItem('timerModeMenu', 'timerModeArrow', 'timerModeSelectedText', 'Short Break'); setTimerMode(300);" class="w-full text-left px-3 py-1.5 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white">Short Break</button>
-                      <button type="button" onclick="window.selectCustomDropdownItem('timerModeMenu', 'timerModeArrow', 'timerModeSelectedText', 'Long Break'); setTimerMode(900);" class="w-full text-left px-3 py-1.5 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white">Long Break</button>
+                  <div id="focusMethodSelector" class="relative hidden z-50 flex flex-col items-end gap-2">
+                    <div class="custom-dropdown-container relative">
+                      <button type="button" onclick="window.toggleCustomDropdown('timerModeMenu', 'timerModeArrow')" class="px-3 py-1 rounded-xl bg-[#12121A] border border-[#20202E] text-xs font-semibold text-[#D4D4D8] hover:text-white flex items-center space-x-1.5 transition">
+                        <span id="timerModeSelectedText">Focus Method</span>
+                        <svg class="w-3.5 h-3.5 text-[#A855F7] transition-transform duration-200 custom-dropdown-arrow" id="timerModeArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                      </button>
+                      <div id="timerModeMenu" class="hidden custom-dropdown-menu absolute right-0 mt-2 w-48 rounded-xl bg-[#0E0E0E] border border-[#2A2A2A] shadow-xl py-1 z-50 overflow-hidden">
+                        <button type="button" onclick="changeFocusMethod('pomodoro', '🍅 Pomodoro')" class="w-full text-left px-3 py-1.5 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white">🍅 Pomodoro</button>
+                        <button type="button" onclick="changeFocusMethod('deepfocus', '🎯 Deep Focus')" class="w-full text-left px-3 py-1.5 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white">🎯 Deep Focus</button>
+                        <button type="button" onclick="changeFocusMethod('tasksprint', '⚡ Task Sprint')" class="w-full text-left px-3 py-1.5 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white">⚡ Task Sprint</button>
+                        <div class="border-t border-[#2A2A2A] my-1"></div>
+                        <button type="button" onclick="changeFocusMethod('timeblock', '🗓️ Time Block')" class="w-full text-left px-3 py-1.5 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white">🗓️ Time Block</button>
+                        <button type="button" onclick="changeFocusMethod('flow', '🌊 Flow Session')" class="w-full text-left px-3 py-1.5 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white">🌊 Flow Session</button>
+                      </div>
+                    </div>
+                    
+                    <div id="durationSelectorContainer" class="custom-dropdown-container relative hidden">
+                      <button type="button" onclick="window.toggleCustomDropdown('durationMenu', 'durationArrow')" class="px-3 py-1 rounded-xl bg-[#12121A] border border-[#20202E] text-xs font-semibold text-[#D4D4D8] hover:text-white flex items-center space-x-1.5 transition">
+                        <span id="durationSelectedText">Duration</span>
+                        <svg class="w-3.5 h-3.5 text-[#A855F7] transition-transform duration-200 custom-dropdown-arrow" id="durationArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                      </button>
+                      <div id="durationMenu" class="hidden custom-dropdown-menu absolute right-0 mt-2 w-32 rounded-xl bg-[#0E0E0E] border border-[#2A2A2A] shadow-xl py-1 z-50 overflow-hidden">
+                        <!-- Options populated dynamically -->
+                      </div>
+                    </div>
+
+                    <div id="timeBlockInfo" class="hidden flex-col items-end text-xs text-[#A1A1AA]">
+                      <span class="font-bold text-[#D4D4D8]">Scheduled</span>
+                      <span id="timeBlockScheduleText">--:--</span>
+                    </div>
+
+                    <div id="flowInfo" class="hidden flex-col items-end text-xs text-[#A1A1AA]">
+                      <span class="font-bold text-[#D4D4D8]">Open-ended</span>
+                      <span>Tracking actual focus time</span>
                     </div>
                   </div>
                 </div>
 
                 <!-- Circle Ring Display -->
                 <div class="my-6 flex flex-col items-center justify-center relative">
-                  <div class="w-48 h-48 rounded-full border-[5px] border-[#181824] relative flex flex-col items-center justify-center shadow-[0_0_35px_rgba(168,85,247,0.25)]">
-                    <!-- Arc Ring simulation -->
-                    <div class="absolute inset-0 rounded-full border-[5px] border-[#A855F7] border-t-transparent border-l-transparent transform -rotate-45 shadow-[0_0_15px_rgba(168,85,247,0.8)]"></div>
+                  <div class="w-40 h-40 sm:w-48 sm:h-48 relative flex flex-col items-center justify-center shadow-[0_0_35px_rgba(168,85,247,0.25)] rounded-full bg-[#0A0A0E]">
+                    <!-- Dynamic SVG Progress Ring -->
+                    <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                      <!-- Background Ring -->
+                      <circle cx="50" cy="50" r="45" fill="none" stroke="#181824" stroke-width="5" />
+                      <!-- Progress Ring -->
+                      <circle id="timerProgressRing" cx="50" cy="50" r="45" fill="none" stroke="#A855F7" stroke-width="5" stroke-dasharray="283" stroke-dashoffset="0" class="transition-all duration-1000 ease-linear shadow-[0_0_15px_rgba(168,85,247,0.8)]" />
+                    </svg>
                     
-                    <div id="timerDisplay" class="text-4xl sm:text-[44px] font-extrabold text-white tracking-tight font-mono relative z-10">25:00</div>
-                    <span class="px-2.5 py-0.5 rounded-full bg-[#1E1035] border border-[#A855F7]/40 text-[#D8B4FE] text-[10px] font-bold mt-1.5 relative z-10">
-                      Session 1 of 4
+                    <div id="timerDisplay" class="text-3xl sm:text-[44px] font-extrabold text-white tracking-tight font-mono relative z-10">25:00</div>
+                    <span id="timerModeBadge" class="px-2.5 py-0.5 rounded-full bg-[#1E1035] border border-[#A855F7]/40 text-[#D8B4FE] text-[10px] font-bold mt-1.5 relative z-10">
+                      🍅 Pomodoro
                     </span>
                   </div>
                 </div>
@@ -156,8 +186,12 @@
                     <svg id="startIcon" class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     <span id="startBtnText">Start Focus</span>
                   </button>
-                  <button onclick="resetTimer()" class="w-full py-2.5 rounded-xl bg-[#12121A] hover:bg-[#1C1C24] border border-[#20202E] text-[#A1A1AA] hover:text-white font-semibold text-xs transition">
-                    Skip Break
+                  <button id="completeFocusBtn" onclick="completeSessionUI()" class="w-full py-2.5 rounded-xl bg-[#1E1035] hover:bg-[#2A164A] border border-[#A855F7]/40 text-[#D8B4FE] hover:text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                    End & Save Session
+                  </button>
+                  <button onclick="resetTimer()" class="w-full py-2 rounded-xl bg-[#12121A] hover:bg-[#1C1C24] border border-[#20202E] text-[#A1A1AA] hover:text-white font-semibold text-[11px] transition">
+                    Abort Session
                   </button>
                 </div>
 
@@ -200,20 +234,20 @@
             <div>
               <div class="flex items-center justify-between pb-4 mb-4 border-b border-[#1C1C24]">
                 <h3 class="text-base font-bold text-white tracking-tight">Session Scratchpad</h3>
-                <span class="text-xs text-[#6B7280] flex items-center gap-1.5 font-mono">
+                <span id="autosaveStatusText" class="text-xs text-[#6B7280] flex items-center gap-1.5 font-mono">
                   Auto-saved <span class="w-2 h-2 rounded-full bg-[#4ade80]"></span>
                 </span>
               </div>
             </div>
             
             <div class="flex-1 flex flex-col my-2">
-              <textarea class="w-full flex-1 min-h-[350px] bg-[#050508] border border-[#1C1C24] focus:border-[#A855F7]/70 rounded-2xl p-4 text-xs sm:text-sm text-[#FAFAFA] placeholder:text-[#6B7280] resize-none leading-relaxed font-sans focus:outline-none transition shadow-inner" placeholder="Jot down stray thoughts or bugs here without breaking deep focus..."></textarea>
+              <textarea id="focusScratchpad" oninput="window.SF_STORE.dispatch('focus/UPDATE_SCRATCHPAD', this.value)" class="w-full flex-1 min-h-[350px] bg-[#050508] border border-[#1C1C24] focus:border-[#A855F7]/70 rounded-2xl p-4 text-xs sm:text-sm text-[#FAFAFA] placeholder:text-[#6B7280] resize-none leading-relaxed font-sans focus:outline-none transition shadow-inner" placeholder="Jot down stray thoughts or bugs here without breaking deep focus..."></textarea>
             </div>
 
-            <button onclick="alert('✨ Scratchpad notes synced to Milestone workspace!')" class="w-full mt-4 py-3 rounded-xl bg-[#12121A] hover:bg-[#1C1C24] border border-[#20202E] text-white hover:text-[#A855F7] font-bold text-xs flex items-center justify-center gap-2 transition shadow-sm group">
-              <span>Commit Notes to Goal</span>
-              <svg class="w-3.5 h-3.5 group-hover:-translate-y-0.5 transition transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-            </button>
+            <div class="w-full mt-4 py-3 rounded-xl bg-[#12121A] border border-[#20202E] text-[#6B7280] font-bold text-xs flex items-center justify-center gap-2 shadow-sm cursor-default">
+              <span>Notes and distractions are securely preserved.</span>
+              <svg class="w-3.5 h-3.5 text-[#4ade80]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
           </div>
         </div>
       </div>
@@ -221,11 +255,12 @@
   </div>
 
   <script>
-    // Timer state – initial values overridden once store focus slice loads
     let timerTotal     = 1500;  // fallback
     let timerRemaining = 1500;
     let timerInterval  = null;
     let isRunning      = false;
+    let isStopwatch    = false;
+    let activeDuration = 0;
 
     document.addEventListener('DOMContentLoaded', async () => {
       // Subscribe to focus and goals slices to keep UI and distraction counter in sync
@@ -238,6 +273,12 @@
         if (slice) {
           timerTotal = slice.timerTotal || 1500;
           timerRemaining = slice.timerRemaining || 1500;
+          isStopwatch = slice.isStopwatch || false;
+          activeDuration = slice.activeDuration || 0;
+          
+          const modeText = document.getElementById('timerModeSelectedText');
+          if (modeText && slice.timerModeText) modeText.textContent = slice.timerModeText;
+          
           updateTimerDisplay();
           
           if (slice.isRunning && !timerInterval) {
@@ -246,14 +287,48 @@
             stopLocalTimerTick();
           }
           
+          const scratchpadEl = document.getElementById('focusScratchpad');
+          if (scratchpadEl && scratchpadEl.value !== slice.scratchpad && document.activeElement !== scratchpadEl) {
+            scratchpadEl.value = slice.scratchpad || '';
+          }
+          const autoSaveEl = document.getElementById('autosaveStatusText');
+          if (autoSaveEl && slice.autosaveStatus) {
+            autoSaveEl.innerHTML = `${slice.autosaveStatus} <span class="w-2 h-2 rounded-full ${slice.autosaveStatus === 'Auto-saved' ? 'bg-[#4ade80]' : 'bg-[#A1A1AA] animate-pulse'}"></span>`;
+          }
+          
           const btnText = document.getElementById('startBtnText');
+          const startBtn = document.getElementById('startFocusBtn');
+          const endBtn = document.getElementById('completeFocusBtn');
           const icon = document.getElementById('startIcon');
+
+          // F7 FIX: Disable both action buttons when completing so the store-level
+          // COMPLETING lock has a matching UI representation. confirm() is UX only.
+          if (slice.sessionStatus === 'COMPLETING') {
+            if (endBtn) { endBtn.disabled = true; endBtn.classList.add('opacity-50'); }
+            if (startBtn) { startBtn.disabled = true; }
+          } else {
+            if (endBtn) { endBtn.disabled = false; endBtn.classList.remove('opacity-50'); }
+          }
+
           if (slice.isRunning) {
             if (btnText) btnText.textContent = 'Pause Focus';
             if (icon) icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
           } else {
             if (btnText) btnText.textContent = slice.activeSessionId ? 'Resume Focus' : 'Start Focus';
             if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+          }
+          
+          // F5 FIX: Re-enable startFocusBtn on every store update that is NOT COMPLETING.
+          // The timer-zero disabled state was a raw DOM mutation that persisted incorrectly
+          // after method/duration switches. Deriving from store state is the correct approach.
+          if (startBtn && startBtn.disabled && slice.sessionStatus !== 'COMPLETING') {
+            startBtn.disabled = false;
+            startBtn.classList.remove('opacity-50');
+          }
+          
+          const methodSelector = document.getElementById('focusMethodSelector');
+          if (methodSelector) {
+            methodSelector.classList.toggle('hidden', !slice.activeSessionId);
           }
         }
         
@@ -293,29 +368,129 @@
       if (container && Array.isArray(activeTask.checklist)) {
         container.innerHTML = activeTask.checklist.map(chk => `
           <label class="flex items-center space-x-3 text-xs cursor-pointer group">
-            <input type="checkbox" ${chk.completed ? 'checked' : ''} onchange="window.SF_STORE.dispatch('goals/TOGGLE_SUBTASK', { goalId: '${activeTask.goalId || chk.goalId || ''}', subtaskId: '${chk.id}', completed: this.checked })" class="w-4 h-4 rounded border-[#2A2A35] bg-[#12121A] text-[#A855F7] focus:ring-0 focus:ring-offset-0 cursor-pointer accent-[#A855F7]" />
+            <input type="checkbox" ${chk.completed ? 'checked' : ''} onchange="window.SF_STORE.dispatch('focus/TOGGLE_CHECKLIST_ITEM', { itemId: '${chk.id}', completed: this.checked })" class="w-4 h-4 rounded border-[#2A2A35] bg-[#12121A] text-[#A855F7] focus:ring-0 focus:ring-offset-0 cursor-pointer accent-[#A855F7]" />
             <span class="${chk.completed ? 'line-through text-[#6B7280]' : 'text-[#D4D4D8]'} group-hover:text-white transition">${chk.text}</span>
           </label>
         `).join('');
       }
     }
-    function setTimerMode(seconds) {
-      clearInterval(timerInterval);
-      isRunning = false;
-      timerTotal = seconds;
-      timerRemaining = seconds;
-      updateTimerDisplay();
-      const btnText = document.getElementById('startBtnText');
-      const icon = document.getElementById('startIcon');
-      if (btnText) btnText.textContent = 'Start Focus';
-      if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+    const DURATION_PRESETS = {
+      pomodoro: [15, 25, 45],
+      deepfocus: [50, 75, 90],
+      tasksprint: [15, 25, 45, 60]
+    };
+
+    function changeFocusMethod(mode, text) {
+      window.selectCustomDropdownItem('timerModeMenu', 'timerModeArrow', 'timerModeSelectedText', text);
+      const durationContainer = document.getElementById('durationSelectorContainer');
+      const timeBlockInfo = document.getElementById('timeBlockInfo');
+      const flowInfo = document.getElementById('flowInfo');
+      
+      durationContainer.classList.add('hidden');
+      timeBlockInfo.classList.add('hidden');
+      flowInfo.classList.add('hidden');
+      
+      if (mode === 'timeblock') {
+        timeBlockInfo.classList.remove('hidden');
+        window.SF_STORE.dispatch('focus/SET_TIMER_MODE', { seconds: 0, text: text, mode: mode });
+      } else if (mode === 'flow' || mode === 'stopwatch') {
+        flowInfo.classList.remove('hidden');
+        window.SF_STORE.dispatch('focus/SET_TIMER_MODE', { seconds: 0, text: text, mode: mode, isStopwatch: true });
+      } else {
+        durationContainer.classList.remove('hidden');
+        populateDurationMenu(mode, text);
+        const presets = DURATION_PRESETS[mode];
+        const defaultMin = (mode === 'pomodoro' || mode === 'tasksprint') ? 25 : 50;
+        changeFocusDuration(defaultMin * 60, mode, text);
+      }
+    }
+
+    function populateDurationMenu(mode, modeText) {
+      const menu = document.getElementById('durationMenu');
+      const presets = DURATION_PRESETS[mode] || [];
+      menu.innerHTML = presets.map(min => `
+        <button type="button" onclick="changeFocusDuration(${min * 60}, '${mode}', '${modeText}')" class="w-full text-left px-3 py-1.5 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white">${min} min</button>
+      `).join('');
+    }
+
+    function changeFocusDuration(seconds, mode, modeText) {
+      const durText = document.getElementById('durationSelectedText');
+      if (durText) durText.textContent = `${seconds / 60} min`;
+      window.selectCustomDropdownItem('durationMenu', 'durationArrow', 'durationSelectedText', `${seconds / 60} min`);
+      window.SF_STORE.dispatch('focus/SET_TIMER_MODE', { seconds: seconds, text: modeText, mode: mode });
     }
 
     function updateTimerDisplay() {
-      const m = String(Math.floor(timerRemaining / 60)).padStart(2, '0');
-      const s = String(timerRemaining % 60).padStart(2, '0');
+      let displaySeconds = timerRemaining;
+      if (isStopwatch) {
+        displaySeconds = activeDuration || 0;
+      }
+      
+      const hours = Math.floor(displaySeconds / 3600);
+      const m = String(Math.floor((displaySeconds % 3600) / 60)).padStart(2, '0');
+      const s = String(displaySeconds % 60).padStart(2, '0');
       const disp = document.getElementById('timerDisplay');
-      if (disp) disp.textContent = `${m}:${s}`;
+      if (disp) {
+        if (hours > 0) {
+          const h = String(hours).padStart(2, '0');
+          disp.textContent = `${h}:${m}:${s}`;
+        } else {
+          disp.textContent = `${m}:${s}`;
+        }
+      }
+      
+      const slice = window.SF_STORE?.getSlice('focus');
+      const modeText = document.getElementById('timerModeSelectedText');
+      const badgeText = document.getElementById('timerModeBadge');
+
+      if (badgeText && slice?.timerModeText) {
+        badgeText.textContent = slice.timerModeText;
+      }
+      
+      const ring = document.getElementById('timerProgressRing');
+      if (ring && slice) {
+        if (slice.timerMode === 'stopwatch' || slice.timerMode === 'flow') {
+          ring.style.strokeDasharray = '283';
+          ring.style.strokeDashoffset = '0';
+          ring.classList.add('animate-pulse');
+        } else {
+          ring.classList.remove('animate-pulse');
+          let progress = 0;
+          if (slice.timerMode === 'timeblock' && slice.activeTask?.endTime) {
+            const endTime = new Date(slice.activeTask.endTime).getTime();
+            const startTime = new Date(slice.activeTask.startTime).getTime();
+            const totalScheduled = Math.max(1, Math.floor((endTime - startTime) / 1000));
+            progress = Math.max(0, Math.min(1, slice.timerRemaining / totalScheduled));
+          } else {
+            const total = slice.timerTotal || 1;
+            progress = Math.max(0, Math.min(1, slice.timerRemaining / total));
+          }
+          const offset = 283 - (283 * progress);
+          ring.style.strokeDasharray = '283';
+          ring.style.strokeDashoffset = offset.toString();
+        }
+      }
+
+      if (slice?.timerMode === 'timeblock' && slice?.activeTask?.endTime && modeText) {
+        const now = Date.now();
+        const endTime = new Date(slice.activeTask.endTime).getTime();
+        const startTime = new Date(slice.activeTask.startTime).getTime();
+        
+        const timeBlockScheduleText = document.getElementById('timeBlockScheduleText');
+        if (timeBlockScheduleText) {
+          const startStr = new Date(startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          const endStr = new Date(endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          timeBlockScheduleText.textContent = `${startStr} - ${endStr}`;
+        }
+        
+        if (now > endTime) {
+          if (badgeText) badgeText.innerHTML = '<span class="text-red-400 font-bold">⚠️ Expired Schedule</span>';
+        } else if (now > startTime && activeDuration === 0) {
+          if (badgeText) badgeText.innerHTML = '<span class="text-orange-400 font-bold">⏳ Late Start</span>';
+        } else {
+          if (badgeText) badgeText.textContent = '🗓️ Time Block';
+        }
+      }
     }
     
     function startLocalTimerTick() {
@@ -326,12 +501,17 @@
           stopLocalTimerTick();
           return;
         }
-        if (timerRemaining > 0) {
-          window.SF_STORE.dispatch('focus/TIMER_TICK');
-        } else {
+        
+        window.SF_STORE.dispatch('focus/TIMER_TICK');
+        
+        if (!isStopwatch && timerRemaining <= 0) {
           stopLocalTimerTick();
-          window.SF_STORE.dispatch('focus/COMPLETE_SESSION');
-          alert('✨ Focus Session Completed! Time for a well-deserved break.');
+          const disp = document.getElementById('timerDisplay');
+          if (disp) disp.textContent = "00:00";
+          const btnText = document.getElementById('startBtnText');
+          if (btnText) btnText.textContent = "Interval Complete";
+          document.getElementById('startFocusBtn').disabled = true;
+          document.getElementById('startFocusBtn').classList.add('opacity-50');
         }
       }, 1000);
     }
@@ -340,6 +520,33 @@
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
+      }
+    }
+
+    async function completeSessionUI() {
+      const slice = window.SF_STORE.getSlice('focus');
+      if (!slice.activeSessionId) {
+        alert('No active session to complete.');
+        return;
+      }
+      // F7 FIX: confirm() is UX only, not the concurrency guard.
+      // The authoritative protection is sessionStatus === 'COMPLETING' inside
+      // focus/COMPLETE_SESSION. We disable the button immediately after confirm
+      // to cover the brief window before the store lock engages.
+      if (confirm('End and save this session now?')) {
+        const endBtn = document.getElementById('completeFocusBtn');
+        if (endBtn) { endBtn.disabled = true; endBtn.classList.add('opacity-50'); }
+        try {
+          await window.SF_STORE.dispatch('focus/COMPLETE_SESSION');
+          alert('Session saved successfully.');
+        } finally {
+          // Restore button if the store rejected the request (e.g. already COMPLETING)
+          const afterSlice = window.SF_STORE.getSlice('focus');
+          if (endBtn && afterSlice.activeSessionId) {
+            endBtn.disabled = false;
+            endBtn.classList.remove('opacity-50');
+          }
+        }
       }
     }
 
@@ -353,7 +560,12 @@
           if (slice.activeSessionId) {
             await window.SF_STORE.dispatch('focus/RESUME_SESSION');
           } else {
-            await window.SF_STORE.dispatch('focus/START_SESSION');
+            if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
+               window.SF_COMPONENTS.showToast('Please schedule your task in Planner to start Focus.', 'warning');
+            } else {
+               alert('Please schedule your task in Planner to start Focus.');
+            }
+            return;
           }
         } else {
           await window.SF_STORE.dispatch('focus/PAUSE_SESSION');

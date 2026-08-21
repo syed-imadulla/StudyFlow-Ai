@@ -28,21 +28,87 @@ window.focusService = (function () {
   // ─── Service Methods ──────────────────────────────────────────────────────
 
   /**
-   * Returns the active sprint task by finding the first incomplete subtask
-   * across all goals (or falls back to static mock when in mock mode).
+   * Resolves the active Focus context using local goal data.
+   * If goalId/milestoneId are provided (Active Session), strictly resolves them or returns "context unavailable".
+   * If omitted (Free Focus), falls back to the first incomplete subtask.
    */
-  async function getActiveSprintTask() {
+  async function getActiveSprintTask(goalId = null, milestoneId = null, plannerId = null) {
     const { MOCK_SPRINT_TASK = null } = await _getMocks();
-    if (window.SF_CONFIG?.USE_MOCK_API) {
-      return window.SF_HTTP.request('/focus/sprint-task', MOCK_SPRINT_TASK);
-    }
+    
+    // Ensure we have goals
     const goals = window.SF_STORE?.getSlice('goals')?.items?.length
       ? window.SF_STORE.getSlice('goals').items
       : await window.goalsService.getGoals();
-    const topGoal = goals[0];
-    if (!topGoal) return null;
-    const activeSub = topGoal.subtasks?.find(s => !s.completed);
-    return window.SF_HTTP.request(`/focus/sprint-task?goalId=${topGoal.id}&subtaskId=${activeSub?.id}`, MOCK_SPRINT_TASK);
+
+    if (goalId) {
+      // ACTIVE SESSION FOCUS
+      const targetGoal = goals.find(g => g.id === goalId);
+      
+      if (!targetGoal) {
+        // [SAFE UNAVAILABLE STATE]
+        // Do NOT silently substitute another Goal if resolution fails.
+        return {
+          id: 'unavailable',
+          title: 'Context Unavailable',
+          goalTitle: 'Unknown Goal',
+          milestone: 'N/A',
+          urgency: 'low',
+          checklist: []
+        };
+      }
+      
+      const targetSub = targetGoal.subtasks?.find(s => s.id === milestoneId) || targetGoal.subtasks?.[0];
+      
+      return {
+        id: targetSub?.id || targetGoal.id,
+        title: targetSub?.title || targetGoal.title,
+        goalTitle: targetGoal.title,
+        milestone: targetSub?.estimate || 'Sprint Task',
+        urgency: targetGoal.status || 'normal',
+        checklist: [
+          { id: 'chk-1', text: `Review requirements for ${targetSub?.title || targetGoal.title}`, completed: targetSub?.completed || false },
+          { id: 'chk-2', text: 'Execute core focus steps', completed: false },
+          { id: 'chk-3', text: 'Verify output against deadline', completed: false }
+        ]
+      };
+    }
+
+    if (plannerId) {
+      // ACTIVE SESSION FOCUS (Generic Planner Block context)
+      const planners = window.SF_STORE?.getSlice('planner')?.plannerEvents || [];
+      const todayStr = new Date().toLocaleDateString('en-CA');
+      
+      let plannerBlock = planners.find(p => p.id === `${plannerId}::${todayStr}`) 
+                      || planners.find(p => p.id === plannerId)
+                      || planners.find(p => p.id.startsWith(`${plannerId}::`));
+
+      if (!plannerBlock) {
+        return {
+          id: 'unavailable',
+          title: 'Context Unavailable',
+          goalTitle: 'Unknown Planner Block',
+          milestone: 'N/A',
+          urgency: 'low',
+          checklist: []
+        };
+      }
+      return {
+        id: plannerBlock.id,
+        title: plannerBlock.title,
+        goalTitle: 'Planner Task',
+        milestone: 'Scheduled Block',
+        urgency: 'normal',
+        startTime: plannerBlock.startTime,
+        endTime: plannerBlock.endTime,
+        checklist: [
+          { id: 'chk-1', text: `Execute scheduled block: ${plannerBlock.title}`, completed: false },
+          { id: 'chk-2', text: 'Maintain deep focus', completed: false }
+        ]
+      };
+    }
+
+    // FREE FOCUS (Disabled as executable path)
+    return null;
   }
 
   /**

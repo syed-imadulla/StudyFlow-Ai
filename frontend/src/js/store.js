@@ -68,6 +68,63 @@ window.getPlannerBlockDate = function(block) {
   return null;
 };
 
+let _focusAutosaveTimer = null;
+let _isAutosaving = false;
+let _needsAutosave = false;
+
+async function _syncFocusSession() {
+  const f = window.SF_STORE.getSlice('focus');
+  if (!f.activeSessionId || f.sessionStatus === 'COMPLETED' || f.sessionStatus === 'ABORTED') {
+    _needsAutosave = false;
+    return;
+  }
+  
+  if (_isAutosaving) {
+    _needsAutosave = true;
+    return;
+  }
+
+  _isAutosaving = true;
+  _needsAutosave = false;
+  
+  try {
+    await window.SF_HTTP.request(`/focus/${f.activeSessionId}`, null, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        notes: f.scratchpad,
+        interruptions: f.distractionCount
+      }),
+      _silent: true
+    });
+    
+    if (!_needsAutosave) {
+      window.SF_STORE.dispatch('focus/SET_AUTOSAVE_STATUS', 'Auto-saved');
+    }
+  } catch (e) {
+    if (!_needsAutosave) {
+      window.SF_STORE.dispatch('focus/SET_AUTOSAVE_STATUS', 'Save failed');
+    }
+  } finally {
+    _isAutosaving = false;
+    if (_needsAutosave) {
+      _triggerFocusAutosave();
+    }
+  }
+}
+
+function _triggerFocusAutosave() {
+  if (_focusAutosaveTimer) clearTimeout(_focusAutosaveTimer);
+  
+  window.SF_STORE.dispatch('focus/SET_AUTOSAVE_STATUS', 'Saving...');
+  
+  if (_isAutosaving) {
+    _needsAutosave = true;
+    return;
+  }
+  
+  _focusAutosaveTimer = setTimeout(_syncFocusSession, 2000);
+}
+
 /**
  * Universal helper to check if a milestone is scheduled
  * Uses the subtask status as the single source of truth.
@@ -150,8 +207,8 @@ window.SF_STORE = (function () {
       activeSessionId:    null,   // Phase 3.1: Backend session ID
       sessionStatus:      null,   // IN_PROGRESS, PAUSED, etc.
       timerConfig:        null,   // { focus, shortBreak, longBreak, sessionsBeforeLong }
-      timerRemaining:     null,   // seconds
-      timerTotal:         null,   // seconds
+      timerRemaining:     1500,   // seconds
+      timerTotal:         1500,   // seconds
       isRunning:          false,
       currentSession:     1,
       distractionCount:   0,
@@ -159,7 +216,10 @@ window.SF_STORE = (function () {
       aiSuggestion:       null,
       weeklyDistraction:  null,
       loading:            false,
-      error:              null
+      error:              null,
+      activeDuration:     0,
+      scratchpad:         '',
+      autosaveStatus:     'Auto-saved'
     },
 
     settings: {
@@ -460,7 +520,6 @@ window.SF_STORE = (function () {
     async 'planner/LOAD'(payload) {
       const dateStr = payload?.date || _state.planner.selectedDate || new Date().toLocaleDateString('en-CA');
       const isDateChangeOnly = payload && payload.date && payload.date !== _state.planner.selectedDate && _state.planner.weeklyStats !== null;
-      console.log('[AUDIT: store.js] planner/LOAD started for date:', dateStr, '| isDateChangeOnly:', isDateChangeOnly);
       
       if (payload?.date) {
         _patch('planner', { loading: true, error: null, selectedDate: dateStr, selectedView: 'day' });
@@ -470,7 +529,6 @@ window.SF_STORE = (function () {
       try {
         if (isDateChangeOnly) {
           const dailyBlocks = await window.plannerService.getDailyBlocks(dateStr);
-          console.log('[AUDIT: store.js] planner/LOAD storing dailyBlocks (date change only). Count:', dailyBlocks ? dailyBlocks.length : 0, '| Data:', dailyBlocks);
           _patch('planner', { plannerEvents: dailyBlocks, dailyBlocks, loading: false });
         } else {
           const [dailyBlocks, weeklyStats, monthlyCalendar, upcomingDeadlines] = await Promise.all([
@@ -479,11 +537,9 @@ window.SF_STORE = (function () {
             window.plannerService.getMonthlyCalendar(),
             window.plannerService.getUpcomingDeadlines()
           ]);
-          console.log('[AUDIT: store.js] planner/LOAD storing dailyBlocks (full load). Count:', dailyBlocks ? dailyBlocks.length : 0, '| Data:', dailyBlocks);
           _patch('planner', { plannerEvents: dailyBlocks, dailyBlocks, weeklyStats, monthlyCalendar, upcomingDeadlines, loading: false });
         }
       } catch (e) {
-        console.error('[AUDIT: store.js] planner/LOAD ERROR! Data will NOT be stored:', e);
         _patch('planner', { loading: false, error: e.message });
         console.error('[SF_STORE] planner/LOAD failed:', e);
       }
@@ -492,7 +548,6 @@ window.SF_STORE = (function () {
     async 'planner/LOAD_RANGE'(payload) {
       const { start, end, view = _state.planner.selectedView || 'day' } = payload || {};
       const dateStr = payload?.date || _state.planner.selectedDate || new Date().toLocaleDateString('en-CA');
-      console.log('[AUDIT: store.js] planner/LOAD_RANGE started for range:', start, 'to', end, '| view:', view);
       
       const loadRangePatch = { loading: true, error: null, selectedView: view, selectedRange: { start, end } };
       if (payload?.date) loadRangePatch.selectedDate = payload.date;
@@ -500,10 +555,8 @@ window.SF_STORE = (function () {
       try {
         const events = await window.plannerService.getEventsByRange(start, end);
         const dailyBlocks = _deriveDailyBlocks(events, dateStr);
-        console.log('[AUDIT: store.js] planner/LOAD_RANGE stored plannerEvents count:', events ? events.length : 0);
         _patch('planner', { plannerEvents: events, dailyBlocks, loading: false });
       } catch (e) {
-        console.error('[AUDIT: store.js] planner/LOAD_RANGE ERROR:', e);
         _patch('planner', { loading: false, error: e.message });
       }
     },
@@ -704,12 +757,26 @@ window.SF_STORE = (function () {
     async 'focus/LOAD'() {
       _patch('focus', { loading: true, error: null });
       try {
-        const [activeTask, timerConfig, aiSuggestion, weeklyDistraction, activeSession] = await Promise.all([
-          window.focusService.getActiveSprintTask(),
+        // 1. Fetch active session first to determine context
+        const activeSession = await window.focusService.getActiveSession();
+        
+        // 1.5. Ensure planner data is loaded if we need it for context
+        if (activeSession?.plannerId && (!_state.planner.plannerEvents || _state.planner.plannerEvents.length === 0)) {
+          await _handlers['planner/LOAD']({ date: new Date().toLocaleDateString('en-CA') });
+        }
+        
+        // 2. Fetch active task strictly based on session context (or null for free focus)
+        const activeTaskPromise = window.focusService.getActiveSprintTask(
+          activeSession?.goalId || null,
+          activeSession?.milestoneId || null,
+          activeSession?.plannerId || null
+        );
+
+        const [activeTask, timerConfig, aiSuggestion, weeklyDistraction] = await Promise.all([
+          activeTaskPromise,
           window.focusService.getTimerConfig(),
           window.focusService.getAISuggestion(),
-          window.focusService.getWeeklyDistraction(),
-          window.focusService.getActiveSession()
+          window.focusService.getWeeklyDistraction()
         ]);
         
         const focusPatch = {
@@ -721,12 +788,14 @@ window.SF_STORE = (function () {
         };
         
         if (activeSession) {
-          focusPatch.activeSessionId = activeSession._id || activeSession.id;
+          const sessionId = String(activeSession._id || activeSession.id);
+          focusPatch.activeSessionId = sessionId;
           focusPatch.sessionStatus = activeSession.status;
           focusPatch.isRunning = activeSession.status === 'IN_PROGRESS';
+          focusPatch.distractionCount = activeSession.interruptions || 0;
+          focusPatch.scratchpad = activeSession.notes || '';
           
-          // Reconstruct timer from authoritative backend time
-          // duration = activeDurationSeconds (already calculated on backend or we calculate from startTime & totalPausedTime)
+          // Backend authoritative duration
           let activeDuration = 0;
           if (activeSession.startTime) {
              const now = new Date();
@@ -738,15 +807,108 @@ window.SF_STORE = (function () {
              }
              activeDuration = Math.max(0, totalElapsed - paused);
           }
+          focusPatch.activeDuration = activeDuration;
           
-          const maxTime = timerConfig.focus;
-          focusPatch.timerTotal = maxTime;
-          focusPatch.timerRemaining = Math.max(0, maxTime - activeDuration);
+          // F3 FIX: Restore localLastPausedAt from the backend's authoritative lastPausedAt.
+          // This ensures that after a page reload while paused, RESUME_SESSION can correctly
+          // shift intervalStartTime by the full pause duration (including the reloaded gap),
+          // so the frontend interval does not incorrectly consume reload time as active time.
+          focusPatch.localLastPausedAt = (activeSession.status === 'PAUSED' && activeSession.lastPausedAt)
+            ? new Date(activeSession.lastPausedAt).getTime()
+            : null;
+
+          // Recover session-scoped persistence
+          const storageKey = `sf_focus_timer_mode_${sessionId}`;
+
+          // F4 FIX: Safely parse localStorage — malformed JSON must not crash focus/LOAD.
+          // After parsing, validate mode and seconds so stale/invalid prefs are ignored.
+          let timerPref = null;
+          try {
+            const _rawPref = localStorage.getItem(storageKey);
+            if (_rawPref) timerPref = JSON.parse(_rawPref);
+          } catch (_parseErr) {
+            timerPref = null; // Malformed JSON — silently fall back to defaults
+          }
+          const _VALID_FOCUS_MODES = new Set(['pomodoro', 'deepfocus', 'tasksprint', 'timeblock', 'flow', 'stopwatch']);
+          if (timerPref && (
+            timerPref.sessionId !== sessionId ||
+            !_VALID_FOCUS_MODES.has(timerPref.mode) ||
+            typeof timerPref.seconds !== 'number' ||
+            timerPref.seconds < 0
+          )) {
+            timerPref = null; // Invalid/stale pref — discard and use defaults
+          }
+
+          let initialMode = 'timeblock';
+          let initialText = '🗓️ Time Block';
+          let initialTotal = 0;
+          let initialIsStopwatch = false;
+          let intervalStartTime = Date.now();
+          
+          if (timerPref) {
+            initialMode = timerPref.mode;
+            initialText = timerPref.text;
+            initialTotal = timerPref.seconds;
+            initialIsStopwatch = timerPref.isStopwatch || false;
+            intervalStartTime = timerPref.intervalStartTime || Date.now();
+          } else {
+            // New session default setup
+            if (!activeSession.plannerId) {
+               initialMode = 'pomodoro';
+               initialText = '🍅 Pomodoro';
+               initialTotal = 1500;
+               initialIsStopwatch = false;
+            }
+            // Save this new default so it's persisted correctly
+            localStorage.setItem(storageKey, JSON.stringify({
+              mode: initialMode,
+              text: initialText,
+              seconds: initialTotal,
+              isStopwatch: initialIsStopwatch,
+              intervalStartTime: intervalStartTime,
+              sessionId: sessionId
+            }));
+          }
+
+          focusPatch.timerMode = initialMode;
+          focusPatch.timerModeText = initialText;
+          focusPatch.timerTotal = initialTotal;
+          focusPatch.isStopwatch = initialIsStopwatch;
+          focusPatch.intervalStartTime = intervalStartTime;
+          
+          if (initialMode === 'timeblock' && activeTask?.endTime) {
+            const endTime = new Date(activeTask.endTime).getTime();
+            const startTime = new Date(activeTask.startTime).getTime();
+            focusPatch.timerTotal = Math.max(0, Math.floor((endTime - startTime) / 1000));
+            focusPatch.timerRemaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+          } else if (initialMode === 'stopwatch' || initialMode === 'flow') {
+            focusPatch.timerRemaining = 0; // Visual logic handles count-up using activeDuration
+          } else {
+            // Fixed-duration logic
+            let elapsedInterval = 0;
+            if (activeSession.status === 'PAUSED' && activeSession.lastPausedAt) {
+              // Time elapsed until the moment it was paused
+              elapsedInterval = Math.floor((new Date(activeSession.lastPausedAt).getTime() - intervalStartTime) / 1000);
+            } else {
+              elapsedInterval = Math.floor((Date.now() - intervalStartTime) / 1000);
+            }
+            focusPatch.timerRemaining = Math.max(0, initialTotal - elapsedInterval);
+          }
         } else {
           focusPatch.activeSessionId = null;
           focusPatch.sessionStatus = null;
-          focusPatch.timerTotal = timerConfig.focus;
-          focusPatch.timerRemaining = timerConfig.focus;
+          focusPatch.distractionCount = 0;
+          focusPatch.scratchpad = '';
+          focusPatch.autosaveStatus = 'Auto-saved';
+          
+          // For null session, fallback to global defaults but don't save to session-specific storage
+          focusPatch.timerTotal = timerConfig?.focus || 1500;
+          focusPatch.timerModeText = '🍅 Pomodoro';
+          focusPatch.timerMode = 'pomodoro';
+          focusPatch.isStopwatch = false;
+          focusPatch.intervalStartTime = Date.now();
+          focusPatch.timerRemaining = focusPatch.timerTotal;
+          focusPatch.activeDuration = 0;
           focusPatch.isRunning = false;
         }
         
@@ -759,15 +921,13 @@ window.SF_STORE = (function () {
 
     async 'focus/START_SESSION'(actionPayload = null) {
       if (_state.focus.activeSessionId) return; // Already active
-      const activeTask = _state.focus.activeTask;
       
-      const payload = actionPayload || {
-        plannerId: null,
-        goalId: activeTask?.goalId || null,
-        taskId: activeTask?.id || null, // Might be a milestone/subtask ID (deprecated usage for UI compatibility)
-        milestoneId: null, // Legacy fallback
-        startTime: new Date().toISOString()
-      };
+      const payload = actionPayload || {};
+      
+      if (!payload.plannerId) {
+        throw new Error('Focus sessions must be started from a scheduled Planner item.');
+      }
+
       
       // Ensure startTime exists
       if (!payload.startTime) payload.startTime = new Date().toISOString();
@@ -789,6 +949,9 @@ window.SF_STORE = (function () {
       const sessionId = _state.focus.activeSessionId;
       if (!sessionId) return;
       
+      // Save the exact local time we paused
+      _patch('focus', { localLastPausedAt: Date.now() });
+
       try {
         const session = await window.focusService.pauseSession(sessionId);
         _patch('focus', {
@@ -805,6 +968,24 @@ window.SF_STORE = (function () {
       const sessionId = _state.focus.activeSessionId;
       if (!sessionId) return;
       
+      const { localLastPausedAt, intervalStartTime } = _state.focus;
+      if (localLastPausedAt && intervalStartTime) {
+        // Shift intervalStartTime forward by the duration it was paused
+        const pauseDuration = Date.now() - localLastPausedAt;
+        const newIntervalStart = intervalStartTime + pauseDuration;
+        
+        // Persist the adjusted intervalStartTime
+        const storageKey = `sf_focus_timer_mode_${sessionId}`;
+        const timerPref = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        timerPref.intervalStartTime = newIntervalStart;
+        localStorage.setItem(storageKey, JSON.stringify(timerPref));
+        
+        _patch('focus', { 
+          intervalStartTime: newIntervalStart,
+          localLastPausedAt: null 
+        });
+      }
+
       try {
         const session = await window.focusService.resumeSession(sessionId);
         _patch('focus', {
@@ -817,28 +998,40 @@ window.SF_STORE = (function () {
       }
     },
 
-    async 'focus/COMPLETE_SESSION'(patch = {}) {
-      const sessionId = _state.focus.activeSessionId;
-      if (!sessionId) return;
+    async 'focus/COMPLETE_SESSION'() {
+      const { activeSessionId, scratchpad, distractionCount, sessionStatus } = _state.focus;
       
+      // Duplicate / Concurrent protection lock
+      if (!activeSessionId || sessionStatus === 'COMPLETING' || sessionStatus === 'COMPLETED' || sessionStatus === 'ABORTED') return;
+      
+      const previousStatus = sessionStatus;
+      
+      // Synchronous lock to prevent duplicate completion requests
+      _patch('focus', { sessionStatus: 'COMPLETING' });
+
       try {
-        const fullPatch = { ...patch, interruptions: _state.focus.distractionCount };
-        const session = await window.focusService.completeSession(sessionId, fullPatch);
+        // F6 FIX: Capture the backend response so we can use its authoritative duration.
+        const _completedSession = await window.focusService.completeSession(activeSessionId, { 
+          notes: scratchpad || undefined,
+          interruptions: distractionCount
+        });
         
-        // Log to session history
+        // Log to session history — prefer backend authoritative duration over frontend estimate.
         const entry = {
-          date: session.endTime || new Date().toISOString(),
-          duration: session.duration || (_state.focus.timerTotal - _state.focus.timerRemaining),
-          taskId: session.task || _state.focus.activeTask?.id || null
+          date: new Date().toISOString(),
+          duration: _completedSession?.duration ?? (_state.focus.timerTotal - _state.focus.timerRemaining),
+          taskId: _state.focus.activeTask?.id || null
         };
-        const sessionLog = [..._state.focus.sessionLog, entry];
+        const sessionLog = [...(_state.focus.sessionLog || []), entry];
         
-        _patch('focus', {
-          activeSessionId: null,
-          sessionStatus: null,
+        _patch('focus', { 
+          activeSessionId: null, 
+          sessionStatus: null, 
           isRunning: false,
-          sessionLog,
-          distractionCount: 0 // Reset distractions
+          activeTask: null,
+          scratchpad: '',
+          distractionCount: 0,
+          sessionLog
         });
         
         // Persist session log to localStorage
@@ -847,11 +1040,28 @@ window.SF_STORE = (function () {
         } catch (e) {
           console.warn('[SF_STORE] Could not persist session log:', e);
         }
-        
       } catch (e) {
-        console.error('[SF_STORE] focus/COMPLETE_SESSION failed:', e);
-        throw e;
+        console.error('Failed to complete session:', e);
+        // Recovery: unlock so user can try again if there's a transient failure
+        _patch('focus', { sessionStatus: previousStatus });
       }
+    },
+
+    'focus/UPDATE_SCRATCHPAD'(text) {
+      _patch('focus', { scratchpad: text });
+      _triggerFocusAutosave();
+    },
+
+    'focus/SET_AUTOSAVE_STATUS'(status) {
+      _patch('focus', { autosaveStatus: status });
+    },
+
+    'focus/TOGGLE_CHECKLIST_ITEM'({ itemId, completed }) {
+      if (!_state.focus.activeTask || !_state.focus.activeTask.checklist) return;
+      const checklist = _state.focus.activeTask.checklist.map(chk => 
+        chk.id === itemId ? { ...chk, completed } : chk
+      );
+      _patch('focus', { activeTask: { ..._state.focus.activeTask, checklist } });
     },
 
     async 'focus/ABORT_SESSION'() {
@@ -877,19 +1087,86 @@ window.SF_STORE = (function () {
     },
 
     'focus/TIMER_TICK'() {
-      const remaining = _state.focus.timerRemaining;
-      if (remaining <= 0) return;
-      _patch('focus', { timerRemaining: remaining - 1 });
+      const focus = _state.focus;
+      if (!focus.isRunning) return;
+      
+      const newDuration = focus.activeDuration + 1;
+      
+      let newRemaining;
+      
+      if (focus.timerMode === 'timeblock' && focus.activeTask?.endTime) {
+        const endTime = new Date(focus.activeTask.endTime).getTime();
+        const diffSeconds = Math.floor((endTime - Date.now()) / 1000);
+        newRemaining = Math.max(0, diffSeconds);
+      } else if (focus.timerMode === 'stopwatch' || focus.timerMode === 'flow') {
+        newRemaining = 0; // Flow relies strictly on activeDuration
+      } else {
+        const elapsedInterval = Math.floor((Date.now() - focus.intervalStartTime) / 1000);
+        newRemaining = Math.max(0, focus.timerTotal - elapsedInterval);
+      }
+
+      _patch('focus', { 
+        activeDuration: newDuration,
+        timerRemaining: newRemaining
+      });
     },
 
     'focus/SET_TIMER_MODE'(payload) {
-      const { seconds } = payload;
-      // Changing mode should logically abort active session if there is one
-      _patch('focus', { timerTotal: seconds, timerRemaining: seconds, isRunning: false });
+      const focus = _state.focus;
+      const sessionId = String(focus.activeSessionId);
+      
+      const intervalStartTime = Date.now();
+
+      // F1 FIX: If the session is currently paused and the user switches method/duration,
+      // we must reset the pause anchor to NOW (= intervalStartTime).
+      // This prevents RESUME_SESSION from applying the old pause timestamp to the new
+      // interval, which would incorrectly shift intervalStartTime far into the future
+      // and make timerRemaining > timerTotal after resume.
+      const wasAlreadyPaused = focus.sessionStatus === 'PAUSED';
+
+      const enhancedPayload = { 
+        ...payload, 
+        sessionId,
+        intervalStartTime 
+      };
+      
+      if (sessionId && sessionId !== 'null' && sessionId !== 'undefined') {
+        localStorage.setItem(`sf_focus_timer_mode_${sessionId}`, JSON.stringify(enhancedPayload));
+      }
+      
+      let timerTotal = payload.seconds;
+      let newRemaining;
+
+      if (payload.mode === 'timeblock' && focus.activeTask?.endTime) {
+         const endTime = new Date(focus.activeTask.endTime).getTime();
+         const startTime = new Date(focus.activeTask.startTime).getTime();
+         timerTotal = Math.max(0, Math.floor((endTime - startTime) / 1000));
+         const diffSeconds = Math.floor((endTime - Date.now()) / 1000);
+         newRemaining = Math.max(0, diffSeconds);
+      } else if (payload.mode === 'stopwatch' || payload.mode === 'flow') {
+         newRemaining = 0;
+      } else {
+         newRemaining = timerTotal;
+      }
+      
+      _patch('focus', { 
+        timerTotal: timerTotal, 
+        timerMode: payload.mode,
+        timerModeText: payload.text, 
+        isStopwatch: payload.isStopwatch || false,
+        intervalStartTime: intervalStartTime,
+        timerRemaining: newRemaining,
+        // F1 FIX: If already paused, anchor pause timestamp to this exact moment so
+        // RESUME_SESSION only compensates for time paused AFTER this switch.
+        // If not paused, clear any stale localLastPausedAt from a previous pause cycle.
+        localLastPausedAt: wasAlreadyPaused ? intervalStartTime : null
+      });
     },
 
     'focus/INCREMENT_DISTRACTION'() {
-      _patch('focus', { distractionCount: _state.focus.distractionCount + 1 });
+      const current = _state.focus.distractionCount || 0;
+      _patch('focus', { distractionCount: current + 1 });
+      _triggerFocusAutosave();
     },
 
     'focus/RESET_DISTRACTION'() {

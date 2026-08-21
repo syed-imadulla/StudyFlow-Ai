@@ -11,6 +11,37 @@ const ACTIONABLE_TYPES = new Set([
   'OVERDUE'
 ]);
 
+/**
+ * Safe helper: derive actionable type from a subtask.
+ * Prefers backend-provided deadlineInfo.type; falls back to computing
+ * it from the raw deadline string so tasks are never silently dropped.
+ * Returns 'UPCOMING' for future deadlines beyond tomorrow, null if no
+ * deadline info at all (treated as always-actionable).
+ */
+function getSubtaskActionableType(sub) {
+  // 1. Trust backend-enriched deadlineInfo first
+  const type = sub.deadlineInfo?.type;
+  if (type) return type;
+
+  // 2. Derive from raw deadline string (YYYY-MM-DD)
+  const rawDeadline = sub.deadline;
+  if (!rawDeadline) return 'NO_DEADLINE'; // no deadline — show anyway
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dl = new Date(rawDeadline);
+  dl.setHours(0, 0, 0, 0);
+
+  const diffMs = dl - today;
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return 'OVERDUE';
+  if (diffDays === 0) return 'TODAY';
+  if (diffDays === 1) return 'TOMORROW';
+  return 'UPCOMING';
+}
+
 window.DashboardRenderer = {
   renderDashboardTasks: function() {
     const goalsSlice = window.SF_STORE.getSlice('goals');
@@ -119,19 +150,34 @@ window.DashboardRenderer = {
     // --- Actionable Subtasks ---
     if (tasksContainer) {
       let actionableSubtasks = [];
+      let hasAnyDeadlineInfo = false;
+
       activeGoals.forEach(g => {
         (g.subtasks || []).forEach(s => {
-          if (!s.completed) {
-            const type = s.deadlineInfo?.type;
-            if (!type) return;
+          if (s.completed) return;
 
-            if (ACTIONABLE_TYPES.has(type)) {
-              actionableSubtasks.push({ ...s, goalTitle: g.title, goalId: g.id || g._id });
-            }
+          const actionType = getSubtaskActionableType(s);
+
+          // Track whether any subtask has real deadline metadata
+          if (s.deadlineInfo?.type) hasAnyDeadlineInfo = true;
+
+          // ACTIONABLE_TYPES covers backend-enriched types (TODAY/TOMORROW/OVERDUE)
+          // NO_DEADLINE covers frontend-created tasks with no deadline
+          // If backend hasn't enriched yet, also include UPCOMING so nothing is hidden
+          const isActionable = ACTIONABLE_TYPES.has(actionType) ||
+                               actionType === 'NO_DEADLINE' ||
+                               (!hasAnyDeadlineInfo && actionType === 'UPCOMING');
+
+          if (isActionable) {
+            actionableSubtasks.push({ ...s, goalTitle: g.title, goalId: g.id || g._id, _derivedType: actionType });
           }
         });
       });
-      actionableSubtasks = actionableSubtasks.slice(0, 4);
+
+      // Sort: OVERDUE → TODAY → TOMORROW → UPCOMING → NO_DEADLINE
+      const typeOrder = { OVERDUE: 0, TODAY: 1, TOMORROW: 2, UPCOMING: 3, NO_DEADLINE: 4 };
+      actionableSubtasks.sort((a, b) => (typeOrder[a._derivedType] ?? 5) - (typeOrder[b._derivedType] ?? 5));
+      actionableSubtasks = actionableSubtasks.slice(0, 5);
 
       if (actionableSubtasks.length === 0) {
         tasksContainer.innerHTML = window.SF_COMPONENTS.renderEmptyState({
