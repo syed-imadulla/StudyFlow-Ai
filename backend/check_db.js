@@ -1,15 +1,21 @@
 import mongoose from 'mongoose';
-import { Goal } from './src/models/Goal.js';
-import dotenv from 'dotenv';
-dotenv.config();
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/studyflow')
-  .then(async () => {
-    const goals = await Goal.find({ 'subtasks.0': { $exists: true } });
-    if (goals.length > 0) {
-      console.log(JSON.stringify(goals[0].subtasks, null, 2));
-    } else {
-      console.log('No goals with subtasks found');
-    }
-    process.exit(0);
-  });
+const FocusSession = mongoose.model('FocusSession', new mongoose.Schema({
+  user: mongoose.Schema.Types.ObjectId,
+  type: String,
+  status: String,
+  startTime: Date,
+  endTime: Date,
+  duration: Number,
+  goalId: mongoose.Schema.Types.ObjectId,
+  interruptions: Number
+}, { collection: 'focussessions' }));
+
+async function run() {
+  await mongoose.connect('mongodb://127.0.0.1:27017/studyflow-ai');
+  console.log('Connected to DB');
+  const sessions = await FocusSession.find({});
+  console.log(JSON.stringify(sessions, null, 2));
+  mongoose.connection.close();
+}
+run().catch(console.error);

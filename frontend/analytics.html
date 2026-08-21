@@ -38,13 +38,13 @@
               <svg class="w-3.5 h-3.5 text-[#A855F7] transition-transform duration-200 custom-dropdown-arrow shrink-0" id="analyticsPeriodArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div id="analyticsPeriodMenu" class="hidden custom-dropdown-menu absolute right-0 mt-2 w-36 rounded-xl bg-[#0E0E0E] border border-[#2A2A2A] shadow-[0_10px_30px_rgba(0,0,0,0.9),0_0_20px_rgba(168,85,247,0.25)] py-1.5 z-50 backdrop-blur-xl overflow-hidden">
-              <button type="button" onclick="window.selectCustomDropdownItem('analyticsPeriodMenu', 'analyticsPeriodArrow', 'analyticsPeriodSelectedText', 'Last 7 Days')" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-[#FAFAFA] hover:bg-[#A855F7] hover:text-white transition flex items-center justify-between group">
+              <button type="button" onclick="window.selectCustomDropdownItem('analyticsPeriodMenu', 'analyticsPeriodArrow', 'analyticsPeriodSelectedText', 'Last 7 Days', () => window.SF_STORE.dispatch('analytics/SET_PERIOD', { period: 'last7' }))" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-[#FAFAFA] hover:bg-[#A855F7] hover:text-white transition flex items-center justify-between group">
                 <span>Last 7 Days</span>
               </button>
-              <button type="button" onclick="window.selectCustomDropdownItem('analyticsPeriodMenu', 'analyticsPeriodArrow', 'analyticsPeriodSelectedText', 'Last 30 Days')" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white transition flex items-center justify-between group">
+              <button type="button" onclick="window.selectCustomDropdownItem('analyticsPeriodMenu', 'analyticsPeriodArrow', 'analyticsPeriodSelectedText', 'Last 30 Days', () => window.SF_STORE.dispatch('analytics/SET_PERIOD', { period: 'last30' }))" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white transition flex items-center justify-between group">
                 <span>Last 30 Days</span>
               </button>
-              <button type="button" onclick="window.selectCustomDropdownItem('analyticsPeriodMenu', 'analyticsPeriodArrow', 'analyticsPeriodSelectedText', 'This Semester')" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white transition flex items-center justify-between group">
+              <button type="button" onclick="window.selectCustomDropdownItem('analyticsPeriodMenu', 'analyticsPeriodArrow', 'analyticsPeriodSelectedText', 'This Semester', () => window.SF_STORE.dispatch('analytics/SET_PERIOD', { period: 'last90' }))" class="w-full text-left px-3.5 py-2 text-xs font-semibold text-[#A1A1AA] hover:bg-[#A855F7] hover:text-white transition flex items-center justify-between group">
                 <span>This Semester</span>
               </button>
             </div>
@@ -70,10 +70,9 @@
             </div>
             <!-- Value Section -->
             <div class="mt-4 flex items-center gap-3.5">
-              <h3 class="text-3xl font-extrabold text-white tracking-tight">28.4h</h3>
-              <div class="flex flex-col text-[11px] leading-tight">
-                <span class="text-[#4ade80] font-bold">↑ 14%</span>
-                <span class="text-[#6B7280]">vs last 7 days</span>
+              <h3 class="text-3xl font-extrabold text-white tracking-tight" id="kpi-focus-val">--</h3>
+              <div class="flex flex-col text-[11px] leading-tight" id="kpi-focus-sub-container">
+                <span class="text-[#6B7280]" id="kpi-focus-sub">--</span>
               </div>
             </div>
           </div>
@@ -82,11 +81,11 @@
             <div class="my-4 border-t border-dashed border-[#1C1C24]"></div>
             <!-- Footer Row -->
             <div class="flex items-end justify-between text-xs text-[#A1A1AA]">
-              <span class="text-xs text-[#A1A1AA]">56 Pomodoro blocks</span>
+              <span class="text-xs text-[#A1A1AA]" id="kpi-focus-footer">--</span>
               <div class="flex flex-col items-end gap-1.5">
-                <span class="text-xs font-semibold text-white">71% of goal</span>
+                <span class="text-xs font-semibold text-[#A1A1AA]" id="kpi-focus-target-text">No target set</span>
                 <div class="w-16 h-1.5 bg-[#1C1C24] rounded-full overflow-hidden">
-                  <div class="w-[71%] h-full bg-[#A855F7] rounded-full"></div>
+                  <div class="w-0 h-full bg-[#A855F7] rounded-full" id="kpi-focus-target-bar"></div>
                 </div>
               </div>
             </div>
@@ -105,10 +104,9 @@
             </div>
             <!-- Value Section -->
             <div class="mt-4 flex items-center gap-3.5">
-              <h3 class="text-3xl font-extrabold text-white tracking-tight">92%</h3>
-              <div class="flex flex-col text-[11px] leading-tight">
-                <span class="text-[#4ade80] font-bold">↑ 5%</span>
-                <span class="text-[#6B7280]">vs last 7 days</span>
+              <h3 class="text-3xl font-extrabold text-white tracking-tight" id="kpi-task-val">--</h3>
+              <div class="flex flex-col text-[11px] leading-tight" id="kpi-task-sub-container">
+                <span class="text-[#6B7280]" id="kpi-task-sub">--</span>
               </div>
             </div>
           </div>
@@ -117,8 +115,8 @@
             <div class="my-4 border-t border-dashed border-[#1C1C24]"></div>
             <!-- Footer Row -->
             <div class="flex items-center justify-between text-xs">
-              <span class="text-xs text-[#A1A1AA]">34 / 37 tasks finished</span>
-              <span class="text-xs font-bold text-[#4ade80]">Excellent</span>
+              <span class="text-xs text-[#A1A1AA]" id="kpi-task-footer">--</span>
+              <span class="text-xs font-bold text-[#4ade80]" id="kpi-task-rating">--</span>
             </div>
           </div>
         </div>
@@ -135,7 +133,7 @@
             </div>
             <!-- Value Section -->
             <div class="mt-4">
-              <h3 class="text-2xl sm:text-[28px] font-extrabold text-[#facc15] tracking-tight leading-none">10 AM - 1 PM</h3>
+              <h3 class="text-2xl sm:text-[28px] font-extrabold text-[#facc15] tracking-tight leading-none" id="kpi-peak-val">--</h3>
             </div>
           </div>
           <div>
@@ -143,8 +141,8 @@
             <div class="my-4 border-t border-dashed border-[#1C1C24]"></div>
             <!-- Footer Row -->
             <div class="flex items-center justify-between text-xs">
-              <span class="text-xs text-[#A1A1AA]">Highest cognitive flow</span>
-              <span class="text-xs font-bold text-white">4.2h avg</span>
+              <span class="text-xs text-[#A1A1AA]" id="kpi-peak-sub">--</span>
+              <span class="text-xs font-bold text-white" id="kpi-peak-footer">--</span>
             </div>
           </div>
         </div>
@@ -161,8 +159,8 @@
             </div>
             <!-- Value Section -->
             <div class="mt-4 flex items-center gap-3">
-              <h3 class="text-3xl font-extrabold text-[#4ade80] tracking-tight">Low</h3>
-              <span class="text-xs font-bold text-[#4ade80]">↓ 12% interruptions</span>
+              <h3 class="text-3xl font-extrabold text-[#4ade80] tracking-tight" id="kpi-dist-val">--</h3>
+              <span class="text-xs font-bold text-[#4ade80]" id="kpi-dist-sub">--</span>
             </div>
           </div>
           <div>
@@ -170,8 +168,8 @@
             <div class="my-4 border-t border-dashed border-[#1C1C24]"></div>
             <!-- Footer Row -->
             <div class="flex items-center justify-between text-xs">
-              <span class="text-xs text-[#A1A1AA]">Focus discipline</span>
-              <span class="text-xs font-bold text-white">Top 15%</span>
+              <span class="text-xs text-[#A1A1AA]" id="kpi-dist-footer">--</span>
+              <span class="text-xs font-bold text-white" id="kpi-dist-ranking">--</span>
             </div>
           </div>
         </div>
@@ -189,22 +187,22 @@
         <div class="lg:col-span-2 card bg-[#0E0E0E] border border-[#202020] p-6 rounded-[20px] space-y-4 flex flex-col justify-between">
           <div class="flex items-center justify-between pb-3 border-b border-[#1C1C1C]">
             <div>
-              <h3 class="text-base font-bold text-[#FAFAFA]">Weekly Focus Hours vs Target Goal</h3>
-              <p class="text-xs text-[#6B7280]">Daily comparison of actual study duration against scheduled targets.</p>
+              <h3 class="text-base font-bold text-[#FAFAFA]">Weekly Focus Hours</h3>
+              <p class="text-xs text-[#6B7280]">Daily breakdown of actual study duration.</p>
             </div>
             <div class="flex items-center space-x-3 text-xs font-mono">
-              <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-sm bg-[#A855F7]"></span><span class="text-[#FAFAFA]">Actual (28.4h)</span></div>
-              <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-sm bg-[#222222] border border-[#3E3E3E]"></span><span class="text-[#A1A1AA]">Target Goal (30h)</span></div>
+              <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-sm bg-[#A855F7]"></span><span class="text-[#FAFAFA]" id="chart-actual-legend">Actual (0h)</span></div>
             </div>
           </div>
 
-          <div class="h-48 w-full">
+          <div class="h-48 w-full relative">
             <canvas id="weeklyComparisonChart"></canvas>
+            <div id="weeklyComparisonEmpty" class="absolute inset-0 flex items-center justify-center text-xs text-[#6B7280] hidden">No focus data for this period</div>
           </div>
 
           <div class="flex items-center justify-between text-xs text-[#A1A1AA] pt-2 border-t border-[#1C1C1C] font-mono">
-            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 inline fill-current text-[#A855F7]" viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z"/></svg> Weekly Completion: <strong class="text-[#FAFAFA]">94.6% of goal</strong></span>
-            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 inline fill-current text-[#22C55E]" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg> Consistency Discipline: <strong class="text-[#22C55E]">Top 10% Student</strong></span>
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 inline fill-current text-[#A855F7]" viewBox="0 0 24 24"><path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM9 17H7V10H9V17ZM13 17H11V7H13V17ZM17 17H15V13H17V17Z"/></svg> <span id="chart-weekly-completion">Weekly Focus: <strong class="text-[#FAFAFA]">0h</strong></span></span>
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 inline fill-current text-[#6B7280]" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg> Consistency Discipline: <strong class="text-[#6B7280]">Unavailable</strong></span>
           </div>
         </div>
 
@@ -216,12 +214,9 @@
           </div>
           <div class="h-44 w-full flex items-center justify-center relative">
             <canvas id="goalAllocationChart"></canvas>
+            <div id="goalAllocationEmpty" class="absolute inset-0 flex items-center justify-center text-xs text-[#6B7280] hidden">No goal-linked focus sessions</div>
           </div>
-          <div class="grid grid-cols-2 gap-2 text-[11px] pt-2 border-t border-[#1C1C1C]">
-            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#A855F7]"></span><span class="text-[#FAFAFA] truncate">DBMS (45%)</span></div>
-            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#FACC15]"></span><span class="text-[#FAFAFA] truncate">OS Assign (25%)</span></div>
-            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#22C55E]"></span><span class="text-[#FAFAFA] truncate">DSA Practice (20%)</span></div>
-            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#6B7280]"></span><span class="text-[#FAFAFA] truncate">CN Lab (10%)</span></div>
+          <div id="goalAllocationLegend" class="grid grid-cols-2 gap-2 text-[11px] pt-2 border-t border-[#1C1C1C]">
           </div>
         </div>
       </div>
@@ -301,8 +296,8 @@
                 <span class="text-xs font-medium text-[#D4D4D8] truncate">Longest Focus Session</span>
               </div>
               <div class="flex items-center space-x-3 shrink-0 ml-2">
-                <span class="text-sm font-bold text-[#D8B4FE]">2h 45m</span>
-                <span class="text-[11px] text-[#6B7280] w-28 text-right">Yesterday, 9:00 AM</span>
+                <span class="text-sm font-bold text-[#D8B4FE]" id="insight-longest-val">--</span>
+                <span class="text-[11px] text-[#6B7280] w-28 text-right" id="insight-longest-sub">Unavailable</span>
               </div>
             </div>
 
@@ -315,9 +310,9 @@
                 <span class="text-xs font-medium text-[#D4D4D8] truncate">Tasks Completed</span>
               </div>
               <div class="flex items-center space-x-2 shrink-0 ml-2">
-                <span class="text-sm font-bold text-[#D8B4FE]">34</span>
-                <span class="text-[11px] text-[#6B7280]">vs 28 last week</span>
-                <span class="px-2 py-0.5 rounded bg-[#052e16] text-[#4ade80] text-[10px] font-bold border border-[#14532d]">+ 21%</span>
+                <span class="text-sm font-bold text-[#D8B4FE]" id="insight-tasks-val">--</span>
+                <span class="text-[11px] text-[#6B7280]" id="insight-tasks-sub"></span>
+                <span class="px-2 py-0.5 rounded bg-[#052e16] text-[#4ade80] text-[10px] font-bold border border-[#14532d]" id="insight-tasks-change" style="display:none;"></span>
               </div>
             </div>
 
@@ -330,9 +325,9 @@
                 <span class="text-xs font-medium text-[#D4D4D8] truncate">Average Daily Focus</span>
               </div>
               <div class="flex items-center space-x-2 shrink-0 ml-2">
-                <span class="text-sm font-bold text-[#D8B4FE]">4h 3m</span>
-                <span class="text-[11px] text-[#6B7280]">vs 3h 25m last week</span>
-                <span class="px-2 py-0.5 rounded bg-[#052e16] text-[#4ade80] text-[10px] font-bold border border-[#14532d]">+ 18%</span>
+                <span class="text-sm font-bold text-[#D8B4FE]" id="insight-daily-val">--</span>
+                <span class="text-[11px] text-[#6B7280]" id="insight-daily-sub"></span>
+                <span class="px-2 py-0.5 rounded bg-[#052e16] text-[#4ade80] text-[10px] font-bold border border-[#14532d]" id="insight-daily-change" style="display:none;"></span>
               </div>
             </div>
 
@@ -345,9 +340,9 @@
                 <span class="text-xs font-medium text-[#D4D4D8] truncate">Total Pomodoro</span>
               </div>
               <div class="flex items-center space-x-2 shrink-0 ml-2">
-                <span class="text-sm font-bold text-[#D8B4FE]">56</span>
-                <span class="text-[11px] text-[#6B7280]">vs 47 last week</span>
-                <span class="px-2 py-0.5 rounded bg-[#052e16] text-[#4ade80] text-[10px] font-bold border border-[#14532d]">+ 19%</span>
+                <span class="text-sm font-bold text-[#D8B4FE]" id="insight-pomodoro-val">--</span>
+                <span class="text-[11px] text-[#6B7280]" id="insight-pomodoro-sub"></span>
+                <span class="px-2 py-0.5 rounded bg-[#052e16] text-[#4ade80] text-[10px] font-bold border border-[#14532d]" id="insight-pomodoro-change" style="display:none;"></span>
               </div>
             </div>
           </div>
@@ -372,7 +367,31 @@
       const CHART_OPTIONS_BASE = {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ': ';
+                }
+                if (context.raw === null || context.raw === undefined) return label + '0m';
+                const totalSeconds = Math.round(Number(context.raw) * 3600);
+                if (totalSeconds === 0) return label + '0m';
+                if (totalSeconds < 60) return label + '1m';
+                const h = Math.floor(totalSeconds / 3600);
+                const m = Math.floor((totalSeconds % 3600) / 60);
+                const s = totalSeconds % 60;
+                let res = [];
+                if (h > 0) res.push(`${h}h`);
+                if (m > 0) res.push(`${m}m`);
+                if (s > 0 && h === 0) res.push(`${s}s`);
+                return label + res.join(' ');
+              }
+            }
+          }
+        },
         scales: {
           x: { grid: { color: '#1C1C1C' }, ticks: { color: '#6B7280', font: { family: 'Inter', size: 11 } } },
           y: { grid: { color: '#1C1C1C' }, ticks: { color: '#6B7280', font: { family: 'Inter', size: 11 } } }
@@ -387,29 +406,165 @@
       setTimeout(() => renderAnalyticsCharts(a), 100);
 
       function renderAnalyticsCharts(slice) {
+        if (slice.kpis) {
+          const setKPI = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+          
+          setKPI('kpi-focus-val', slice.kpis.focusTime?.value || '0h');
+          setKPI('kpi-focus-sub', slice.kpis.focusTime?.comparisonLabel || '--');
+          setKPI('kpi-focus-footer', slice.kpis.focusTime?.subtitle || '--');
+          
+          setKPI('kpi-task-val', slice.kpis.taskCompletion?.value || '0%');
+          setKPI('kpi-task-sub', slice.kpis.taskCompletion?.comparisonLabel || '--');
+          setKPI('kpi-task-footer', slice.kpis.taskCompletion?.subtitle || '--');
+          setKPI('kpi-task-rating', slice.kpis.taskCompletion?.rating || '--');
+          
+          setKPI('kpi-peak-val', slice.kpis.peakVelocity?.value || '--');
+          setKPI('kpi-peak-sub', slice.kpis.peakVelocity?.subtitle || 'Unavailable');
+          setKPI('kpi-peak-footer', slice.kpis.peakVelocity?.avgHours || '--');
+          
+          setKPI('kpi-dist-val', slice.kpis.distractionScore?.value || 'Low');
+          setKPI('kpi-dist-sub', slice.kpis.distractionScore?.comparisonLabel || '--');
+          setKPI('kpi-dist-footer', slice.kpis.distractionScore?.subtitle || '0 avg interruptions');
+          setKPI('kpi-dist-ranking', slice.kpis.distractionScore?.ranking || '--');
+
+          // Insights at a glance
+          setKPI('insight-longest-val', slice.kpis.longestSession?.value || '--');
+          setKPI('insight-longest-sub', 'Longest active session');
+          
+          const tasksFinished = slice.kpis.taskCompletion?.subtitle?.split(' ')[0] || '--';
+          setKPI('insight-tasks-val', tasksFinished);
+          setKPI('insight-tasks-sub', 'Total finished');
+          
+          let avgDailyFocus = '0h';
+          if (slice.summary && typeof slice.summary.focusHours === 'number' && slice.summary.daysInPeriod > 0) {
+            const avgHours = slice.summary.focusHours / slice.summary.daysInPeriod;
+            avgDailyFocus = (Math.round(avgHours * 10) / 10) + 'h';
+          }
+          setKPI('insight-daily-val', avgDailyFocus);
+          setKPI('insight-daily-sub', 'Avg focus time');
+          
+          const pomodoroSessions = slice.summary?.sessionsCount || 0;
+          setKPI('insight-pomodoro-val', pomodoroSessions);
+          setKPI('insight-pomodoro-sub', 'Sessions completed');
+
+          // Update Chart legends/labels
+          const actualHoursStr = slice.kpis.focusTime?.value || '0h';
+          const actualLegend = document.getElementById('chart-actual-legend');
+          if (actualLegend) actualLegend.textContent = `Actual (${actualHoursStr})`;
+          
+          const weeklyCompletion = document.getElementById('chart-weekly-completion');
+          if (weeklyCompletion) weeklyCompletion.innerHTML = `Weekly Focus: <strong class="text-[#FAFAFA]">${actualHoursStr}</strong>`;
+        }
+
+        if (!window.sfCharts) window.sfCharts = {};
+
         const fEl = document.getElementById('focusDistChart');
-        if (fEl && slice.focusChartData) new Chart(fEl.getContext('2d'), { type: 'line', data: slice.focusChartData, options: CHART_OPTIONS_BASE });
+        if (fEl && slice.focusChartData) {
+          if (window.sfCharts.focusChart) window.sfCharts.focusChart.destroy();
+          window.sfCharts.focusChart = new Chart(fEl.getContext('2d'), { type: 'line', data: slice.focusChartData, options: CHART_OPTIONS_BASE });
+        }
 
         const vEl = document.getElementById('velocityChart');
-        if (vEl && slice.velocityChartData) new Chart(vEl.getContext('2d'), {
-          type: 'bar',
-          data: slice.velocityChartData,
-          options: { ...CHART_OPTIONS_BASE, plugins: { legend: { labels: { color: '#FAFAFA', font: { family: 'Inter', size: 11 } } } } }
-        });
+        if (vEl && slice.velocityChartData) {
+          if (window.sfCharts.velocityChart) window.sfCharts.velocityChart.destroy();
+          window.sfCharts.velocityChart = new Chart(vEl.getContext('2d'), {
+            type: 'bar',
+            data: slice.velocityChartData,
+            options: { ...CHART_OPTIONS_BASE, plugins: { legend: { labels: { color: '#FAFAFA', font: { family: 'Inter', size: 11 } } } } }
+          });
+        }
 
         const wcEl = document.getElementById('weeklyComparisonChart');
-        if (wcEl && slice.weeklyComparison) new Chart(wcEl.getContext('2d'), {
-          type: 'bar',
-          data: slice.weeklyComparison,
-          options: { ...CHART_OPTIONS_BASE, scales: { x: { grid: { display: false }, ticks: { color: '#6B7280', font: { family: 'Inter', size: 11 } } }, y: { grid: { color: '#1C1C1C' }, ticks: { color: '#6B7280', font: { family: 'Inter', size: 11 } } } } }
-        });
+        const wcEmpty = document.getElementById('weeklyComparisonEmpty');
+        if (wcEl && slice.weeklyComparison) {
+          if (window.sfCharts.weeklyComparisonChart) window.sfCharts.weeklyComparisonChart.destroy();
+          
+          const hasData = slice.summary && slice.summary.currentDurationSeconds > 0;
+          if (!hasData) {
+            wcEl.style.display = 'none';
+            if (wcEmpty) wcEmpty.classList.remove('hidden');
+          } else {
+            wcEl.style.display = 'block';
+            if (wcEmpty) wcEmpty.classList.add('hidden');
+            const yAxisConfig = { 
+              grid: { color: '#1C1C1C' }, 
+              ticks: { 
+                color: '#6B7280', 
+                font: { family: 'Inter', size: 11 },
+                callback: function(value, index, ticks) {
+                  const formatValue = (v) => {
+                    const totalMinutes = Math.round(Number(v) * 60);
+                    if (totalMinutes === 0) return '0m';
+                    const h = Math.floor(totalMinutes / 60);
+                    const m = totalMinutes % 60;
+                    if (h > 0 && m > 0) return `${h}h ${m}m`;
+                    if (h > 0) return `${h}h`;
+                    return `${m}m`;
+                  };
+                  const label = formatValue(value);
+                  if (index > 0 && ticks) {
+                    if (label === formatValue(ticks[index - 1].value)) return null;
+                  }
+                  return label;
+                }
+              }
+            };
+            
+            const maxVal = Math.max(...(slice.weeklyComparison.datasets[0]?.data || [0]));
+            if (maxVal > 0 && maxVal <= 5 / 60) {
+              yAxisConfig.ticks.stepSize = 1 / 60;
+              yAxisConfig.suggestedMax = Math.max(maxVal, 1 / 60);
+            } else if (maxVal > 5 / 60 && maxVal <= 60 / 60) {
+              yAxisConfig.ticks.stepSize = 10 / 60;
+            } else if (maxVal > 1 && maxVal <= 4) {
+              yAxisConfig.ticks.stepSize = 30 / 60;
+            } else if (maxVal > 4) {
+              yAxisConfig.ticks.stepSize = 1;
+            }
+
+            window.sfCharts.weeklyComparisonChart = new Chart(wcEl.getContext('2d'), {
+              type: 'bar',
+              data: slice.weeklyComparison,
+              options: { 
+                ...CHART_OPTIONS_BASE, 
+                scales: { 
+                  x: { grid: { display: false }, ticks: { color: '#6B7280', font: { family: 'Inter', size: 11 } } }, 
+                  y: yAxisConfig
+                } 
+              }
+            });
+          }
+        }
 
         const gaEl = document.getElementById('goalAllocationChart');
-        if (gaEl && slice.goalAllocation) new Chart(gaEl.getContext('2d'), {
-          type: 'doughnut',
-          data: slice.goalAllocation,
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '74%' }
-        });
+        const gaEmpty = document.getElementById('goalAllocationEmpty');
+        const gaLegend = document.getElementById('goalAllocationLegend');
+        if (gaEl && slice.goalAllocation) {
+          if (window.sfCharts.goalAllocationChart) window.sfCharts.goalAllocationChart.destroy();
+          
+          const hasData = slice.goalAllocation.datasets?.[0]?.data?.some(v => v > 0);
+          if (!hasData) {
+            gaEl.style.display = 'none';
+            if (gaEmpty) gaEmpty.classList.remove('hidden');
+            if (gaLegend) gaLegend.innerHTML = '';
+          } else {
+            gaEl.style.display = 'block';
+            if (gaEmpty) gaEmpty.classList.add('hidden');
+            
+            window.sfCharts.goalAllocationChart = new Chart(gaEl.getContext('2d'), {
+              type: 'doughnut',
+              data: slice.goalAllocation,
+              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '74%' }
+            });
+
+            if (gaLegend) {
+              const bgColors = slice.goalAllocation.datasets[0].backgroundColor || [];
+              gaLegend.innerHTML = slice.goalAllocation.labels.map((label, i) => `
+                <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background-color: ${bgColors[i] || '#A855F7'}"></span><span class="text-[#FAFAFA] truncate">${label} (${slice.goalAllocation.datasets[0].data[i]}%)</span></div>
+              `).join('');
+            }
+          }
+        }
       }
     });
   </script>

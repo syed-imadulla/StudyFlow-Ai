@@ -739,7 +739,7 @@ window.SF_STORE = (function () {
           window.analyticsService.getWeeklyComparisonData(),
           window.analyticsService.getGoalAllocationData()
         ]);
-        _patch('analytics', { kpis, focusChartData, velocityChartData, weeklyComparison, goalAllocation, loading: false });
+        _patch('analytics', { kpis, focusChartData, velocityChartData, weeklyComparison, goalAllocation, summary: kpis._summary, loading: false });
       } catch (e) {
         _patch('analytics', { loading: false, error: e.message });
         console.error('[SF_STORE] analytics/LOAD failed:', e);

@@ -4,7 +4,8 @@ import { HTTP_STATUS } from '../constants/index.js';
 
 export class AnalyticsController {
   static getSummary = catchAsync(async (req, res) => {
-    const summary = await AnalyticsService.getSummary(req.user._id);
+    const { period } = req.query;
+    const summary = await AnalyticsService.getSummary(req.user._id, period);
     res.status(HTTP_STATUS.OK).json({
       status: 'success',
       statusCode: HTTP_STATUS.OK,
@@ -43,7 +44,8 @@ export class AnalyticsController {
   });
 
   static getWeeklyComparison = catchAsync(async (req, res) => {
-    const chart = await AnalyticsService.getWeeklyComparison(req.user._id);
+    const { period } = req.query;
+    const chart = await AnalyticsService.getWeeklyComparison(req.user._id, period);
     res.status(HTTP_STATUS.OK).json({
       status: 'success',
       statusCode: HTTP_STATUS.OK,
@@ -52,7 +54,8 @@ export class AnalyticsController {
   });
 
   static getGoalAllocation = catchAsync(async (req, res) => {
-    const chart = await AnalyticsService.getGoalAllocation(req.user._id);
+    const { period } = req.query;
+    const chart = await AnalyticsService.getGoalAllocation(req.user._id, period);
     res.status(HTTP_STATUS.OK).json({
       status: 'success',
       statusCode: HTTP_STATUS.OK,

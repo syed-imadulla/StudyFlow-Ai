@@ -13,7 +13,10 @@ router.get('/ai-suggestion', FocusController.getAISuggestion);
 router.get('/distraction-history', FocusController.getDistractionHistory);
 
 // Lifecycle routes
-router.get('/active', FocusController.getActiveSession);
+router.get('/active', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+}, FocusController.getActiveSession);
 router.post('/start', validateCreateFocusSession, FocusController.startSession);
 router.post('/:id/pause', validateUpdateFocusSession, FocusController.pauseSession);
 router.post('/:id/resume', validateUpdateFocusSession, FocusController.resumeSession);

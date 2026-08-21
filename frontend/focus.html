@@ -258,7 +258,6 @@
     let timerTotal     = 1500;  // fallback
     let timerRemaining = 1500;
     let timerInterval  = null;
-    let isRunning      = false;
     let isStopwatch    = false;
     let activeDuration = 0;
 
@@ -556,7 +555,9 @@
       
       try {
         const slice = window.SF_STORE.getSlice('focus');
-        if (!slice.isRunning) {
+        if (slice.sessionStatus === 'IN_PROGRESS') {
+          await window.SF_STORE.dispatch('focus/PAUSE_SESSION');
+        } else {
           if (slice.activeSessionId) {
             await window.SF_STORE.dispatch('focus/RESUME_SESSION');
           } else {
@@ -565,10 +566,7 @@
             } else {
                alert('Please schedule your task in Planner to start Focus.');
             }
-            return;
           }
-        } else {
-          await window.SF_STORE.dispatch('focus/PAUSE_SESSION');
         }
       } catch (e) {
         alert('Error updating session: ' + e.message);
