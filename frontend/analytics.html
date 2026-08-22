@@ -435,10 +435,9 @@
           setKPI('insight-tasks-val', tasksFinished);
           setKPI('insight-tasks-sub', 'Total finished');
           
-          let avgDailyFocus = '0h';
-          if (slice.summary && typeof slice.summary.focusHours === 'number' && slice.summary.daysInPeriod > 0) {
-            const avgHours = slice.summary.focusHours / slice.summary.daysInPeriod;
-            avgDailyFocus = (Math.round(avgHours * 10) / 10) + 'h';
+          let avgDailyFocus = '0m';
+          if (slice.summary && slice.summary.avgDailyFormatted) {
+            avgDailyFocus = slice.summary.avgDailyFormatted;
           }
           setKPI('insight-daily-val', avgDailyFocus);
           setKPI('insight-daily-sub', 'Avg focus time');

@@ -221,36 +221,32 @@ export class AnalyticsService {
     const count = summary.sessionsCount || 0;
     const sessionWord = count === 1 ? 'productive session' : 'productive sessions';
 
-    let focusTimeFormatted = '0m';
-    const totalSecs = summary.currentDurationSeconds || 0;
-    if (totalSecs > 0) {
-      if (totalSecs < 60) {
-        focusTimeFormatted = `${totalSecs}s`;
-      } else {
-        const h2 = Math.floor(totalSecs / 3600);
-        const m2 = Math.floor((totalSecs % 3600) / 60);
-        if (h2 > 0 && m2 > 0) {
-          focusTimeFormatted = `${h2}h ${m2}m`;
-        } else if (h2 > 0) {
-          focusTimeFormatted = `${h2}h`;
-        } else {
-          focusTimeFormatted = `${m2}m`;
-        }
-      }
-    }
+    const formatDuration = (secs) => {
+      if (!secs || secs === 0) return '0m';
+      if (secs < 60) return `${Math.floor(secs)}s`;
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = Math.floor(secs % 60);
+      let parts = [];
+      if (h > 0) parts.push(`${h}h`);
+      if (m > 0) parts.push(`${m}m`);
+      if (s > 0 && h === 0) parts.push(`${s}s`);
+      return parts.join(' ');
+    };
+
+    const focusTimeFormatted = formatDuration(summary.currentDurationSeconds);
 
     let avgDailySeconds = 0;
     if (summary.daysInPeriod > 0) {
       avgDailySeconds = summary.currentDurationSeconds / summary.daysInPeriod;
     }
+    
     let peakAvgFormatted = '--';
     if (summary.peakVelocity !== '--') {
-      if (avgDailySeconds > 0 && avgDailySeconds < 3600) {
-        peakAvgFormatted = `${Math.ceil(avgDailySeconds / 60)}m avg`;
-      } else {
-        peakAvgFormatted = `${(summary.focusHours / summary.daysInPeriod).toFixed(1)}h avg`;
-      }
+      peakAvgFormatted = `${formatDuration(avgDailySeconds)} avg`;
     }
+    
+    summary.avgDailyFormatted = formatDuration(avgDailySeconds);
 
     return {
       focusTime: {
