@@ -1,0 +1,12 @@
+- `[x]` Node.js: Update `backend/src/routes/tool.routes.js`
+- `[x]` Node.js: Update `backend/src/controllers/tool.controller.js` (implement 10-limit granular endpoints)
+- `[x]` Node.js: Add tests for Node.js tool routes
+- `[x]` Python: Create `ai/app/tools/registry.py` (with LangChain `@tool` definitions)
+- `[x]` Python: Update `AgentState` in `ai/app/agents/supervisor.py` to include `tool_call_count` and `tool_calls_history`.
+- `[x]` Python: Update `goal_architect.py` and `insight_agent.py` to `bind_tools` and handle tool responses.
+- `[x]` Python: Update `ai/app/graph/builder.py` to integrate `ToolNode` and conditional routing. for tool execution.
+- `[x]` Python: Update `MOCK_LLM` logic in agents to simulate tool calls deterministically.
+- `[x]` Python: Add tests for Graph Tool Loop, Budget Cap, and Duplicate Prevention in `ai/tests/test_memory.py`.
+- `[x]` Testing: Run `npm run test:integration`
+- `[x]` Testing: Run `pytest`
+- `[x]` Documentation: Generate `phase6_2_3_completion_report.md`

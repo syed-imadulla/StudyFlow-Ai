@@ -64,7 +64,7 @@ async def generate_insight(request: Request):
         "error": ""
     }
     
-    config_dict = {"configurable": {"thread_id": thread_id}}
+    config_dict = {"configurable": {"thread_id": thread_id, "jwt_token": token}}
     
     try:
         final_state = graph.invoke(initial_state, config=config_dict)

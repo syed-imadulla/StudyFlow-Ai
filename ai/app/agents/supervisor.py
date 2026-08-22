@@ -18,6 +18,8 @@ class AgentState(TypedDict):
     tasks_data: Optional[str]
     final_insight: Optional[str]
     error: Optional[str]
+    tool_call_count: int
+    tool_calls_history: list[str]
 
 class RouteDecision(BaseModel):
     """Select the appropriate agent to route the request to."""
@@ -37,17 +39,14 @@ def supervisor_node(state: AgentState):
     # Check if we should mock the LLM for tests
     if os.getenv("MOCK_LLM") == "true":
         if "mock invalid route" in last_msg.lower():
-            # Deliberately inject a route not in the Literal/Enum to test post-validation defensive fallback
-            route = "some_garbage_route"
-            if route not in ["goal_architect", "insight_agent", "unsupported"]:
-                route = "unsupported"
-            return {"route": route}
+            route = "unsupported"
+            return {"route": route, "tool_call_count": 0, "tool_calls_history": []}
         elif "goal" in last_msg.lower():
-            return {"route": "goal_architect"}
+            return {"route": "goal_architect", "tool_call_count": 0, "tool_calls_history": []}
         elif "insight" in last_msg.lower() or "analytics" in last_msg.lower():
-            return {"route": "insight_agent"}
+            return {"route": "insight_agent", "tool_call_count": 0, "tool_calls_history": []}
         else:
-            return {"route": "unsupported"}
+            return {"route": "unsupported", "tool_call_count": 0, "tool_calls_history": []}
             
     llm = get_llm()
     if not llm:
@@ -73,7 +72,9 @@ Respond using the structured tool output.
         route = response.route.lower()
         if route not in ["goal_architect", "insight_agent", "unsupported"]:
             route = "unsupported"
-        return {"route": route}
+            
+        # For a new request, reset the tool budget
+        return {"route": route, "tool_call_count": 0, "tool_calls_history": []}
     except Exception as e:
         logger.error(f"Supervisor LLM Error: {e}")
-        return {"error": "StudyFlow AI is currently offline.", "route": "unsupported"}
+        return {"error": "StudyFlow AI is currently offline.", "route": "unsupported", "tool_call_count": 0, "tool_calls_history": []}

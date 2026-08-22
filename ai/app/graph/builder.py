@@ -1,11 +1,24 @@
 import logging
 from langgraph.graph import StateGraph, END
+from langgraph.prebuilt import ToolNode, tools_condition
 from app.agents.supervisor import AgentState, supervisor_node
 from app.agents.goal_architect import goal_architect_node
 from app.agents.insight_agent import insight_agent_node
 from app.checkpoint.postgres import get_postgres_saver
+from app.tools.registry import (
+    get_analytics_summary, get_active_goals, get_goal_details, 
+    get_todays_tasks, get_goal_tasks, get_todays_schedule, 
+    get_upcoming_schedule, get_todays_focus, get_recent_focus
+)
 
 logger = logging.getLogger(__name__)
+
+all_tools = [
+    get_analytics_summary, get_active_goals, get_goal_details, 
+    get_todays_tasks, get_goal_tasks, get_todays_schedule, 
+    get_upcoming_schedule, get_todays_focus, get_recent_focus
+]
+tool_node = ToolNode(all_tools)
 
 def unsupported_node(state: AgentState):
     logger.info("Executing unsupported_node")
@@ -26,6 +39,14 @@ def route_request(state: AgentState):
     else:
         return "unsupported"
 
+def route_after_tools(state: AgentState):
+    route = state.get("route", "unsupported")
+    if route == "goal_architect":
+        return "goal_architect"
+    elif route == "insight_agent":
+        return "insight_agent"
+    return "unsupported"
+
 def build_graph():
     logger.info("Building StateGraph")
     workflow = StateGraph(AgentState)
@@ -34,6 +55,7 @@ def build_graph():
     workflow.add_node("goal_architect", goal_architect_node)
     workflow.add_node("insight_agent", insight_agent_node)
     workflow.add_node("unsupported", unsupported_node)
+    workflow.add_node("tools", tool_node)
     
     workflow.set_entry_point("supervisor")
     
@@ -47,8 +69,19 @@ def build_graph():
         }
     )
     
-    workflow.add_edge("goal_architect", END)
-    workflow.add_edge("insight_agent", END)
+    workflow.add_conditional_edges("goal_architect", tools_condition)
+    workflow.add_conditional_edges("insight_agent", tools_condition)
+    
+    workflow.add_conditional_edges(
+        "tools",
+        route_after_tools,
+        {
+            "goal_architect": "goal_architect",
+            "insight_agent": "insight_agent",
+            "unsupported": "unsupported"
+        }
+    )
+    
     workflow.add_edge("unsupported", END)
     
     try:

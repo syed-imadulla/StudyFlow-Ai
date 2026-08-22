@@ -33,6 +33,13 @@ export class TaskService {
     if (query.goalId) filter.goalId = query.goalId;
     if (query.archived !== undefined) filter.archived = query.archived === 'true';
 
+    if (query.dueDateStart && query.dueDateEnd) {
+      filter.dueDate = {
+        $gte: new Date(query.dueDateStart),
+        $lte: new Date(query.dueDateEnd)
+      };
+    }
+
     const sort = query.sort || '-createdAt';
     const page = parseInt(query.page, 10) || 1;
     const limit = parseInt(query.limit, 10) || 50;
