@@ -64,9 +64,13 @@ describe('AI Service Integration Tests', () => {
     }
   }, 15000);
 
-  afterAll(() => {
+  afterAll(async () => {
     if (pythonProcess) {
       pythonProcess.kill();
+      await new Promise(resolve => {
+        pythonProcess.on('close', resolve);
+        setTimeout(resolve, 2000); // safety fallback
+      });
     }
   });
 
