@@ -170,7 +170,7 @@
                       <!-- Background Ring -->
                       <circle cx="50" cy="50" r="45" fill="none" stroke="#181824" stroke-width="5" />
                       <!-- Progress Ring -->
-                      <circle id="timerProgressRing" cx="50" cy="50" r="45" fill="none" stroke="#A855F7" stroke-width="5" stroke-dasharray="283" stroke-dashoffset="0" class="transition-all duration-1000 ease-linear shadow-[0_0_15px_rgba(168,85,247,0.8)]" />
+                      <circle id="timerProgressRing" cx="50" cy="50" r="45" fill="none" stroke="#A855F7" stroke-width="5" stroke-dasharray="283" stroke-dashoffset="0" stroke-linecap="round" class="transition-all duration-1000 ease-linear shadow-[0_0_15px_rgba(168,85,247,0.8)]" />
                     </svg>
                     
                     <div id="timerDisplay" class="text-3xl sm:text-[44px] font-extrabold text-white tracking-tight font-mono relative z-10">25:00</div>
@@ -433,8 +433,12 @@
         if (hours > 0) {
           const h = String(hours).padStart(2, '0');
           disp.textContent = `${h}:${m}:${s}`;
+          disp.classList.remove('text-3xl', 'sm:text-[44px]');
+          disp.classList.add('text-2xl', 'sm:text-[32px]');
         } else {
           disp.textContent = `${m}:${s}`;
+          disp.classList.remove('text-2xl', 'sm:text-[32px]');
+          disp.classList.add('text-3xl', 'sm:text-[44px]');
         }
       }
       
