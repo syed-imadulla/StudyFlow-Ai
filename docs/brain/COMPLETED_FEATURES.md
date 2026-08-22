@@ -191,3 +191,22 @@ This document summarizes every completed implementation phase with rationale, de
 - Replaced `transition-all` with `transition` where appropriate to optimize compositing and prevent layout thrashing on hovers.
 - Standardized all interactive elements to `duration-150` for crisp, unified feedback.
 - Context-aware toast durations mapped to severity levels (Success: 2s, Info: 3s, Warning: 4s, Error: Persistent).
+
+---
+
+## Phase 3 & 4 — Focus & Analytics End-to-End Hardening
+
+**What**: Final user-first audit and hardening of the Focus and Analytics systems. Implemented exact, data-authentic duration tracking (in seconds) universally across the backend and frontend, and polished edge-case UI behaviors.
+
+**Why**: To ensure the core product loop (Planner → Focus → Analytics) is mathematically sound, entirely trustworthy, and highly intuitive for a student. We eliminated confusing decimal hours and fabricated empty states.
+
+**Key implementations**:
+- `analytics.service.js` updated to use a unified `formatDuration` helper for precise time display (e.g., `1h 20m`, `15s`), entirely removing decimal fractions like `1.3h`.
+- Hardened Analytics empty states: Handled `0` sessions explicitly by emitting `--` for Distraction Score and empty indicators for Weekly Focus / KPI cards, rather than misleading metrics.
+- Focus Timer precision scaling: Dynamically adjust the `timerDisplay` text size to safely fit inside the progress ring when the time exceeds 1 hour (`01:00:00`), without clipping the SVG ring.
+- Focus synchronization: Enforced `session.startTime` as the ultimate source of truth, completely eliminating frontend pause/resume state drift.
+
+**Design decisions**:
+- The presentation layer must format data cleanly without losing backend precision. Backend always stores and calculates in strict seconds.
+- Missing data must never look like good data. If there is no data for a period, charts cleanly unmount or display "No focus data for this period", and KPIs show 0.
+- Preserved existing integration tests rigorously (48/48 passing) ensuring zero functional regressions while perfecting UI consistency.
