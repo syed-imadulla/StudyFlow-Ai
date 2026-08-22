@@ -70,7 +70,7 @@
             </div>
             <!-- Value Section -->
             <div class="mt-4 flex items-center gap-3.5">
-              <h3 class="text-3xl font-extrabold text-white tracking-tight whitespace-nowrap" id="kpi-focus-val">--</h3>
+              <h3 class="text-3xl font-extrabold text-white tracking-tight" id="kpi-focus-val">--</h3>
               <div class="flex flex-col text-[11px] leading-tight" id="kpi-focus-sub-container">
                 <span class="text-[#6B7280]" id="kpi-focus-sub">--</span>
               </div>
@@ -104,7 +104,7 @@
             </div>
             <!-- Value Section -->
             <div class="mt-4 flex items-center gap-3.5">
-              <h3 class="text-3xl font-extrabold text-white tracking-tight whitespace-nowrap" id="kpi-task-val">--</h3>
+              <h3 class="text-3xl font-extrabold text-white tracking-tight" id="kpi-task-val">--</h3>
               <div class="flex flex-col text-[11px] leading-tight" id="kpi-task-sub-container">
                 <span class="text-[#6B7280]" id="kpi-task-sub">--</span>
               </div>
@@ -133,7 +133,7 @@
             </div>
             <!-- Value Section -->
             <div class="mt-4">
-              <h3 class="text-2xl sm:text-[28px] font-extrabold text-[#facc15] tracking-tight leading-none whitespace-nowrap" id="kpi-peak-val">--</h3>
+              <h3 class="text-2xl sm:text-[28px] font-extrabold text-[#facc15] tracking-tight leading-none" id="kpi-peak-val">--</h3>
             </div>
           </div>
           <div>
@@ -159,7 +159,7 @@
             </div>
             <!-- Value Section -->
             <div class="mt-4 flex items-center gap-3">
-              <h3 class="text-3xl font-extrabold text-[#4ade80] tracking-tight whitespace-nowrap" id="kpi-dist-val">--</h3>
+              <h3 class="text-3xl font-extrabold text-[#4ade80] tracking-tight" id="kpi-dist-val">--</h3>
               <span class="text-xs font-bold text-[#4ade80]" id="kpi-dist-sub">--</span>
             </div>
           </div>
@@ -378,8 +378,8 @@
                 }
                 if (context.raw === null || context.raw === undefined) return label + '0m';
                 const totalSeconds = Math.round(Number(context.raw) * 3600);
-                if (totalSeconds === 0) return label + '0s';
-                if (totalSeconds < 60) return label + `${totalSeconds}s`;
+                if (totalSeconds === 0) return label + '0m';
+                if (totalSeconds < 60) return label + '1m';
                 const h = Math.floor(totalSeconds / 3600);
                 const m = Math.floor((totalSeconds % 3600) / 60);
                 const s = totalSeconds % 60;
@@ -435,9 +435,10 @@
           setKPI('insight-tasks-val', tasksFinished);
           setKPI('insight-tasks-sub', 'Total finished');
           
-          let avgDailyFocus = '0m';
-          if (slice.summary && slice.summary.avgDailyFormatted) {
-            avgDailyFocus = slice.summary.avgDailyFormatted;
+          let avgDailyFocus = '0h';
+          if (slice.summary && typeof slice.summary.focusHours === 'number' && slice.summary.daysInPeriod > 0) {
+            const avgHours = slice.summary.focusHours / slice.summary.daysInPeriod;
+            avgDailyFocus = (Math.round(avgHours * 10) / 10) + 'h';
           }
           setKPI('insight-daily-val', avgDailyFocus);
           setKPI('insight-daily-sub', 'Avg focus time');
@@ -485,40 +486,21 @@
           } else {
             wcEl.style.display = 'block';
             if (wcEmpty) wcEmpty.classList.add('hidden');
-            const yAxisConfig = { 
-              grid: { color: '#1C1C1C' }, 
-              ticks: { 
-                color: '#6B7280', 
-                font: { family: 'Inter', size: 11 },
-                callback: function(value, index, ticks) {
-                  const formatValue = (v) => {
-                    const totalMinutes = Math.round(Number(v) * 60);
-                    if (totalMinutes === 0) return '0m';
-                    const h = Math.floor(totalMinutes / 60);
-                    const m = totalMinutes % 60;
-                    if (h > 0 && m > 0) return `${h}h ${m}m`;
-                    if (h > 0) return `${h}h`;
-                    return `${m}m`;
-                  };
-                  const label = formatValue(value);
-                  if (index > 0 && ticks) {
-                    if (label === formatValue(ticks[index - 1].value)) return null;
-                  }
-                  return label;
-                }
-              }
-            };
             
-            const maxVal = Math.max(...(slice.weeklyComparison.datasets[0]?.data || [0]));
-            if (maxVal > 0 && maxVal <= 5 / 60) {
-              yAxisConfig.ticks.stepSize = 1 / 60;
-              yAxisConfig.suggestedMax = Math.max(maxVal, 1 / 60);
-            } else if (maxVal > 5 / 60 && maxVal <= 60 / 60) {
-              yAxisConfig.ticks.stepSize = 10 / 60;
-            } else if (maxVal > 1 && maxVal <= 4) {
-              yAxisConfig.ticks.stepSize = 30 / 60;
-            } else if (maxVal > 4) {
-              yAxisConfig.ticks.stepSize = 1;
+            const maxDataHours = Math.max(...(slice.weeklyComparison.datasets[0]?.data || []), 0);
+            let dynamicStepSize = undefined;
+            if (maxDataHours <= 5 / 60) {
+              dynamicStepSize = 1 / 60;
+            } else if (maxDataHours <= 15 / 60) {
+              dynamicStepSize = 5 / 60;
+            } else if (maxDataHours <= 60 / 60) {
+              dynamicStepSize = 15 / 60;
+            } else if (maxDataHours <= 3) {
+              dynamicStepSize = 0.5;
+            } else if (maxDataHours <= 10) {
+              dynamicStepSize = 1;
+            } else {
+              dynamicStepSize = 2;
             }
 
             window.sfCharts.weeklyComparisonChart = new Chart(wcEl.getContext('2d'), {
@@ -528,7 +510,31 @@
                 ...CHART_OPTIONS_BASE, 
                 scales: { 
                   x: { grid: { display: false }, ticks: { color: '#6B7280', font: { family: 'Inter', size: 11 } } }, 
-                  y: yAxisConfig
+                  y: { 
+                    grid: { color: '#1C1C1C' }, 
+                    suggestedMax: Math.max(1 / 60, maxDataHours),
+                    ticks: { 
+                      color: '#6B7280', 
+                      font: { family: 'Inter', size: 11 },
+                      stepSize: dynamicStepSize,
+                      callback: function(value, index, ticks) {
+                        const formatValue = (v) => {
+                          const totalMinutes = Math.round(Number(v) * 60);
+                          if (totalMinutes === 0) return '0m';
+                          const h = Math.floor(totalMinutes / 60);
+                          const m = totalMinutes % 60;
+                          if (h > 0 && m > 0) return `${h}h ${m}m`;
+                          if (h > 0) return `${h}h`;
+                          return `${m}m`;
+                        };
+                        const label = formatValue(value);
+                        if (index > 0 && ticks) {
+                          if (label === formatValue(ticks[index - 1].value)) return null;
+                        }
+                        return label;
+                      }
+                    } 
+                  } 
                 } 
               }
             });
@@ -558,13 +564,9 @@
 
             if (gaLegend) {
               const bgColors = slice.goalAllocation.datasets[0].backgroundColor || [];
-              const totalAlloc = slice.goalAllocation.datasets[0].data.reduce((a, b) => a + b, 0);
-              gaLegend.innerHTML = slice.goalAllocation.labels.map((label, i) => {
-                const val = slice.goalAllocation.datasets[0].data[i];
-                const pct = totalAlloc > 0 ? Math.round((val / totalAlloc) * 100) : 0;
-                return `
-                <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background-color: ${bgColors[i] || '#A855F7'}"></span><span class="text-[#FAFAFA] truncate">${label} (${pct}%)</span></div>
-              `}).join('');
+              gaLegend.innerHTML = slice.goalAllocation.labels.map((label, i) => `
+                <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background-color: ${bgColors[i] || '#A855F7'}"></span><span class="text-[#FAFAFA] truncate">${label} (${slice.goalAllocation.datasets[0].data[i]}%)</span></div>
+              `).join('');
             }
           }
         }
