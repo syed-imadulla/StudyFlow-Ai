@@ -1304,6 +1304,9 @@
         const startTime = _formatTimeDisplay(block.startTimeDisplay || block.startTime || '09:00 AM');
         const endTime = _formatTimeDisplay(block.endTimeDisplay || block.endTime || '');
         
+        const theme = window.getPlannerTheme(block);
+        
+        let durationHtml = '';
         let durationStr = block.durationStr || '';
         if (!durationStr && startTime && endTime) {
           durationStr = `${startTime} – ${endTime}`;
@@ -1311,10 +1314,24 @@
           durationStr = '1h 00m';
         }
 
+        if (block.actualDuration !== undefined) {
+           let sec = block.actualDuration;
+           let h = Math.floor(sec / 3600);
+           let m = Math.floor((sec % 3600) / 60);
+           let s = sec % 60;
+           let parts = [];
+           if (h > 0) parts.push(`${h}h`);
+           if (m > 0) parts.push(`${m}m`);
+           if (s > 0 && h === 0) parts.push(`${s}s`);
+           let actualStr = parts.length > 0 ? parts.join(' ') : '0s';
+           durationHtml = `<div class="flex flex-col text-right leading-tight justify-center"><span class="font-mono text-[10px] ${theme.text} opacity-70">Planned: ${durationStr}</span><span class="font-mono text-[11px] font-bold ${theme.text} mt-0.5">Actual: ${actualStr}</span></div>`;
+        } else {
+           durationHtml = `<span class="font-mono text-xs ${theme.text}">${durationStr}</span>`;
+        }
+
         const sMin = _timeStrToMinutes(block.startTimeDisplay || block.startTime || '09:00 AM');
         const eMin = _timeStrToMinutes(block.endTimeDisplay || block.endTime || '10:00 AM');
 
-        const theme = window.getPlannerTheme(block);
         const badgeHtml = window.renderPlannerBadge(block.type || block.category);
 
         let goalHtml = '';
@@ -1357,7 +1374,7 @@
                     </div>
                   </div>
                   <div class="flex items-center space-x-3">
-                    <span class="font-mono text-xs ${theme.text}">${durationStr}</span>
+                    ${durationHtml}
                     ${badgeHtml}
                     <div class="relative ml-1 shrink-0">
                       <button onclick="togglePlannerCardMenu(event, '${id}')" class="p-1.5 rounded-xl hover:bg-[#20202E] text-[#6B7280] hover:text-white transition focus:outline-none focus:ring-2 focus:ring-[#A855F7]" aria-label="Block Actions" title="Actions">
@@ -2664,11 +2681,29 @@
       const desc = block.description || block.subject || '';
       const startTime = _formatTimeDisplay(block.startTimeDisplay || block.startTime || '09:00 AM');
       const endTime = _formatTimeDisplay(block.endTimeDisplay || block.endTime || '');
+      const theme = window.getPlannerTheme ? window.getPlannerTheme(block) : { cardBg: 'bg-[#1E1035]/90', border: 'border-[#A855F7]/40 group-hover:border-[#A855F7]', glow: '', bar: 'bg-[#A855F7]', text: 'text-[#D8B4FE]', hexColor: '#A855F7' };
+      
+      let durationHtml = '';
       let durationStr = block.durationStr || '';
       if (!durationStr && startTime && endTime) {
         durationStr = `${startTime} – ${endTime}`;
       } else if (!durationStr) {
         durationStr = '1h 00m';
+      }
+
+      if (block.actualDuration !== undefined) {
+         let sec = block.actualDuration;
+         let h = Math.floor(sec / 3600);
+         let m = Math.floor((sec % 3600) / 60);
+         let s = sec % 60;
+         let parts = [];
+         if (h > 0) parts.push(`${h}h`);
+         if (m > 0) parts.push(`${m}m`);
+         if (s > 0 && h === 0) parts.push(`${s}s`);
+         let actualStr = parts.length > 0 ? parts.join(' ') : '0s';
+         durationHtml = `<div class="flex flex-col text-right leading-tight justify-center"><span class="font-mono text-[10px] ${theme.text} opacity-70">Planned: ${durationStr}</span><span class="font-mono text-[11px] font-bold ${theme.text} mt-0.5">Actual: ${actualStr}</span></div>`;
+      } else {
+         durationHtml = `<span class="font-mono text-xs ${theme.text}">${durationStr}</span>`;
       }
 
       const sMin = _timeStrToMinutes(block.startTimeDisplay || block.startTime || '09:00 AM');
@@ -2734,7 +2769,6 @@
         cardContainerClasses = 'absolute group sf-planner-card pointer-events-auto transition-[transform,filter,box-shadow,z-index,border-color,left,width,top,height] duration-200 ease-out hover:z-[35] hover:scale-[1.01] hover:brightness-115 hover:shadow-xl cursor-grab active:cursor-grabbing select-none rounded-2xl';
       }
 
-      const theme = window.getPlannerTheme ? window.getPlannerTheme(block) : { cardBg: 'bg-[#1E1035]/90', border: 'border-[#A855F7]/40 group-hover:border-[#A855F7]', glow: '', bar: 'bg-[#A855F7]', text: 'text-[#D8B4FE]', hexColor: '#A855F7' };
       const badgeHtml = window.renderPlannerBadge ? window.renderPlannerBadge(block.type || block.category) : '';
 
       let goalHtml = '';
@@ -2769,7 +2803,7 @@
               </div>
             </div>
             <div class="flex items-center space-x-3 shrink-0 pl-2">
-              <span class="font-mono text-xs ${theme.text}">${durationStr}</span>
+              ${durationHtml}
               ${badgeHtml}
               <div class="relative ml-1 shrink-0">
                 <button onclick="togglePlannerCardMenu(event, '${id}')" class="p-1.5 rounded-xl hover:bg-[#20202E] text-[#6B7280] hover:text-white transition focus:outline-none focus:ring-2 focus:ring-[#A855F7]" aria-label="Block Actions" title="Actions">
@@ -6088,10 +6122,26 @@
       const title = event.title || event.subject || 'Untitled Block';
       const startTime = typeof _formatTimeDisplay === 'function' ? _formatTimeDisplay(event.startTimeDisplay || event.startTime || '09:00 AM') : (event.startTimeDisplay || event.startTime || '09:00 AM');
       const endTime = typeof _formatTimeDisplay === 'function' ? _formatTimeDisplay(event.endTimeDisplay || event.endTime || '') : (event.endTimeDisplay || event.endTime || '');
-      const durationStr = endTime ? `${startTime} – ${endTime}` : startTime;
+      const theme = getWeeklyCardTheme(event, goals);
+      let durationHtml = '';
+      let durationStr = endTime ? `${startTime} – ${endTime}` : startTime;
+
+      if (event.actualDuration !== undefined) {
+         let sec = event.actualDuration;
+         let h = Math.floor(sec / 3600);
+         let m = Math.floor((sec % 3600) / 60);
+         let s = sec % 60;
+         let parts = [];
+         if (h > 0) parts.push(`${h}h`);
+         if (m > 0) parts.push(`${m}m`);
+         if (s > 0 && h === 0) parts.push(`${s}s`);
+         let actualStr = parts.length > 0 ? parts.join(' ') : '0s';
+         durationHtml = `<div class="flex flex-col leading-[1.1]"><span class="font-mono text-[9px] ${theme.text} opacity-80">Planned: ${durationStr}</span><span class="font-mono text-[10px] font-bold ${theme.text} mt-[1px]">Actual: ${actualStr}</span></div>`;
+      } else {
+         durationHtml = `<span class="font-mono text-[10px] sm:text-[11px] ${theme.text} font-semibold overflow-hidden text-ellipsis whitespace-nowrap leading-tight sf-card-time">${durationStr}</span>`;
+      }
       const categoryStr = event.category || event.type || event.subject || 'Study';
 
-      const theme = getWeeklyCardTheme(event, goals);
       const badgeHtml = window.renderPlannerBadge(event.type || event.category);
 
       let goalHtml = '';
@@ -6168,7 +6218,7 @@
         card.innerHTML = `
           <div class="flex flex-col justify-center h-full overflow-hidden px-1.5 py-0.5 gap-0.5 min-w-0">
             <div class="font-bold text-xs text-white overflow-hidden text-ellipsis whitespace-nowrap leading-tight sf-card-title">${title} ${conflictBadgeHtml}</div>
-            <div class="font-mono text-[10px] ${theme.text} font-semibold overflow-hidden text-ellipsis whitespace-nowrap leading-tight sf-card-time">${durationStr}</div>
+            ${durationHtml}
           </div>
         `;
       }
@@ -6178,7 +6228,7 @@
           <div class="flex flex-col justify-between h-full overflow-hidden p-1 sm:p-1.5 min-w-0">
             <div class="flex flex-col gap-0.5 min-w-0 overflow-hidden">
               <div class="font-bold text-xs sm:text-sm text-white overflow-hidden text-ellipsis whitespace-nowrap leading-tight sf-card-title">${title} ${conflictBadgeHtml}</div>
-              <div class="font-mono text-[10px] sm:text-[11px] ${theme.text} font-semibold overflow-hidden text-ellipsis whitespace-nowrap leading-tight sf-card-time">${durationStr}</div>
+              ${durationHtml}
             </div>
             <div class="flex items-center gap-1.5 flex-wrap overflow-hidden mt-1 pt-1 border-t border-white/10 shrink-0">
               <span class="text-[9px] font-semibold text-white/80 truncate sf-card-category">${categoryStr}</span>
