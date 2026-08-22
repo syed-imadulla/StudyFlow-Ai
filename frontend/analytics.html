@@ -378,8 +378,8 @@
                 }
                 if (context.raw === null || context.raw === undefined) return label + '0m';
                 const totalSeconds = Math.round(Number(context.raw) * 3600);
-                if (totalSeconds === 0) return label + '0m';
-                if (totalSeconds < 60) return label + '1m';
+                if (totalSeconds === 0) return label + '0s';
+                if (totalSeconds < 60) return label + `${totalSeconds}s`;
                 const h = Math.floor(totalSeconds / 3600);
                 const m = Math.floor((totalSeconds % 3600) / 60);
                 const s = totalSeconds % 60;
@@ -559,9 +559,13 @@
 
             if (gaLegend) {
               const bgColors = slice.goalAllocation.datasets[0].backgroundColor || [];
-              gaLegend.innerHTML = slice.goalAllocation.labels.map((label, i) => `
-                <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background-color: ${bgColors[i] || '#A855F7'}"></span><span class="text-[#FAFAFA] truncate">${label} (${slice.goalAllocation.datasets[0].data[i]}%)</span></div>
-              `).join('');
+              const totalAlloc = slice.goalAllocation.datasets[0].data.reduce((a, b) => a + b, 0);
+              gaLegend.innerHTML = slice.goalAllocation.labels.map((label, i) => {
+                const val = slice.goalAllocation.datasets[0].data[i];
+                const pct = totalAlloc > 0 ? Math.round((val / totalAlloc) * 100) : 0;
+                return `
+                <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full" style="background-color: ${bgColors[i] || '#A855F7'}"></span><span class="text-[#FAFAFA] truncate">${label} (${pct}%)</span></div>
+              `}).join('');
             }
           }
         }

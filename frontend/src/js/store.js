@@ -772,12 +772,32 @@ window.SF_STORE = (function () {
           activeSession?.plannerId || null
         );
 
-        const [activeTask, timerConfig, aiSuggestion, weeklyDistraction] = await Promise.all([
+        const [activeTaskResult, timerConfig, aiSuggestion, weeklyDistraction] = await Promise.all([
           activeTaskPromise,
           window.focusService.getTimerConfig(),
           window.focusService.getAISuggestion(),
           window.focusService.getWeeklyDistraction()
         ]);
+        
+        let activeTask = activeTaskResult;
+        if (activeSession?.plannerId && _state.planner.plannerEvents) {
+          const plannerEvent = _state.planner.plannerEvents.find(e => String(e.id || e._id) === String(activeSession.plannerId));
+          if (plannerEvent) {
+            if (activeTask) {
+              activeTask.startTime = plannerEvent.startTime;
+              activeTask.endTime = plannerEvent.endTime;
+            } else {
+              activeTask = {
+                id: plannerEvent.id || plannerEvent._id,
+                title: plannerEvent.title,
+                startTime: plannerEvent.startTime,
+                endTime: plannerEvent.endTime,
+                goalTitle: 'Scheduled Event',
+                milestone: 'Time Block'
+              };
+            }
+          }
+        }
         
         const focusPatch = {
           activeTask,

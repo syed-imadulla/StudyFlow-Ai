@@ -144,9 +144,22 @@ export class AnalyticsService {
     }
 
     const longestSessionSeconds = currentSessions.length > 0 ? Math.max(...currentSessions.map(s => s.duration || 0)) : 0;
-    const longestSessionFormatted = longestSessionSeconds > 0 
-      ? (longestSessionSeconds >= 3600 ? `${Math.floor(longestSessionSeconds / 3600)}h ${Math.floor((longestSessionSeconds % 3600) / 60)}m` : `${Math.floor(longestSessionSeconds / 60)}m`) 
-      : '--';
+    const formatExactDuration = (secs) => {
+      if (secs === 0) return '--';
+      if (secs < 60) return `${secs}s`;
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = secs % 60;
+      
+      let parts = [];
+      if (h > 0) parts.push(`${h}h`);
+      if (m > 0) parts.push(`${m}m`);
+      if (s > 0 && h === 0) parts.push(`${s}s`); // only show seconds if < 1h
+      
+      return parts.join(' ');
+    };
+
+    const longestSessionFormatted = formatExactDuration(longestSessionSeconds);
 
     return {
       totalGoals,
@@ -196,9 +209,12 @@ export class AnalyticsService {
     const focusChange = getPercentageChange(summary.focusHours, summary.prevFocusHours);
     
     const avgInt = summary.avgInterruptions || 0;
-    let distScore = 'Low';
-    if (avgInt >= 3) distScore = 'High';
-    else if (avgInt >= 1) distScore = 'Medium';
+    let distScore = '--';
+    if (summary.sessionsCount > 0) {
+      if (avgInt >= 3) distScore = 'High';
+      else if (avgInt >= 1) distScore = 'Medium';
+      else distScore = 'Low';
+    }
     
     const distChange = getPercentageChange(summary.avgInterruptions, summary.prevAvgInterruptions);
 
@@ -209,11 +225,10 @@ export class AnalyticsService {
     const totalSecs = summary.currentDurationSeconds || 0;
     if (totalSecs > 0) {
       if (totalSecs < 60) {
-        focusTimeFormatted = '1m';
+        focusTimeFormatted = `${totalSecs}s`;
       } else {
-        const totalMinutes = Math.max(1, Math.round(totalSecs / 60));
-        const h2 = Math.floor(totalMinutes / 60);
-        const m2 = totalMinutes % 60;
+        const h2 = Math.floor(totalSecs / 3600);
+        const m2 = Math.floor((totalSecs % 3600) / 60);
         if (h2 > 0 && m2 > 0) {
           focusTimeFormatted = `${h2}h ${m2}m`;
         } else if (h2 > 0) {
