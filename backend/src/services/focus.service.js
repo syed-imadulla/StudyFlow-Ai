@@ -295,19 +295,35 @@ export class FocusService {
   }
 
   /**
-   * Get dynamic AI focus suggestion
+   * Get dynamic AI focus suggestion via LangGraph microservice (Phase 6.1)
    */
-  static async getAISuggestion(userId) {
-    const sessions = await FocusSession.find({ user: userId, status: FOCUS_SESSION_STATUS.COMPLETED }).sort('-startTime').limit(20);
-    const count = sessions.length;
-    if (count === 0) {
-      return { message: 'Start your first Pomodoro sprint to allow StudyFlow AI to analyze your cognitive flow patterns.' };
+  static async getAISuggestion(userId, authHeader) {
+    try {
+      // The Python AI service will be running on port 8000
+      const aiServiceUrl = 'http://127.0.0.1:8000/api/v1/agent/insight';
+      
+      const response = await fetch(aiServiceUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': authHeader || '',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI Service returned ${response.status}`);
+      }
+
+      const data = await response.json();
+      return {
+        message: data.message || 'StudyFlow AI is currently unavailable. Your study data is still safe.'
+      };
+    } catch (error) {
+      // Fallback: Do not crash the application if AI service is down
+      return {
+        message: 'StudyFlow AI is currently unavailable. Your study data is still safe and available.'
+      };
     }
-    const totalSec = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
-    const avgMin = Math.round((totalSec / count) / 60);
-    return {
-      message: `You have completed ${count} focus sessions averaging ${avgMin || 25}m. Your cognitive velocity peaks during steady uninterrupted blocks.`
-    };
   }
 
   /**

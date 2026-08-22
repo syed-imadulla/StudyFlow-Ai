@@ -123,7 +123,8 @@ export class FocusController {
   });
 
   static getAISuggestion = catchAsync(async (req, res) => {
-    const suggestion = await FocusService.getAISuggestion(req.user._id);
+    const authHeader = req.headers.authorization;
+    const suggestion = await FocusService.getAISuggestion(req.user._id, authHeader);
     res.status(HTTP_STATUS.OK).json({
       status: 'success',
       statusCode: HTTP_STATUS.OK,

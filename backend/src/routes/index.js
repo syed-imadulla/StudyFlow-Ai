@@ -6,6 +6,7 @@ import taskRoutes from './task.routes.js';
 import plannerRoutes from './planner.routes.js';
 import focusRoutes from './focus.routes.js';
 import analyticsRoutes from './analytics.routes.js';
+import toolRoutes from './tool.routes.js';
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.use('/tasks', taskRoutes);
 router.use('/planner', plannerRoutes);
 router.use('/focus', focusRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/tools', toolRoutes);
 
 export default router;
