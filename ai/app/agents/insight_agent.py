@@ -4,23 +4,33 @@ import os
 from typing import Dict, Any
 from app.llm.gemini import get_llm
 from app.tools.analytics_tool import fetch_analytics_summary
-from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 logger = logging.getLogger(__name__)
 
 def insight_agent_node(state: Dict[str, Any]):
     logger.info("Executing insight_agent_node")
     token = state.get("jwt_token")
+    messages = state.get("messages", [])
     
+    # Get last message for mock and fallback
+    last_msg = ""
+    for m in reversed(messages):
+        if isinstance(m, HumanMessage):
+            last_msg = m.content
+            break
+            
     if not token:
         return {"error": "Missing authentication token"}
         
     analytics_data = fetch_analytics_summary(token)
     
     if os.getenv("MOCK_LLM") == "true":
+        content = "Mock Insight Agent response."
         return {
             "analytics_data": analytics_data,
-            "final_insight": "Mock Insight Agent response."
+            "final_insight": content,
+            "messages": [AIMessage(content=content)]
         }
     
     try:
@@ -33,7 +43,11 @@ def insight_agent_node(state: Dict[str, Any]):
         total_duration = summary.get("totalFocusDuration", 0)
         
         if total_sessions == 0 or total_duration == 0:
-            return {"final_insight": "Not enough data yet to identify a reliable pattern. Complete some focus sessions first!"}
+            content = "Not enough data yet to identify a reliable pattern. Complete some focus sessions first!"
+            return {
+                "final_insight": content,
+                "messages": [AIMessage(content=content)]
+            }
             
     except json.JSONDecodeError:
         return {"final_insight": "StudyFlow AI is currently unavailable (data parse error)."}
@@ -50,16 +64,17 @@ If data is insufficient, say "Not enough data yet to identify a reliable pattern
 Analytics Data:
 {analytics_data}
 """
-    messages = [
-        SystemMessage(content=system_prompt),
-        HumanMessage(content=state.get("prompt", "Analyze my study data."))
-    ]
+    
+    # Keep sliding window of last 20 messages (approx 10 turns)
+    window = messages[-20:]
+    input_messages = [SystemMessage(content=system_prompt)] + window
     
     try:
-        response = llm.invoke(messages)
+        response = llm.invoke(input_messages)
         return {
             "analytics_data": analytics_data,
-            "final_insight": response.content.strip()
+            "final_insight": response.content.strip(),
+            "messages": [AIMessage(content=response.content.strip())]
         }
     except Exception as e:
         logger.error(f"Insight Agent LLM Error: {e}")

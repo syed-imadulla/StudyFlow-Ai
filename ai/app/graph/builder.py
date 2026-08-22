@@ -9,7 +9,12 @@ logger = logging.getLogger(__name__)
 
 def unsupported_node(state: AgentState):
     logger.info("Executing unsupported_node")
-    return {"final_insight": "I'm sorry, but I can only help with goal planning and study analytics."}
+    from langchain_core.messages import AIMessage
+    content = "I'm sorry, but I can only help with goal planning and study analytics."
+    return {
+        "final_insight": content,
+        "messages": [AIMessage(content=content)]
+    }
 
 def route_request(state: AgentState):
     route = state.get("route", "unsupported")

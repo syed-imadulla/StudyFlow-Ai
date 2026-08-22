@@ -56,9 +56,10 @@ async def generate_insight(request: Request):
     # Use provided thread_id, else generate a random one to avoid collision if not specified
     thread_id = req_body.thread_id if req_body.thread_id else str(uuid.uuid4())
     
+    from langchain_core.messages import HumanMessage
     initial_state = {
         "jwt_token": token,
-        "prompt": prompt,
+        "messages": [HumanMessage(content=prompt)],
         "final_insight": "",
         "error": ""
     }
