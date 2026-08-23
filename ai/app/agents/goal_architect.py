@@ -24,7 +24,7 @@ def goal_architect_node(state: Dict[str, Any]):
     if os.getenv("MOCK_LLM") == "true":
         content = f"Mock Goal Architect response for: {last_msg}"
         
-        if "simulate tool call" in last_msg.lower() or "simulate action tool" in last_msg.lower() or "simulate duplicate tool call" in last_msg.lower() or "simulate loop tool call" in last_msg.lower() or "simulate duplicate sequence" in last_msg.lower():
+        if "simulate tool call" in last_msg.lower() or "simulate action tool" in last_msg.lower() or "simulate duplicate tool call" in last_msg.lower() or "simulate loop tool call" in last_msg.lower() or "simulate duplicate sequence" in last_msg.lower() or "create a goal" in last_msg.lower():
             # If the last message is from a tool, it means we just executed it
             if len(messages) > 1 and getattr(messages[-1], "type", "") == "tool" and "simulate loop tool call" not in last_msg.lower() and "simulate duplicate sequence" not in last_msg.lower():
                 content = "Tool executed successfully."
@@ -38,7 +38,7 @@ def goal_architect_node(state: Dict[str, Any]):
             args = {"dummy": f"arg_{len(messages)}"} if "simulate loop tool call" in last_msg.lower() else {"dummy": "arg"}
             tool_name = "get_active_goals"
             
-            if "simulate action tool" in last_msg.lower():
+            if "simulate action tool" in last_msg.lower() or "create a goal" in last_msg.lower():
                 tool_name = "create_goal"
                 args = {"title": "Test Goal", "description": "Desc", "targetHours": 10}
             
