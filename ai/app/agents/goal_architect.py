@@ -2,7 +2,7 @@ import logging
 import json
 import os
 from typing import Dict, Any
-from app.llm.gemini import get_llm
+from app.llm.provider import get_llm
 from app.tools.registry import (
     get_active_goals, get_goal_details, get_todays_tasks, 
     get_goal_tasks, get_todays_schedule, get_upcoming_schedule

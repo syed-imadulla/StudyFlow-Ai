@@ -4,7 +4,7 @@ import os
 from typing import TypedDict, Optional, Annotated, Literal
 from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage
 from langgraph.graph.message import add_messages
-from app.llm.gemini import get_llm
+from app.llm.provider import get_llm
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)

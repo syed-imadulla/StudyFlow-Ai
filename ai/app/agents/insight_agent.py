@@ -2,7 +2,7 @@ import logging
 import json
 import os
 from typing import Dict, Any
-from app.llm.gemini import get_llm
+from app.llm.provider import get_llm
 from app.tools.registry import get_analytics_summary, get_todays_focus, get_recent_focus
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
