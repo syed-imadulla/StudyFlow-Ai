@@ -30,4 +30,8 @@ router.get('/focus/recent', ToolController.getRecentFocus);
 router.post('/goals', ToolController.createGoal);
 router.post('/tasks', ToolController.scheduleTask);
 
+// User Memory
+router.get('/preferences', ToolController.getPreferences);
+router.post('/preferences', ToolController.updatePreferences);
+
 export default router;

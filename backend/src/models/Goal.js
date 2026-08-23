@@ -61,6 +61,10 @@ const goalSchema = new mongoose.Schema(
       default: '',
       trim: true
     },
+    ai_summary: {
+      type: String,
+      default: ''
+    },
     priority: {
       type: String,
       enum: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'],

@@ -10,7 +10,7 @@
 window.SF_CONFIG = {
   USE_MOCK_API: false,
   API_BASE_URL: 'http://localhost:5000/api/v1', // backend API URL
-  REQUEST_TIMEOUT: 10000,                       // 10s default request timeout
+  REQUEST_TIMEOUT: 60000,                       // 60s request timeout for real LLM
   AUTH_TOKEN_KEY: 'accessToken',                // localStorage key for JWT access token
 
   // Default Pomodoro durations (seconds). Overridden by userService when user saves settings.

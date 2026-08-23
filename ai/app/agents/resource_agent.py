@@ -1,15 +1,14 @@
 import logging
 import json
-import os
 from typing import Dict, Any
 from app.llm.provider import get_llm, handle_llm_error
-from app.tools.registry import get_analytics_summary, get_todays_focus, get_recent_focus
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from app.tools.registry import search_web_resources, get_active_goals
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, ToolMessage
 
 logger = logging.getLogger(__name__)
 
-def insight_agent_node(state: Dict[str, Any]):
-    logger.info("Executing insight_agent_node")
+def resource_agent_node(state: Dict[str, Any]):
+    logger.info("Executing resource_agent_node")
     messages = state.get("messages", [])
     
     last_msg = ""
@@ -18,34 +17,39 @@ def insight_agent_node(state: Dict[str, Any]):
             last_msg = m.content
             break
 
-    if os.getenv("MOCK_LLM") == "true":
-        content = "Mock Insight Agent response."
-        return {
-            "final_insight": content,
-            "messages": [AIMessage(content=content)]
-        }
-    
     llm = get_llm()
     if not llm:
-        return {"final_insight": "StudyFlow AI is currently offline. Your study data is still safe."}
+        return {"final_insight": handle_llm_error(e) if "e" in locals() else "StudyFlow AI is temporarily unavailable."}
 
-    system_prompt = """You are the StudyFlow AI coach, a READ-ONLY assistant.
-You help the user understand their study patterns, focus metrics, and analytics.
-You have access to tools to fetch the user's data.
-You MUST NOT invent or hallucinate data. Only use what the tools return.
+    system_prompt = """You are the StudyFlow AI Resource Agent.
+Your responsibility is to find useful educational resources (articles, docs, wikis) for the user.
+Use the `search_web_resources` tool to search Wikipedia or web for resources.
+Do NOT hallucinate or fabricate URLs. 
+Always explain WHY the recommended resource is useful and estimate the difficulty/time if possible.
+You can use `get_active_goals` to contextualize the recommendations based on what the user is currently working on.
 """
     
-    tools = [get_analytics_summary, get_todays_focus, get_recent_focus]
+    tools = [search_web_resources, get_active_goals]
     llm_with_tools = llm.bind_tools(tools)
 
     window = messages[-20:]
-    input_messages = [SystemMessage(content=system_prompt)] + window
+    
+    # Sanitize ToolMessages
+    sanitized_window = []
+    for msg in window:
+        if isinstance(msg, ToolMessage):
+            sanitized_window.append(HumanMessage(content=f"[Tool {msg.name} execution result]: {msg.content}"))
+        elif getattr(msg, "type", "") == "tool":
+            sanitized_window.append(HumanMessage(content=f"[Tool execution result]: {msg.content}"))
+        else:
+            sanitized_window.append(msg)
+            
+    input_messages = [SystemMessage(content=system_prompt)] + sanitized_window
     
     try:
         response = llm_with_tools.invoke(input_messages)
         content = response.content.strip() if response.content else ""
         
-        # Enforce budget and prevent duplicates
         count = state.get("tool_call_count", 0)
         history = state.get("tool_calls_history", [])
         
@@ -63,16 +67,14 @@ You MUST NOT invent or hallucinate data. Only use what the tools return.
                     valid_tool_calls.append(tc)
                     
             if duplicate_tool_calls and not valid_tool_calls:
-                # LLM only requested duplicate tools. Block it to prevent infinite loop.
-                logger.warning("Insight Agent requested only duplicate tools. Blocking.")
-                content = "I've already checked that information. I should analyze what I have."
+                logger.warning("Resource Agent requested only duplicate tools. Blocking.")
+                content = "I've already searched for those resources. Here's what I found:"
                 return {
                     "final_insight": content,
                     "messages": [AIMessage(content=content)]
                 }
                 
             if duplicate_tool_calls:
-                logger.info(f"Filtering {len(duplicate_tool_calls)} duplicate tool calls")
                 response = AIMessage(
                     content=response.content,
                     tool_calls=valid_tool_calls,
@@ -81,10 +83,10 @@ You MUST NOT invent or hallucinate data. Only use what the tools return.
                 )
                 
             if count + len(valid_tool_calls) > 5:
-                logger.warning(f"Insight Agent exceeded budget ({count} + {len(valid_tool_calls)} > 5)")
+                logger.warning(f"Resource Agent exceeded budget ({count} + {len(valid_tool_calls)} > 5)")
                 return {
-                    "final_insight": "I'm sorry, I've had to process too much information. Could you simplify your request?",
-                    "messages": [AIMessage(content="I'm sorry, I've had to process too much information. Could you simplify your request?")]
+                    "final_insight": "I've searched quite a bit. Let's work with the resources I've found so far.",
+                    "messages": [AIMessage(content="I've searched quite a bit. Let's work with the resources I've found so far.")]
                 }
                 
             return {
@@ -98,5 +100,5 @@ You MUST NOT invent or hallucinate data. Only use what the tools return.
             "messages": [response]
         }
     except Exception as e:
-        logger.error(f"Insight Agent LLM Error: {e}")
+        logger.error(f"Resource Agent LLM Error: {e}")
         return {"final_insight": handle_llm_error(e) if "e" in locals() else "StudyFlow AI is temporarily unavailable."}

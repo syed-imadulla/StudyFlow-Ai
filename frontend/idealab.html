@@ -34,7 +34,6 @@
         <div class="space-y-5">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3 cursor-pointer text-[#A1A1AA] hover:text-white transition group" onclick="window.location.href='workspace.html'">
-              <svg class="w-5 h-5 text-[#6B7280] group-hover:text-[#A855F7] group-hover:-translate-x-1 transition transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
               <div>
                 <h1 id="ideaLabHeaderTitle" class="text-xl md:text-2xl font-extrabold tracking-tight text-white font-sans">IdeaLab AI Goal Architect</h1>
                 <p class="text-xs text-[#A1A1AA] mt-0.5">Step by step, we'll turn your idea into a clear, actionable plan.</p>
@@ -43,44 +42,46 @@
             <span id="editingGoalBadge" class="hidden px-3 py-1 rounded-full text-xs font-bold bg-[#A855F7]/20 border border-[#A855F7]/40 text-[#A855F7] animate-pulse flex items-center gap-1.5"><svg class="w-3.5 h-3.5 inline shrink-0 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg> <span>Restructuring Goal</span></span>
           </div>
 
-          <!-- 7-Step Horizontal Stepper Bar -->
-          <div class="relative pt-3 pb-1">
-            <div class="absolute left-8 right-8 top-[30px] h-0.5 bg-[#1C1C24] -z-0"></div>
-            
-            <div class="grid grid-cols-7 gap-2 relative z-10 text-center">
-              <div class="step-item flex flex-col items-center cursor-pointer group" onclick="goToStep(1)">
-                <div id="stepDot1" class="w-9 h-9 rounded-full bg-[#A855F7] text-white font-bold text-xs flex items-center justify-center ring-4 ring-[#050508] shadow-[0_0_20px_rgba(168,85,247,0.5)] scale-110 transition duration-200">1</div>
-                <span id="stepText1" class="text-[10px] font-bold text-[#A855F7] mt-2.5 uppercase tracking-widest">GOAL</span>
+          <!-- Visual 7-Step Stepper -->
+          <div class="relative pt-6 pb-2 w-full max-w-3xl mx-auto">
+            <!-- Connecting Line -->
+            <div class="absolute top-[38px] left-[7%] right-[7%] h-[1px] bg-[#252535] -z-10"></div>
+            <!-- Steps -->
+            <div class="flex justify-between w-full" id="stepperContainer">
+              <!-- Step 1 -->
+              <div class="flex flex-col items-center group cursor-pointer">
+                <div id="stepIcon-1" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-[#A855F7] text-white border-2 border-[#A855F7]">1</div>
+                <span id="stepLabel-1" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white">Goal</span>
               </div>
-
-              <div class="step-item flex flex-col items-center cursor-pointer group" onclick="goToStep(2)">
-                <div id="stepDot2" class="w-9 h-9 rounded-full bg-[#12121A] border border-[#20202E] text-[#6B7280] font-bold text-xs flex items-center justify-center ring-4 ring-[#050508] group-hover:border-[#A855F7]/50 transition duration-200">2</div>
-                <span id="stepText2" class="text-[10px] font-medium text-[#6B7280] mt-2.5 uppercase tracking-widest">WHY</span>
+              <!-- Step 2 -->
+              <div class="flex flex-col items-center group cursor-pointer">
+                <div id="stepIcon-2" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">2</div>
+                <span id="stepLabel-2" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Why</span>
               </div>
-
-              <div class="step-item flex flex-col items-center cursor-pointer group" onclick="goToStep(3)">
-                <div id="stepDot3" class="w-9 h-9 rounded-full bg-[#12121A] border border-[#20202E] text-[#6B7280] font-bold text-xs flex items-center justify-center ring-4 ring-[#050508] group-hover:border-[#A855F7]/50 transition duration-200">3</div>
-                <span id="stepText3" class="text-[10px] font-medium text-[#6B7280] mt-2.5 uppercase tracking-widest">DEADLINE</span>
+              <!-- Step 3 -->
+              <div class="flex flex-col items-center group cursor-pointer">
+                <div id="stepIcon-3" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">3</div>
+                <span id="stepLabel-3" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Deadline</span>
               </div>
-
-              <div class="step-item flex flex-col items-center cursor-pointer group" onclick="goToStep(4)">
-                <div id="stepDot4" class="w-9 h-9 rounded-full bg-[#12121A] border border-[#20202E] text-[#6B7280] font-bold text-xs flex items-center justify-center ring-4 ring-[#050508] group-hover:border-[#A855F7]/50 transition duration-200">4</div>
-                <span id="stepText4" class="text-[10px] font-medium text-[#6B7280] mt-2.5 uppercase tracking-widest">BRAIN DUMP</span>
+              <!-- Step 4 -->
+              <div class="flex flex-col items-center group cursor-pointer">
+                <div id="stepIcon-4" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">4</div>
+                <span id="stepLabel-4" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Brain Dump</span>
               </div>
-
-              <div class="step-item flex flex-col items-center cursor-pointer group" onclick="goToStep(5)">
-                <div id="stepDot5" class="w-9 h-9 rounded-full bg-[#12121A] border border-[#20202E] text-[#6B7280] font-bold text-xs flex items-center justify-center ring-4 ring-[#050508] group-hover:border-[#A855F7]/50 transition duration-200">5</div>
-                <span id="stepText5" class="text-[10px] font-medium text-[#6B7280] mt-2.5 uppercase tracking-widest">TIME</span>
+              <!-- Step 5 -->
+              <div class="flex flex-col items-center group cursor-pointer">
+                <div id="stepIcon-5" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">5</div>
+                <span id="stepLabel-5" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Time</span>
               </div>
-
-              <div class="step-item flex flex-col items-center cursor-pointer group" onclick="goToStep(6)">
-                <div id="stepDot6" class="w-9 h-9 rounded-full bg-[#12121A] border border-[#20202E] text-[#6B7280] font-bold text-xs flex items-center justify-center ring-4 ring-[#050508] group-hover:border-[#A855F7]/50 transition duration-200">6</div>
-                <span id="stepText6" class="text-[10px] font-medium text-[#6B7280] mt-2.5 uppercase tracking-widest">RESOURCES</span>
+              <!-- Step 6 -->
+              <div class="flex flex-col items-center group cursor-pointer">
+                <div id="stepIcon-6" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">6</div>
+                <span id="stepLabel-6" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Resources</span>
               </div>
-
-              <div class="step-item flex flex-col items-center cursor-pointer group" onclick="goToStep(7)">
-                <div id="stepDot7" class="w-9 h-9 rounded-full bg-[#12121A] border border-[#20202E] text-[#6B7280] font-bold text-xs flex items-center justify-center ring-4 ring-[#050508] group-hover:border-[#A855F7]/50 transition duration-200">7</div>
-                <span id="stepText7" class="text-[10px] font-medium text-[#6B7280] mt-2.5 uppercase tracking-widest">OBSTACLES</span>
+              <!-- Step 7 -->
+              <div class="flex flex-col items-center group cursor-pointer">
+                <div id="stepIcon-7" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">7</div>
+                <span id="stepLabel-7" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Obstacles</span>
               </div>
             </div>
           </div>
@@ -141,38 +142,7 @@
           </div>
         </div>
 
-        <!-- Bottom Feature Badges Card -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-          <div class="bg-[#0A0A0E] border border-[#1C1C24] p-4 rounded-2xl flex items-start space-x-3 hover:border-[#A855F7]/30 transition group">
-            <div class="w-9 h-9 rounded-xl bg-[#A855F7]/15 border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7] shrink-0 group-hover:scale-110 transition">
-              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
-            </div>
-            <div>
-              <h4 class="text-xs font-bold text-[#FAFAFA] tracking-wide">AI-Powered</h4>
-              <p class="text-[11px] text-[#A1A1AA] mt-0.5 leading-normal">Smart guidance at every step</p>
-            </div>
-          </div>
 
-          <div class="bg-[#0A0A0E] border border-[#1C1C24] p-4 rounded-2xl flex items-start space-x-3 hover:border-[#A855F7]/30 transition group">
-            <div class="w-9 h-9 rounded-xl bg-[#A855F7]/15 border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7] shrink-0 group-hover:scale-110 transition">
-              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4 20l2.5-.96C8.01 20.27 9.94 21 12 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-1.68 0-3.23-.56-4.48-1.51l-.34-.26-1.57.6.61-1.52-.26-.35C4.94 14.65 4.33 13.1 4.33 12c0-4.23 3.44-7.67 7.67-7.67s7.67 3.44 7.67 7.67-3.44 7.67-7.67 7.67zm1.33-11.83h-2.66v2.66h2.66V7.17zm0 4h-2.66v5.33h2.66v-5.33z"/></svg>
-            </div>
-            <div>
-              <h4 class="text-xs font-bold text-[#FAFAFA] tracking-wide">Step-by-Step</h4>
-              <p class="text-[11px] text-[#A1A1AA] mt-0.5 leading-normal">We break it down so you can build it up</p>
-            </div>
-          </div>
-
-          <div class="bg-[#0A0A0E] border border-[#1C1C24] p-4 rounded-2xl flex items-start space-x-3 hover:border-[#A855F7]/30 transition group">
-            <div class="w-9 h-9 rounded-xl bg-[#A855F7]/15 border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7] shrink-0 group-hover:scale-110 transition">
-              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
-            </div>
-            <div>
-              <h4 class="text-xs font-bold text-[#FAFAFA] tracking-wide">Actionable Plan</h4>
-              <p class="text-[11px] text-[#A1A1AA] mt-0.5 leading-normal">Get a clear roadmap you can follow</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Right Column: StudyFlow AI Guided Assistant -->
@@ -247,147 +217,155 @@
   <script>
     let currentStep = 1;
     let editingGoalId = null;
-    let goalData = {
-      title: "",
-      why: "",
-      deadline: "",
-      braindump: "",
-      time: "",
-      resources: "",
-      obstacles: ""
-    };
-
-    const questions = [
-      "",
-      { titleHtml: 'What are you trying to <span class="text-[#A855F7] drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">accomplish?</span>', sub: "Define the core project or exam objective in one clear sentence.", ph: "e.g. Build a DBMS Mini Project", key: "title" },
-      { titleHtml: 'Why is this <span class="text-[#A855F7] drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">important</span> to you?', sub: "Identify your motivation, target grade, or GPA impact.", ph: "e.g. I need 40/40 internal marks to boost my semester GPA...", key: "why" },
-      { titleHtml: 'What is your target <span class="text-[#A855F7] drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">deadline?</span>', sub: "When is final submission or exam day? How many days left?", ph: "e.g. 10 days left (or July 15th)...", key: "deadline" },
-      { titleHtml: 'Brain dump all rough <span class="text-[#A855F7] drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">milestones</span>', sub: "List out chapters, components, or rough deliverables. AI will break this down.", ph: "- ER Schema Design\n- REST API endpoint setup\n- Write final report...", key: "braindump" },
-      { titleHtml: 'How much daily <span class="text-[#A855F7] drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">study time</span> do you have?', sub: "Be realistic about Pomodoro blocks and daily deep work sessions.", ph: "e.g. 2 hours every evening (~4 Pomodoros daily)...", key: "time" },
-      { titleHtml: 'What <span class="text-[#A855F7] drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">resources & docs</span> do you need?', sub: "Paste links, lecture slides, or reference books you will use.", ph: "e.g. MongoDB aggregation cheat sheet, Express docs...", key: "resources" },
-      { titleHtml: 'What potential <span class="text-[#A855F7] drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">obstacles</span> do you foresee?', sub: "What could slow you down or cause procrastination?", ph: "e.g. Unfamiliar with authentication middleware or exam stress...", key: "obstacles" }
-    ];
-
+    let idealabThreadId = 'idealab_' + Date.now();
+    
     document.addEventListener('DOMContentLoaded', async () => {
       await window.SF_STORE.bootstrap(['user', 'goals']);
       const params = new URLSearchParams(window.location.search);
       editingGoalId = params.get('goalId');
       if (editingGoalId) {
-        await window.SF_STORE.dispatch('idealab/OPEN_GOAL', { goalId: editingGoalId });
-        const found = window.SF_STORE.getSlice('idealab').activeGoal;
-        if (found) {
-          goalData.title = found.title;
-          goalData.deadline = found.finalDeadlineDisplay || "In 10 days";
-          goalData.braindump = found.subtasks ? found.subtasks.map(s => "- " + s.title).join("\n") : "";
-          
-          document.getElementById('ideaLabHeaderTitle').textContent = `Restructuring: ${found.title}`;
-          document.getElementById('editingGoalBadge').classList.remove('hidden');
-          document.getElementById('stepInput').value = goalData.title;
-        }
+        // Not supporting editing in real flow yet, redirect or reset for now.
       }
-      goToStep(1);
     });
 
-    function saveCurrentInput() {
-      const val = document.getElementById('stepInput').value.trim();
-      const q = questions[currentStep];
-      if (q && q.key) {
-        goalData[q.key] = val;
+    function updateAdaptiveTitle(newTitle, newSub) {
+      document.getElementById('stepTitle').innerHTML = newTitle;
+      document.getElementById('stepSub').textContent = newSub;
+    }
+
+    function updateVisualStep(step) {
+      currentStep = Math.min(step, 7);
+      for (let i = 1; i <= 7; i++) {
+        const icon = document.getElementById(`stepIcon-${i}`);
+        const label = document.getElementById(`stepLabel-${i}`);
+        if (!icon || !label) continue;
+        
+        if (i < currentStep) {
+          // Completed
+          icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-[#A855F7] text-white border-2 border-[#A855F7]";
+          icon.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
+          label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white";
+        } else if (i === currentStep) {
+          // Active
+          icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-[#A855F7] text-white border-2 border-[#A855F7]";
+          icon.innerHTML = i;
+          label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white";
+        } else {
+          // Upcoming
+          icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]";
+          icon.innerHTML = i;
+          label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]";
+        }
       }
     }
 
-    function goToStep(s) {
-      saveCurrentInput();
-      currentStep = s;
-      document.getElementById('stepTitle').innerHTML = questions[s].titleHtml;
-      document.getElementById('stepSub').textContent = questions[s].sub;
+    async function sendToAI(text) {
+      appendAssistantMessage(text, 'user');
+      
       const inputEl = document.getElementById('stepInput');
-      inputEl.placeholder = questions[s].ph;
+      const aiInputEl = document.getElementById('aiAssistantInput');
+      const nextBtn = document.getElementById('nextBtn');
+      const nextBtnText = nextBtn ? nextBtn.innerHTML : '';
       
-      const key = questions[s].key;
-      inputEl.value = goalData[key] || "";
-      inputEl.focus();
-      
-      const prevBtn = document.getElementById('prevBtn');
-      if (s > 1) prevBtn.classList.remove('invisible');
-      else prevBtn.classList.add('invisible');
-
-      const nextText = document.getElementById('nextBtnText');
-      if (s === 7) {
-        if (nextText) nextText.textContent = editingGoalId ? "Update Plan & Launch" : "Generate Action Plan";
-      } else {
-        if (nextText) nextText.textContent = "Ask AI & Next";
+      // Show loading state
+      if (inputEl) inputEl.disabled = true;
+      if (aiInputEl) aiInputEl.disabled = true;
+      if (nextBtn) {
+          nextBtn.disabled = true;
+          nextBtn.innerHTML = 'Thinking...';
+          nextBtn.classList.add('opacity-70', 'cursor-not-allowed');
       }
-
-      for (let i = 1; i <= 7; i++) {
-        const dot = document.getElementById('stepDot' + i);
-        const txt = document.getElementById('stepText' + i);
-        if (i < s) {
-          dot.className = "w-9 h-9 rounded-full bg-[#A855F7]/30 text-[#A855F7] border border-[#A855F7]/40 font-bold text-xs flex items-center justify-center ring-4 ring-[#050508]";
-          dot.innerHTML = '<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
-          if (txt) txt.className = "text-[10px] font-bold text-[#A855F7] mt-2.5 uppercase tracking-widest";
-        } else if (i === s) {
-          dot.className = "w-9 h-9 rounded-full bg-[#A855F7] text-white font-bold text-xs flex items-center justify-center ring-4 ring-[#050508] shadow-[0_0_20px_rgba(168,85,247,0.5)] scale-110 transition duration-200";
-          dot.textContent = i;
-          if (txt) txt.className = "text-[10px] font-bold text-[#FAFAFA] mt-2.5 uppercase tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]";
-        } else {
-          dot.className = "w-9 h-9 rounded-full bg-[#12121A] border border-[#20202E] text-[#6B7280] font-bold text-xs flex items-center justify-center ring-4 ring-[#050508] group-hover:border-[#A855F7]/50 transition duration-200";
-          dot.textContent = i;
-          if (txt) txt.className = "text-[10px] font-medium text-[#6B7280] mt-2.5 uppercase tracking-widest";
+      
+      // Append temporary typing indicator
+      const feed = document.getElementById('aiChatFeed');
+      const typingId = 'typing-' + Date.now();
+      if (feed) {
+          const div = document.createElement('div');
+          div.id = typingId;
+          div.className = "flex items-start space-x-3 animate-fadeIn mt-3";
+          div.innerHTML = `
+            <div class="w-7 h-7 rounded-lg bg-[#A855F7]/20 border border-[#A855F7]/40 flex items-center justify-center text-[#A855F7] shrink-0 mt-0.5">
+              <svg class="w-4 h-4 fill-current animate-pulse" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
+            </div>
+            <div class="bg-[#151520] border border-[#252535] p-3.5 rounded-2xl rounded-tl-sm text-xs text-[#D4D4D8] shadow-sm flex items-center space-x-1">
+              <div class="w-1.5 h-1.5 bg-[#A1A1AA] rounded-full animate-bounce"></div>
+              <div class="w-1.5 h-1.5 bg-[#A1A1AA] rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+              <div class="w-1.5 h-1.5 bg-[#A1A1AA] rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+            </div>
+          `;
+          feed.appendChild(div);
+          feed.scrollTop = feed.scrollHeight;
+      }
+      
+      try {
+        const res = await SF_HTTP.post('/agent/chat', {
+          prompt: text,
+          thread_id: idealabThreadId
+        });
+        
+        if (res && res.message) {
+          appendAssistantMessage(res.message, 'ai');
+          
+          if (res.pending_action) {
+            handlePendingAction(res.pending_action);
+          } else {
+            // Keep the title as generic brainstorm or update it based on AI message if desired
+            updateAdaptiveTitle(
+              'Let\'s build your <span class="text-[#A855F7] drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">plan</span>',
+              'Chat with the AI to refine your goal and generate a structured blueprint.'
+            );
+          }
+        }
+      } catch (err) {
+        console.error("AI Chat Error:", err);
+        appendAssistantMessage("Sorry, I encountered an error. Please try again.", 'ai');
+      } finally {
+        // Hide loading state
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) typingEl.remove();
+        if (inputEl) {
+            inputEl.disabled = false;
+            inputEl.focus();
+        }
+        if (aiInputEl) aiInputEl.disabled = false;
+        if (nextBtn) {
+            nextBtn.disabled = false;
+            nextBtn.innerHTML = nextBtnText;
+            nextBtn.classList.remove('opacity-70', 'cursor-not-allowed');
         }
       }
     }
 
     function handleStepAdvance() {
-      saveCurrentInput();
-      
-      // Add simulated feedback to AI Assistant feed
-      const inputVal = document.getElementById('stepInput').value.trim();
-      if (inputVal) {
-        appendAssistantMessage(inputVal, 'user');
-        setTimeout(() => {
-          let reply = `Great! I've noted your ${questions[currentStep].key.toUpperCase()}. Let's move on to the next step.`;
-          if (currentStep === 7) reply = "All 7 steps completed! Building your customized AI workspace and Kanban goals now...";
-          appendAssistantMessage(reply, 'ai');
-        }, 500);
-      }
-
-      if (currentStep < 7) {
-        goToStep(currentStep + 1);
-      } else {
-        commitAIGoal();
-      }
-    }
-
-    function prevStep() {
-      if (currentStep > 1) goToStep(currentStep - 1);
-    }
-
-    function selectExample(text) {
-      document.getElementById('stepInput').value = text;
-      saveCurrentInput();
-      appendAssistantMessage(text, 'user');
-      setTimeout(() => {
-        appendAssistantMessage(`Excellent choice! Let's tailor the architectural roadmap specifically for "${text}". Click 'Ask AI & Next' or press Enter when you're ready!`, 'ai');
-      }, 600);
+      const inputEl = document.getElementById('stepInput');
+      const text = inputEl.value.trim();
+      if (!text) return;
+      inputEl.value = '';
+      sendToAI(text);
+      updateVisualStep(currentStep + 1);
     }
 
     function handleAIChatSubmit() {
       const inputEl = document.getElementById('aiAssistantInput');
       const text = inputEl.value.trim();
       if (!text) return;
-      appendAssistantMessage(text, 'user');
       inputEl.value = '';
-      setTimeout(() => {
-        appendAssistantMessage(`I'm analyzing "${text}" to optimize your study velocity and roadmap milestones.`, 'ai');
-      }, 700);
+      sendToAI(text);
+    }
+
+    function selectExample(text) {
+      document.getElementById('stepInput').value = text;
+      handleStepAdvance();
+    }
+
+    function prevStep() {
+      if (currentStep > 1) updateVisualStep(currentStep - 1);
     }
 
     function appendAssistantMessage(msg, sender) {
       const feed = document.getElementById('aiChatFeed');
       if (!feed) return;
       const div = document.createElement('div');
-      div.className = "flex items-start space-x-3 animate-fadeIn mt-3";
       
       if (sender === 'user') {
         div.className = "flex items-start justify-end space-x-3 animate-fadeIn mt-3";
@@ -397,6 +375,7 @@
           </div>
         `;
       } else {
+        div.className = "flex items-start space-x-3 animate-fadeIn mt-3";
         div.innerHTML = `
           <div class="w-7 h-7 rounded-lg bg-[#A855F7]/20 border border-[#A855F7]/40 flex items-center justify-center text-[#A855F7] shrink-0 mt-0.5">
             <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
@@ -410,85 +389,93 @@
       feed.scrollTop = feed.scrollHeight;
     }
 
-    async function commitAIGoal() {
-      saveCurrentInput();
-      alert(`✨ StudyFlow AI Architect generating customized roadmap for "${goalData.title || 'AI Academic Goal'}"...`);
-      
-      if (editingGoalId) {
-        const existing = window.SF_STORE.getSlice('goals')?.items?.find(g => g.id === editingGoalId) || window.SF_STORE.getSlice('idealab')?.activeGoal;
-        const rawDump = goalData.braindump || "- Phase 1 Research & Architecture\n- Phase 2 Core Implementation\n- Phase 3 Final Review & Polish";
-        const lines = rawDump.split('\n').map(l => l.replace(/^[-*•\d.]+\s*/, '').trim()).filter(Boolean);
-        const subtasks = lines.map((line, idx) => {
-          const oldSub = existing?.subtasks?.find(s => s.title.toLowerCase() === line.toLowerCase()) || existing?.subtasks?.[idx];
-          return {
-            id: oldSub?.id || ('sub_' + Math.random().toString(36).substr(2, 7)),
-            title: line,
-            completed: oldSub ? oldSub.completed : false,
-            priority: oldSub?.priority || 'HIGH',
-            estimate: oldSub?.estimate || '2 Pomodoros',
-            deadline: oldSub?.deadline || null
-          };
-        });
-        try {
-          await window.SF_STORE.dispatch('goals/UPDATE', {
-            goalId: editingGoalId,
-            patch: {
-              title: goalData.title || "DBMS Mini Project Architecture",
-              description: goalData.why || "Structured via IdeaLab 7-Step AI Architect.",
-              finalDeadlineDisplay: goalData.deadline || "In 10 days",
-              progressSummary: {
-                totalMilestones: subtasks.length,
-                completedMilestones: 0,
-                completionPercentage: 0
-              },
-              deadlineInfo: {
-                type: 'UPCOMING',
-                label: goalData.deadline || "In 10 days",
-                shortLabel: '10d',
-                color: 'neutral',
-                urgencyLevel: 1,
-                sortPriority: 70
-              },
-              lifecycle: { status: 'ACTIVE' },
-              goalHealth: 'ON_TRACK',
-              subtasks
-            }
-          });
-          if (window.SF_COMPONENTS && window.SF_COMPONENTS.showToast) {
-            window.SF_COMPONENTS.showToast('Goal updated successfully.', 'success');
-          }
-          window.location.href = 'workspace.html';
-        } catch (err) {
-          alert('Failed to update goal: ' + (err.message || 'Error'));
-        }
-        return;
+    function showProposalModal(payload) {
+      document.getElementById('proposalTitle').textContent = payload.title;
+      // Use ai_summary if available, fallback to basic presentation
+      if (payload.ai_summary) {
+          // simple markdown rendering (bold and newlines)
+          let htmlSummary = payload.ai_summary
+              .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
+              .replace(/\\n/g, '<br/>');
+          document.getElementById('proposalSummary').innerHTML = htmlSummary;
+      } else {
+          document.getElementById('proposalSummary').innerHTML = `
+              <strong>Description:</strong> ${payload.description}<br/><br/>
+              <strong>Timeline:</strong> ${payload.deadline_value} ${payload.deadline_unit}<br/><br/>
+              <strong>Milestones:</strong><br/>${payload.rawDump.replace(/\\n/g, '<br/>')}
+          `;
       }
+      document.getElementById('goalProposalModal').classList.remove('hidden');
+      document.getElementById('goalProposalModal').classList.add('flex');
+    }
 
-      await window.SF_STORE.dispatch('goals/CREATE_WITH_SUBTASKS', {
-        title: goalData.title || "DBMS Mini Project Architecture",
-        description: goalData.why || "Structured via IdeaLab 7-Step AI Architect.",
-        finalDeadlineDaysStr: goalData.deadline || "10 days",
-        rawDump: goalData.braindump || "- Phase 1 Research & Architecture\n- Phase 2 Core Implementation\n- Phase 3 Final Review & Polish",
-        progressSummary: {
-          totalMilestones: 3,
-          completedMilestones: 0,
-          completionPercentage: 0
-        },
-        deadlineInfo: {
-          type: 'UPCOMING',
-          label: goalData.deadline || "In 10 days",
-          shortLabel: '10d',
-          color: 'neutral',
-          urgencyLevel: 1,
-          sortPriority: 70
-        },
-        lifecycle: { status: 'ACTIVE' },
-        goalHealth: 'ON_TRACK'
-      });
+    function closeProposalModal() {
+      document.getElementById('goalProposalModal').classList.add('hidden');
+      document.getElementById('goalProposalModal').classList.remove('flex');
+    }
 
-      window.location.href = 'workspace.html';
+    async function submitProposal(approved) {
+      closeProposalModal();
+      
+      const btn = document.getElementById('nextBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = 'Processing...';
+      btn.disabled = true;
+
+      try {
+        const res = await SF_HTTP.post('/agent/action/resume', {
+          thread_id: idealabThreadId,
+          approved: approved
+        });
+        
+        if (approved && res && res.success) {
+          appendAssistantMessage("Goal created successfully! Preparing your workspace...", 'ai');
+          setTimeout(() => { window.location.href = 'workspace.html'; }, 1000);
+        } else if (!approved) {
+          appendAssistantMessage("Goal creation was cancelled. What would you like to change?", 'ai');
+        }
+      } catch(e) {
+        appendAssistantMessage("Error confirming goal: " + e.message, 'ai');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    async function handlePendingAction(action) {
+      if (action.action === 'create_goal') {
+        showProposalModal(action.payload);
+      }
     }
   </script>
+  
+  <!-- Polished Goal Proposal Modal -->
+  <div id="goalProposalModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="bg-[#0A0A0E] border border-[#20202A] rounded-2xl p-6 md:p-8 max-w-2xl w-full shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex flex-col max-h-[85vh]">
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-[#A855F7]/15 border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7]">
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-white tracking-tight" id="proposalTitle">Generating Goal...</h2>
+          <p class="text-xs text-[#A1A1AA]">AI Architect Proposal</p>
+        </div>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto mb-6 pr-2 custom-scrollbar text-sm text-[#D4D4D8] leading-relaxed space-y-4" id="proposalSummary">
+        <!-- Rendered AI Summary will go here -->
+      </div>
+      
+      <div class="flex items-center justify-end space-x-4 pt-4 border-t border-[#1C1C24]">
+        <button onclick="submitProposal(false)" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-[#A1A1AA] hover:text-white hover:bg-[#151520] transition duration-200">
+          Edit / Cancel
+        </button>
+        <button onclick="submitProposal(true)" class="bg-[#A855F7] hover:bg-[#9333EA] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(168,85,247,0.35)] transition duration-200 transform hover:scale-[1.02]">
+          Approve & Create Goal
+        </button>
+      </div>
+    </div>
+  </div>
   <script src="src/js/ai/aiChat.js"></script>
 </body>
 </html>

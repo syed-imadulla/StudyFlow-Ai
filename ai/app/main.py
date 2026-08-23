@@ -1,5 +1,5 @@
 import logging
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Depends, BackgroundTasks, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from app.graph.builder import build_graph
 from app.config import config
@@ -64,7 +64,7 @@ async def generate_insight(request: Request):
         "error": ""
     }
     
-    config_dict = {"configurable": {"thread_id": thread_id, "jwt_token": token}}
+    config_dict = {"configurable": {"thread_id": thread_id, "jwt_token": token}, "recursion_limit": 15}
     
     try:
         final_state = graph.invoke(initial_state, config=config_dict)
@@ -82,8 +82,12 @@ async def generate_insight(request: Request):
         insight = final_state.get("final_insight", "StudyFlow AI is currently offline.")
         return {"success": True, "message": insight}
     except Exception as e:
+        if "recursion" in str(e).lower() or type(e).__name__ == "GraphRecursionError":
+            logger.error(f"Graph recursion limit reached: {e}")
+            return {"success": False, "message": "I'm having trouble analyzing this right now (too many steps). Please try simplifying your request."}
+            
         logger.error(f"Graph execution failed: {e}")
-        return {"success": False, "message": "StudyFlow AI is currently unavailable. Your study data is still safe."}
+        return {"success": False, "message": "StudyFlow AI is currently unavailable. Your study data is safe."}
 
 class ActionResumeRequest(BaseModel):
     thread_id: str
@@ -99,7 +103,7 @@ async def resume_action(request: Request, body: ActionResumeRequest):
         raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
     
     token = auth_header.split(" ")[1]
-    config_dict = {"configurable": {"thread_id": body.thread_id, "jwt_token": token}}
+    config_dict = {"configurable": {"thread_id": body.thread_id, "jwt_token": token}, "recursion_limit": 15}
     
     try:
         state_snapshot = graph.get_state(config_dict)
@@ -139,8 +143,48 @@ async def resume_action(request: Request, body: ActionResumeRequest):
         return {"success": True, "message": insight}
         
     except Exception as e:
+        if "recursion" in str(e).lower() or type(e).__name__ == "GraphRecursionError":
+            logger.error(f"Graph recursion limit reached in resume: {e}")
+            return {"success": False, "message": "I'm having trouble analyzing this right now (too many steps). Please try simplifying your request."}
+            
         logger.error(f"Graph resume failed: {e}")
         return {"success": False, "message": "Failed to resume action."}
+
+@app.post("/api/v1/agent/rag/upload")
+async def upload_document(request: Request, file: UploadFile = File(...)):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
+    
+    token = auth_header.split(" ")[1]
+    
+    try:
+        import jwt
+        from app.config import config
+        decoded = jwt.decode(token, config.JWT_SECRET, algorithms=["HS256"])
+        user_id = decoded.get("id")
+        
+        import tempfile
+        import os
+        from app.rag.pipeline import process_and_upload_document
+        
+        # Save temp file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+            content = await file.read()
+            temp_file.write(content)
+            temp_path = temp_file.name
+            
+        result = process_and_upload_document(temp_path, user_id, file.filename)
+        os.remove(temp_path)
+        
+        if result["success"]:
+            return {"success": True, "message": f"Successfully processed {result['chunks_added']} chunks from {file.filename}"}
+        else:
+            raise HTTPException(status_code=500, detail=result.get("error", "Failed to process document"))
+            
+    except Exception as e:
+        logger.error(f"Document upload failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn

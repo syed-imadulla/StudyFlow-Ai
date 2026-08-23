@@ -43,6 +43,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true // Per requirements: do not implement OTP/email verification flow
     },
+    ai_preferences: {
+      type: String,
+      default: "",
+      trim: true
+    },
     refreshToken: {
       type: String,
       select: false,

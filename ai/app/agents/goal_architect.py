@@ -2,12 +2,13 @@ import logging
 import json
 import os
 from typing import Dict, Any
-from app.llm.provider import get_llm
+from app.llm.provider import get_llm, handle_llm_error
 from app.tools.registry import (
     get_active_goals, get_goal_details, get_todays_tasks, 
-    get_goal_tasks, get_todays_schedule, get_upcoming_schedule
+    get_goal_tasks, get_todays_schedule, get_upcoming_schedule,
+    create_goal, get_user_preferences, save_user_preference, schedule_task
 )
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, ToolMessage
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +41,15 @@ def goal_architect_node(state: Dict[str, Any]):
             
             if "simulate action tool" in last_msg.lower() or "create a goal" in last_msg.lower():
                 tool_name = "create_goal"
-                args = {"title": "Test Goal", "description": "Desc", "targetHours": 10}
+                args = {
+                    "title": "Test Goal", 
+                    "description": "Desc", 
+                    "targetHours": 10,
+                    "rawDump": "- Subtask 1\n- Subtask 2",
+                    "deadline_mode": "DURATION",
+                    "deadline_value": 7,
+                    "deadline_unit": "days"
+                }
             
             tool_call = {
                 "name": tool_name,
@@ -106,30 +115,62 @@ def goal_architect_node(state: Dict[str, Any]):
         
     llm = get_llm()
     if not llm:
-        return {"final_insight": "StudyFlow AI is currently offline."}
+        return {"final_insight": handle_llm_error(e) if "e" in locals() else "StudyFlow AI is temporarily unavailable."}
         
-    system_prompt = """You are the Goal Architect, a helpful AI assistant for StudyFlow.
-You help the user manage their goals, tasks, and study schedule.
-You have access to tools to fetch the user's data.
-You MUST NOT invent or hallucinate data. Only use what the tools return.
-Do not ask for IDs unless you cannot find them using your tools.
+    system_prompt = """You are the IdeaLab Goal Architect, a highly structured AI assistant for StudyFlow.
+Your job is to help users brainstorm, structure, and create new study/productivity goals.
+You MUST NOT force a rigid 7-question format. Instead, you must deduce missing information adaptively.
+
+1. First, identify the type of goal the user wants:
+   - PROJECT (e.g., build a website, code an app) -> Needs: outcome, scope, existing skills, tech stack, deadline, available time.
+   - EXAM (e.g., semester exams, SATs) -> Needs: subjects, exam dates, syllabus, weak areas, available time.
+   - LEARNING (e.g., learn DSA, learn Spanish) -> Needs: current level, target level, motivation, practice preference, available time.
+   - PERSONAL (e.g., read 10 books, workout) -> Needs: desired outcome, current routine, obstacles, frequency, deadline.
+
+2. Check what information you already have from their messages.
+   - USE the `get_user_preferences` tool to retrieve any long-term preferences the user previously saved (e.g., preferred study times, learning styles).
+   - If the user tells you a new preference (e.g., "I study better at night"), USE the `save_user_preference` tool to remember it for future conversations.
+
+3. Ask ONLY the most important missing question next. DO NOT ask questions you already know the answer to. Ask a maximum of 1 or 2 questions per turn.
+4. If you have enough information to form a solid plan, use the `create_goal` tool.
+
+When using the `create_goal` tool:
+- `rawDump`: Generate a highly structured, actionable, and ordered list of subtasks and milestones. Do not just blindly convert sentences into tasks. Break them down intelligently.
+- `ai_summary`: Provide a polished, human-friendly markdown proposal. Start with a header "🎯 [Title]". Then sections like "WHY", "PLAN (Numbered list)", "TIMELINE", "DAILY COMMITMENT", and "AI RECOMMENDATION". This is what the user will read.
+
+Once you receive the tool execution result indicating success, DO NOT call the tool again. Instead, confirm to the user that the goal was created successfully and summarize the next steps.
+
+Be extremely natural, conversational, and concise (2-3 sentences max). Distinguish known facts from assumptions. If you infer something, ask to confirm.
 """
     
-    from app.tools.registry import create_goal, schedule_task
+    from app.tools.registry import create_goal, schedule_task, get_user_preferences, save_user_preference
     tools = [
         get_active_goals, get_goal_details, get_todays_tasks, 
         get_goal_tasks, get_todays_schedule, get_upcoming_schedule,
-        create_goal, schedule_task
+        create_goal, schedule_task, get_user_preferences, save_user_preference
     ]
     
     llm_with_tools = llm.bind_tools(tools)
     
     window = messages[-20:]
-    input_messages = [SystemMessage(content=system_prompt)] + window
+    
+    # Sanitize ToolMessages for LLMs that reject OpenAI ToolMessage format (like Llama-3)
+    sanitized_window = []
+    from langchain_core.messages import ToolMessage
+    for msg in window:
+        if isinstance(msg, ToolMessage):
+            sanitized_window.append(HumanMessage(content=f"[Tool {msg.name} execution result]: {msg.content}"))
+        elif getattr(msg, "type", "") == "tool":
+            sanitized_window.append(HumanMessage(content=f"[Tool execution result]: {msg.content}"))
+        else:
+            sanitized_window.append(msg)
+            
+    input_messages = [SystemMessage(content=system_prompt)] + sanitized_window
     
     try:
         response = llm_with_tools.invoke(input_messages)
         content = response.content.strip() if response.content else ""
+        logger.info(f"Goal Architect Response: content='{content}', tool_calls={getattr(response, 'tool_calls', [])}")
         
         # Enforce budget and prevent duplicates
         count = state.get("tool_call_count", 0)
@@ -185,5 +226,7 @@ Do not ask for IDs unless you cannot find them using your tools.
             "messages": [response]
         }
     except Exception as e:
+        import traceback
         logger.error(f"Goal Architect LLM Error: {e}")
-        return {"final_insight": "StudyFlow AI is currently offline."}
+        logger.error(traceback.format_exc())
+        return {"final_insight": handle_llm_error(e) if "e" in locals() else "StudyFlow AI is temporarily unavailable."}

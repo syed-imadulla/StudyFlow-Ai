@@ -8,8 +8,8 @@ from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 logger = logging.getLogger(__name__)
 
-def insight_agent_node(state: Dict[str, Any]):
-    logger.info("Executing insight_agent_node")
+def rag_agent_node(state: Dict[str, Any]):
+    logger.info("Executing rag_agent_node")
     messages = state.get("messages", [])
     
     last_msg = ""
@@ -19,7 +19,7 @@ def insight_agent_node(state: Dict[str, Any]):
             break
 
     if os.getenv("MOCK_LLM") == "true":
-        content = "Mock Insight Agent response."
+        content = "Mock RAG Agent response."
         return {
             "final_insight": content,
             "messages": [AIMessage(content=content)]
@@ -27,19 +27,31 @@ def insight_agent_node(state: Dict[str, Any]):
     
     llm = get_llm()
     if not llm:
-        return {"final_insight": "StudyFlow AI is currently offline. Your study data is still safe."}
+        return {"final_insight": handle_llm_error(e) if "e" in locals() else "StudyFlow AI is temporarily unavailable."}
 
-    system_prompt = """You are the StudyFlow AI coach, a READ-ONLY assistant.
-You help the user understand their study patterns, focus metrics, and analytics.
-You have access to tools to fetch the user's data.
-You MUST NOT invent or hallucinate data. Only use what the tools return.
+    system_prompt = """You are the StudyFlow AI RAG Agent.
+Your job is to answer questions strictly based on the user's uploaded documents or notes.
+Use the `search_study_notes` tool to find relevant information before answering.
+If you do not find the answer in the retrieved context, say so. Do not hallucinate.
 """
     
-    tools = [get_analytics_summary, get_todays_focus, get_recent_focus]
+    from app.tools.registry import search_study_notes
+    tools = [search_study_notes]
     llm_with_tools = llm.bind_tools(tools)
 
     window = messages[-20:]
-    input_messages = [SystemMessage(content=system_prompt)] + window
+    
+    sanitized_window = []
+    from langchain_core.messages import ToolMessage
+    for msg in window:
+        if isinstance(msg, ToolMessage):
+            sanitized_window.append(HumanMessage(content=f"[Tool {msg.name} execution result]: {msg.content}"))
+        elif getattr(msg, "type", "") == "tool":
+            sanitized_window.append(HumanMessage(content=f"[Tool execution result]: {msg.content}"))
+        else:
+            sanitized_window.append(msg)
+            
+    input_messages = [SystemMessage(content=system_prompt)] + sanitized_window
     
     try:
         response = llm_with_tools.invoke(input_messages)
@@ -63,8 +75,7 @@ You MUST NOT invent or hallucinate data. Only use what the tools return.
                     valid_tool_calls.append(tc)
                     
             if duplicate_tool_calls and not valid_tool_calls:
-                # LLM only requested duplicate tools. Block it to prevent infinite loop.
-                logger.warning("Insight Agent requested only duplicate tools. Blocking.")
+                logger.warning("RAG Agent requested only duplicate tools. Blocking.")
                 content = "I've already checked that information. I should analyze what I have."
                 return {
                     "final_insight": content,
@@ -81,7 +92,7 @@ You MUST NOT invent or hallucinate data. Only use what the tools return.
                 )
                 
             if count + len(valid_tool_calls) > 5:
-                logger.warning(f"Insight Agent exceeded budget ({count} + {len(valid_tool_calls)} > 5)")
+                logger.warning(f"RAG Agent exceeded budget ({count} + {len(valid_tool_calls)} > 5)")
                 return {
                     "final_insight": "I'm sorry, I've had to process too much information. Could you simplify your request?",
                     "messages": [AIMessage(content="I'm sorry, I've had to process too much information. Could you simplify your request?")]
@@ -98,5 +109,5 @@ You MUST NOT invent or hallucinate data. Only use what the tools return.
             "messages": [response]
         }
     except Exception as e:
-        logger.error(f"Insight Agent LLM Error: {e}")
+        logger.error(f"RAG Agent LLM Error: {e}")
         return {"final_insight": handle_llm_error(e) if "e" in locals() else "StudyFlow AI is temporarily unavailable."}

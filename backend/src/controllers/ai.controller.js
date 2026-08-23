@@ -11,14 +11,19 @@ export class AiController {
       const { prompt, thread_id } = req.body;
       const token = req.headers.authorization; // Forward the exact Bearer token
 
+      const controller = new AbortController();
+      const timeout = setTimeout(() => { controller.abort(); }, 60000);
+
       const response = await fetch(`${PYTHON_AI_URL}/api/v1/agent/insight`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token
         },
-        body: JSON.stringify({ prompt, thread_id })
+        body: JSON.stringify({ prompt, thread_id }),
+        signal: controller.signal
       });
+      clearTimeout(timeout);
 
       const data = await response.json();
       
@@ -48,14 +53,19 @@ export class AiController {
         return res.status(400).json({ success: false, message: 'Missing thread_id or approved boolean' });
       }
 
+      const controller = new AbortController();
+      const timeout = setTimeout(() => { controller.abort(); }, 60000);
+
       const response = await fetch(`${PYTHON_AI_URL}/api/v1/agent/action/resume`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token
         },
-        body: JSON.stringify({ thread_id, approved })
+        body: JSON.stringify({ thread_id, approved }),
+        signal: controller.signal
       });
+      clearTimeout(timeout);
 
       const data = await response.json();
 

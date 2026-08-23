@@ -5,6 +5,7 @@ import { PlannerService } from '../services/planner.service.js';
 import { FocusService } from '../services/focus.service.js';
 import { logger } from '../utils/logger.js';
 import { GOAL_STATUS } from '../constants/index.js';
+import { User } from '../models/User.js';
 
 export class ToolController {
   
@@ -141,6 +142,21 @@ export class ToolController {
         return res.status(400).json({ success: false, message: "Title is required for a new goal." });
       }
       const goal = await GoalService.createGoal(req.user._id, req.body);
+      
+      // Non-blocking webhook dispatcher for n8n (Phase E)
+      if (process.env.N8N_WEBHOOK_URL) {
+        fetch(process.env.N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                event: 'goal_created', 
+                userId: req.user._id, 
+                goalId: goal._id || goal.id, 
+                title: goal.title 
+            })
+        }).catch(err => logger.error(`N8n Webhook failed: ${err.message}`));
+      }
+
       res.status(201).json({ success: true, data: { id: goal._id || goal.id, title: goal.title } });
     } catch (error) {
       logger.error('Tool API createGoal Error:', error);
@@ -165,6 +181,39 @@ export class ToolController {
         return res.status(404).json({ success: false, message: "Goal not found or does not belong to the user." });
       }
       res.status(500).json({ success: false, message: 'Failed to schedule task.' });
+    }
+  }
+  static async getPreferences(req, res) {
+    try {
+      const user = await User.findById(req.user._id).select('ai_preferences');
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+      res.status(200).json({ success: true, data: { ai_preferences: user.ai_preferences || "" } });
+    } catch (error) {
+      logger.error('Tool API getPreferences Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to retrieve user preferences.' });
+    }
+  }
+
+  static async updatePreferences(req, res) {
+    try {
+      if (req.body.ai_preferences === undefined) {
+        return res.status(400).json({ success: false, message: "ai_preferences is required." });
+      }
+      const user = await User.findByIdAndUpdate(
+        req.user._id,
+        { $set: { ai_preferences: req.body.ai_preferences } },
+        { new: true, runValidators: true }
+      ).select('ai_preferences');
+      
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+      res.status(200).json({ success: true, data: { ai_preferences: user.ai_preferences } });
+    } catch (error) {
+      logger.error('Tool API updatePreferences Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to update user preferences.' });
     }
   }
 }
