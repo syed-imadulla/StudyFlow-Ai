@@ -24,7 +24,7 @@ def goal_architect_node(state: Dict[str, Any]):
     if os.getenv("MOCK_LLM") == "true":
         content = f"Mock Goal Architect response for: {last_msg}"
         
-        if "simulate tool call" in last_msg.lower() or "simulate duplicate tool call" in last_msg.lower() or "simulate loop tool call" in last_msg.lower() or "simulate duplicate sequence" in last_msg.lower():
+        if "simulate tool call" in last_msg.lower() or "simulate action tool" in last_msg.lower() or "simulate duplicate tool call" in last_msg.lower() or "simulate loop tool call" in last_msg.lower() or "simulate duplicate sequence" in last_msg.lower():
             # If the last message is from a tool, it means we just executed it
             if len(messages) > 1 and getattr(messages[-1], "type", "") == "tool" and "simulate loop tool call" not in last_msg.lower() and "simulate duplicate sequence" not in last_msg.lower():
                 content = "Tool executed successfully."
@@ -33,12 +33,17 @@ def goal_architect_node(state: Dict[str, Any]):
                     "messages": [AIMessage(content=content)]
                 }
                 
-            # Simulate a tool call to get_active_goals
+            # Simulate a tool call to get_active_goals or create_goal
             # For loop tool call, we make the arguments different each time to bypass the duplicate filter
             args = {"dummy": f"arg_{len(messages)}"} if "simulate loop tool call" in last_msg.lower() else {"dummy": "arg"}
+            tool_name = "get_active_goals"
+            
+            if "simulate action tool" in last_msg.lower():
+                tool_name = "create_goal"
+                args = {"title": "Test Goal", "description": "Desc", "targetHours": 10}
             
             tool_call = {
-                "name": "get_active_goals",
+                "name": tool_name,
                 "args": args,
                 "id": f"mock_call_{len(messages)}"
             }
@@ -110,9 +115,11 @@ You MUST NOT invent or hallucinate data. Only use what the tools return.
 Do not ask for IDs unless you cannot find them using your tools.
 """
     
+    from app.tools.registry import create_goal, schedule_task
     tools = [
         get_active_goals, get_goal_details, get_todays_tasks, 
-        get_goal_tasks, get_todays_schedule, get_upcoming_schedule
+        get_goal_tasks, get_todays_schedule, get_upcoming_schedule,
+        create_goal, schedule_task
     ]
     
     llm_with_tools = llm.bind_tools(tools)

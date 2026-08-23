@@ -132,4 +132,39 @@ export class ToolController {
       res.status(500).json({ success: false, message: "Failed to retrieve today's focus." });
     }
   }
+
+  // --- PHASE 6.2.4 ACTION TOOLS ---
+  
+  static async createGoal(req, res) {
+    try {
+      if (!req.body.title) {
+        return res.status(400).json({ success: false, message: "Title is required for a new goal." });
+      }
+      const goal = await GoalService.createGoal(req.user._id, req.body);
+      res.status(201).json({ success: true, data: { id: goal._id || goal.id, title: goal.title } });
+    } catch (error) {
+      logger.error('Tool API createGoal Error:', error);
+      res.status(500).json({ success: false, message: 'Failed to create goal.' });
+    }
+  }
+
+  static async scheduleTask(req, res) {
+    try {
+      if (!req.body.title || !req.body.goalId) {
+        return res.status(400).json({ success: false, message: "Title and goalId are required to schedule a task." });
+      }
+      
+      // Verify goal ownership before creating task linked to it
+      await GoalService.getGoalById(req.user._id, req.body.goalId);
+      
+      const task = await TaskService.createTask(req.user._id, req.body);
+      res.status(201).json({ success: true, data: { id: task._id || task.id, title: task.title } });
+    } catch (error) {
+      logger.error('Tool API scheduleTask Error:', error);
+      if (error.statusCode === 404) {
+        return res.status(404).json({ success: false, message: "Goal not found or does not belong to the user." });
+      }
+      res.status(500).json({ success: false, message: 'Failed to schedule task.' });
+    }
+  }
 }

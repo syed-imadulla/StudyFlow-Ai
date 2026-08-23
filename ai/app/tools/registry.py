@@ -34,6 +34,26 @@ def _make_request(endpoint: str, config: RunnableConfig, params: dict = None) ->
         logger.error(f"Unexpected error: {e}")
         return '{"error": "An unexpected error occurred."}'
 
+def _make_post_request(endpoint: str, config: RunnableConfig, payload: dict) -> str:
+    try:
+        headers = _get_auth_headers(config)
+        url = f"{app_config.NODE_API_URL}{endpoint}"
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
+        
+        if response.status_code in [200, 201]:
+            return response.text
+        elif response.status_code == 401:
+            return '{"error": "Authentication expired or invalid."}'
+        else:
+            logger.error(f"Node API returned {response.status_code}: {response.text}")
+            return f'{{"error": "Failed to create/update: {response.text}"}}'
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Request to Node.js failed: {e}")
+        return '{"error": "Service is currently unavailable."}'
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return '{"error": "An unexpected error occurred."}'
+
 @tool
 def get_analytics_summary(config: RunnableConfig, period: str = "last7") -> str:
     """Gets the user's focus and task analytics summary. Period can be 'last7', 'last30', etc."""
@@ -78,3 +98,15 @@ def get_todays_focus(config: RunnableConfig) -> str:
 def get_recent_focus(config: RunnableConfig) -> str:
     """Gets the user's most recent focus sessions (max 10)."""
     return _make_request("/api/v1/tools/focus/recent", config)
+
+@tool
+def create_goal(title: str, description: str, targetHours: int, config: RunnableConfig) -> str:
+    """Creates a new study goal for the user. Requires explicit user approval."""
+    payload = {"title": title, "description": description, "targetHours": targetHours}
+    return _make_post_request("/api/v1/tools/goals", config, payload)
+
+@tool
+def schedule_task(title: str, goalId: str, estimatedMinutes: int, dueDate: str, config: RunnableConfig) -> str:
+    """Schedules a new task for a specific goal. Requires explicit user approval."""
+    payload = {"title": title, "goalId": goalId, "estimatedMinutes": estimatedMinutes, "dueDate": dueDate}
+    return _make_post_request("/api/v1/tools/tasks", config, payload)

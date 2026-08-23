@@ -20,6 +20,7 @@ class AgentState(TypedDict):
     error: Optional[str]
     tool_call_count: int
     tool_calls_history: list[str]
+    pending_action: Optional[dict]
 
 class RouteDecision(BaseModel):
     """Select the appropriate agent to route the request to."""

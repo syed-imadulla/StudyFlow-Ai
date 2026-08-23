@@ -26,4 +26,8 @@ router.get('/planner/upcoming', ToolController.getUpcomingSchedule);
 router.get('/focus/today', ToolController.getTodaysFocus);
 router.get('/focus/recent', ToolController.getRecentFocus);
 
+// Action Tools (Phase 6.2.4 HITL)
+router.post('/goals', ToolController.createGoal);
+router.post('/tasks', ToolController.scheduleTask);
+
 export default router;
