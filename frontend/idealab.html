@@ -391,18 +391,48 @@
 
     function showProposalModal(payload) {
       document.getElementById('proposalTitle').textContent = payload.title;
-      // Use ai_summary if available, fallback to basic presentation
+      
+      const escapeHtml = (unsafe) => {
+        return (unsafe || '').toString()
+           .replace(/&/g, "&amp;")
+           .replace(/</g, "&lt;")
+           .replace(/>/g, "&gt;")
+           .replace(/"/g, "&quot;")
+           .replace(/'/g, "&#039;");
+      };
+
       if (payload.ai_summary) {
-          // simple markdown rendering (bold and newlines)
-          let htmlSummary = payload.ai_summary
-              .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
-              .replace(/\\n/g, '<br/>');
+          let safeSummary = escapeHtml(payload.ai_summary);
+          
+          let htmlSummary = safeSummary
+              // Headers (e.g. ### Header or 🎯 Header)
+              .replace(/^#+\s*(.*$)/gim, '<h3 class="text-white font-bold mt-4 mb-2">$1</h3>')
+              // Bold
+              .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+              // Bullets
+              .replace(/^\s*[-•*]\s+(.*$)/gim, '<li class="ml-4 list-disc marker:text-[#A855F7]">$1</li>')
+              // Newlines
+              .replace(/\n/g, '<br/>');
+              
+          // Clean up consecutive breaks if they get annoying
+          htmlSummary = htmlSummary.replace(/(<br\/>\s*){3,}/g, '<br/><br/>');
+
           document.getElementById('proposalSummary').innerHTML = htmlSummary;
       } else {
+          let subtasksHtml = '';
+          if (payload.subtasks && payload.subtasks.length > 0) {
+              subtasksHtml = payload.subtasks.map(s => `<li class="ml-4 list-disc marker:text-[#A855F7]"><strong class="text-white">${escapeHtml(s.title)}</strong> - ${escapeHtml(s.description)}</li>`).join('');
+          } else {
+              subtasksHtml = escapeHtml(payload.rawDump).replace(/\n/g, '<br/>');
+          }
+
           document.getElementById('proposalSummary').innerHTML = `
-              <strong>Description:</strong> ${payload.description}<br/><br/>
-              <strong>Timeline:</strong> ${payload.deadline_value} ${payload.deadline_unit}<br/><br/>
-              <strong>Milestones:</strong><br/>${payload.rawDump.replace(/\\n/g, '<br/>')}
+              <strong>Description:</strong> ${escapeHtml(payload.description)}<br/><br/>
+              <strong>Timeline:</strong> ${escapeHtml(payload.deadline_value)} ${escapeHtml(payload.deadline_unit)}<br/><br/>
+              <strong>Milestones:</strong><br/>
+              <ul class="mt-2 space-y-1">
+                 ${subtasksHtml}
+              </ul>
           `;
       }
       document.getElementById('goalProposalModal').classList.remove('hidden');

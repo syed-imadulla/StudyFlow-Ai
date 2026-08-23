@@ -633,7 +633,8 @@
                   <span>${sub.title}</span>
                   ${blockingIconHtml}
                 </h4>
-                <p class="text-[10px] text-[#6B7280] font-mono mt-0.5 truncate flex items-center gap-1.5">
+                ${sub._raw?.description ? `<p class="text-[11px] text-[#A1A1AA] mt-1 pr-4 line-clamp-2">${sub._raw.description}</p>` : ''}
+                <p class="text-[10px] text-[#6B7280] font-mono mt-1 truncate flex items-center gap-1.5">
                   <span>${sub._raw?.estimate || 'Task'}</span>
                 </p>
               </div>

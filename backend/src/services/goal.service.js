@@ -140,7 +140,41 @@ export class GoalService {
     let data = { ...payload };
     
     // Server-side AI Milestone Breakdown
-    if (data.rawDump) {
+    if (data.subtasks && Array.isArray(data.subtasks) && data.subtasks.length > 0) {
+      let totalDays = 7;
+      if (data.deadline && typeof data.deadline === 'object') {
+        const { mode, date, value, unit } = data.deadline;
+        if (mode === 'DURATION') {
+          totalDays = value || 7;
+          if (unit === 'weeks') totalDays *= 7;
+          if (unit === 'months') totalDays *= 30;
+        } else if (mode === 'SPECIFIC_DATE' && date) {
+          const ms = new Date(date) - new Date();
+          totalDays = Math.max(1, Math.round(ms / 86400000));
+        }
+      }
+
+      data.subtasks = data.subtasks.map((task, idx) => {
+        const stepDays = Math.max(1, Math.round(((idx + 1) / data.subtasks.length) * totalDays));
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + stepDays);
+        const yyyy = targetDate.getFullYear();
+        const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(targetDate.getDate()).padStart(2, '0');
+        
+        return {
+          title: task.title || `Task ${idx + 1}`,
+          description: task.description || '',
+          estimate: `Sprint ${idx + 1} • 1.5h`,
+          priority: task.priority || 'MEDIUM',
+          deadline: `${yyyy}-${mm}-${dd}`,
+          deadlineTime: null,
+          completed: false,
+          status: 'TODO'
+        };
+      });
+      delete data.rawDump;
+    } else if (data.rawDump) {
       let totalDays = 7;
       if (data.deadline && typeof data.deadline === 'object') {
         const { mode, date, value, unit } = data.deadline;

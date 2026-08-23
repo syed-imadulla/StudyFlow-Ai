@@ -7,6 +7,11 @@ const subtaskSchema = new mongoose.Schema({
     required: [true, 'Subtask title is required'],
     trim: true
   },
+  description: {
+    type: String,
+    default: '',
+    trim: true
+  },
   estimate: {
     type: String,
     default: '1h'

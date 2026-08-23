@@ -111,7 +111,7 @@ def get_recent_focus(config: RunnableConfig) -> str:
     return _make_request("/api/v1/tools/focus/recent", config)
 
 @tool
-def create_goal(title: str, description: str, targetHours: int, rawDump: str, ai_summary: str, deadline_mode: str, deadline_date: str = None, deadline_value: int = None, deadline_unit: str = None, config: RunnableConfig = None) -> str:
+def create_goal(title: str, description: str, targetHours: int, rawDump: str, ai_summary: str, deadline_mode: str, subtasks: list = None, deadline_date: str = None, deadline_value: int = None, deadline_unit: str = None, config: RunnableConfig = None) -> str:
     """Creates a new study goal for the user. Requires explicit user approval."""
     payload = {
         "title": title, 
@@ -119,6 +119,7 @@ def create_goal(title: str, description: str, targetHours: int, rawDump: str, ai
         "targetHours": targetHours,
         "rawDump": rawDump,
         "ai_summary": ai_summary,
+        "subtasks": subtasks,
         "deadline": {
             "mode": deadline_mode,
             "date": deadline_date,

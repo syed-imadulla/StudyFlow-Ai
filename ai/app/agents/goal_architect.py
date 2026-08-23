@@ -46,6 +46,11 @@ def goal_architect_node(state: Dict[str, Any]):
                     "description": "Desc", 
                     "targetHours": 10,
                     "rawDump": "- Subtask 1\n- Subtask 2",
+                    "ai_summary": "🎯 Test Goal\n\nThis is a mock summary.",
+                    "subtasks": [
+                        {"title": "Subtask 1", "description": "Desc 1", "priority": "HIGH"},
+                        {"title": "Subtask 2", "description": "Desc 2", "priority": "MEDIUM"}
+                    ],
                     "deadline_mode": "DURATION",
                     "deadline_value": 7,
                     "deadline_unit": "days"
@@ -128,17 +133,22 @@ You MUST NOT force a rigid 7-question format. Instead, you must deduce missing i
    - PERSONAL (e.g., read 10 books, workout) -> Needs: desired outcome, current routine, obstacles, frequency, deadline.
 
 2. Check what information you already have from their messages.
-   - USE the `get_user_preferences` tool to retrieve any long-term preferences the user previously saved (e.g., preferred study times, learning styles).
-   - If the user tells you a new preference (e.g., "I study better at night"), USE the `save_user_preference` tool to remember it for future conversations.
+   - USE the `get_user_preferences` tool to retrieve any long-term preferences the user previously saved.
+   - If the user tells you a new preference, USE the `save_user_preference` tool to remember it for future conversations.
 
 3. Ask ONLY the most important missing question next. DO NOT ask questions you already know the answer to. Ask a maximum of 1 or 2 questions per turn.
-4. If you have enough information to form a solid plan, use the `create_goal` tool.
+
+4. DO NOT hallucinate or invent requirements (e.g., do not add a database if they ask for a static site, do not add authentication if not requested). If you have a good idea that wasn't requested, suggest it first rather than silently adding it.
+
+5. If you have enough information to form a solid plan, use the `create_goal` tool.
 
 When using the `create_goal` tool:
-- `rawDump`: Generate a highly structured, actionable, and ordered list of subtasks and milestones. Do not just blindly convert sentences into tasks. Break them down intelligently.
-- `ai_summary`: Provide a polished, human-friendly markdown proposal. Start with a header "🎯 [Title]". Then sections like "WHY", "PLAN (Numbered list)", "TIMELINE", "DAILY COMMITMENT", and "AI RECOMMENDATION". This is what the user will read.
+- `subtasks`: ALWAYS provide a structured list of dictionaries for subtasks (containing title, description, priority). The title should be actionable. The description should be meaningful (not generic). Think about dependencies and logical order! (e.g., Plan -> Design -> Build -> Test).
+- `rawDump`: Keep this as a simple bulleted fallback representation of the tasks.
+- `ai_summary`: Provide a polished, human-friendly markdown proposal. This is the ONLY thing the user sees during confirmation. Start with a header "🎯 [Goal Title]". Then a short explanation of what you understood (Objective, Constraints, Resources). Then human-friendly fields like "Timeline:" (e.g., '30 days', not '30 days left'), "Daily commitment:", "Roadmap:" (list of the subtasks), and "Recommendations:" (if any). Do NOT use raw field names. Be professional.
+- Deadline values: Use natural phrasing (e.g. 1 week, NOT 1 weeks).
 
-Once you receive the tool execution result indicating success, DO NOT call the tool again. Instead, confirm to the user that the goal was created successfully and summarize the next steps.
+Once you receive the tool execution result indicating success, DO NOT call the tool again. Confirm to the user that the goal was created successfully and summarize the next steps.
 
 Be extremely natural, conversational, and concise (2-3 sentences max). Distinguish known facts from assumptions. If you infer something, ask to confirm.
 """
