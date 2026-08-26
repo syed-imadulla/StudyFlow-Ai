@@ -80,7 +80,9 @@ async def generate_insight(request: Request):
             }
             
         insight = final_state.get("final_insight", "StudyFlow AI is currently offline.")
-        return {"success": True, "message": insight}
+        goal_state = final_state.get("goal_state", None)
+        
+        return {"success": True, "message": insight, "extracted_state": goal_state}
     except Exception as e:
         if "recursion" in str(e).lower() or type(e).__name__ == "GraphRecursionError":
             logger.error(f"Graph recursion limit reached: {e}")
@@ -140,7 +142,8 @@ async def resume_action(request: Request, body: ActionResumeRequest):
             }
             
         insight = final_state.get("final_insight", "StudyFlow AI is currently offline.")
-        return {"success": True, "message": insight}
+        goal_state = final_state.get("goal_state", None)
+        return {"success": True, "message": insight, "extracted_state": goal_state}
         
     except Exception as e:
         if "recursion" in str(e).lower() or type(e).__name__ == "GraphRecursionError":

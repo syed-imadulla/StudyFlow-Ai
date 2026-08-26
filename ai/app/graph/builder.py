@@ -2,7 +2,7 @@ import logging
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from app.agents.supervisor import AgentState, supervisor_node
-from app.agents.goal_architect import goal_architect_node
+from app.agents.goal_architect import goal_architect_node, goal_extraction_node
 from app.agents.insight_agent import insight_agent_node
 from app.agents.planner_agent import planner_agent_node
 from app.agents.study_coach import study_coach_node
@@ -93,6 +93,7 @@ def build_graph():
     workflow = StateGraph(AgentState)
     
     workflow.add_node("supervisor", supervisor_node)
+    workflow.add_node("goal_extraction", goal_extraction_node)
     workflow.add_node("goal_architect", goal_architect_node)
     workflow.add_node("planner_agent", planner_agent_node)
     workflow.add_node("study_coach", study_coach_node)
@@ -111,7 +112,7 @@ def build_graph():
         "supervisor",
         route_request,
         {
-            "goal_architect": "goal_architect",
+            "goal_architect": "goal_extraction",
             "planner_agent": "planner_agent",
             "study_coach": "study_coach",
             "resource_agent": "resource_agent",
@@ -120,6 +121,8 @@ def build_graph():
             "unsupported": "unsupported"
         }
     )
+    
+    workflow.add_edge("goal_extraction", "goal_architect")
     
     workflow.add_conditional_edges("goal_architect", custom_tools_condition)
     workflow.add_conditional_edges("planner_agent", custom_tools_condition)

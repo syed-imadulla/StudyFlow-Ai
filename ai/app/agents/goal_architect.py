@@ -10,7 +10,109 @@ from app.tools.registry import (
 )
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, ToolMessage
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger(__name__)
+
+class GoalStateUpdate(BaseModel):
+    """The current understanding of the user's goal based on their latest message."""
+    goal: str | None = Field(None, description="The core project, exam, or objective")
+    why: str | None = Field(None, description="Motivation, desired outcome, or main concern")
+    deadline: str | None = Field(None, description="Timeline or deadline")
+    brain_dump: str | None = Field(None, description="Existing knowledge, ideas, or requirements")
+    time: str | None = Field(None, description="Available time or daily commitment")
+    resources: str | None = Field(None, description="Available resources, skills, budget, or materials")
+    obstacles: str | None = Field(None, description="Potential obstacles or constraints")
+
+def goal_extraction_node(state: Dict[str, Any]):
+    logger.info("Executing goal_extraction_node")
+    
+    messages = state.get("messages", [])
+    if not messages:
+        return {}
+        
+    if not isinstance(messages[-1], HumanMessage):
+        logger.info("Last message is not from Human, skipping extraction.")
+        return {}
+        
+    current_goal_state = state.get("goal_state") or {}
+    
+    if os.getenv("MOCK_LLM") == "true":
+        last_msg = messages[-1].content.lower()
+        mock_state = dict(current_goal_state)
+        if "goal" in last_msg or "build" in last_msg or "learn" in last_msg or "portfolio" in last_msg:
+            mock_state["goal"] = messages[-1].content
+        if "because" in last_msg or "want to" in last_msg:
+            mock_state["why"] = "Mocked why"
+        if "days" in last_msg or "weeks" in last_msg or "deadline" in last_msg:
+            mock_state["deadline"] = "Mocked deadline"
+        if "hours" in last_msg or "minutes" in last_msg or "time" in last_msg:
+            mock_state["time"] = "Mocked time"
+        return {"goal_state": mock_state}
+
+    llm = get_llm()
+    if not llm:
+        return {}
+        
+    system_prompt = f"""You are an analytical state extractor for a goal planning AI.
+Your job is to read the recent conversation and the CURRENT GOAL STATE, and output the FULLY UPDATED Goal State.
+
+CURRENT GOAL STATE:
+{json.dumps(current_goal_state, indent=2)}
+
+INSTRUCTIONS:
+1. Return the complete updated state across all 7 categories: goal, why, deadline, brain_dump, time, resources, obstacles.
+2. If the user provides new information, ADD it to the state.
+3. If the user provides more specific information or explicitly corrects something (e.g. "Actually I want to do X instead"), REPLACE the old value.
+4. If the user says something ambiguous, DO NOT overwrite existing reliable information.
+5. If the user completely changes their goal, UPDATE the goal and keep only relevant existing context.
+6. Leave fields as null/None if they have not been provided yet.
+7. Do NOT generate questions or conversational responses. ONLY output the structured state.
+8. Be concise. Summarize the user's intent clearly for each field.
+"""
+    
+    window = messages[-5:]
+    input_messages = [SystemMessage(content=system_prompt)] + window
+    
+    try:
+        structured_llm = llm.with_structured_output(GoalStateUpdate)
+        res = structured_llm.invoke(input_messages)
+        
+        # Pydantic v2 dump
+        new_state = res.model_dump(exclude_none=True) if hasattr(res, "model_dump") else res.dict(exclude_none=True)
+        
+        final_state = {
+            "goal": new_state.get("goal") or current_goal_state.get("goal"),
+            "why": new_state.get("why") or current_goal_state.get("why"),
+            "deadline": new_state.get("deadline") or current_goal_state.get("deadline"),
+            "brain_dump": new_state.get("brain_dump") or current_goal_state.get("brain_dump"),
+            "time": new_state.get("time") or current_goal_state.get("time"),
+            "resources": new_state.get("resources") or current_goal_state.get("resources"),
+            "obstacles": new_state.get("obstacles") or current_goal_state.get("obstacles")
+        }
+        
+        # But wait, if they change the goal, we want the LLM to nullify old stuff? 
+        # The prompt says "output the FULLY UPDATED Goal State... Leave fields as null if they have not been provided yet."
+        # If the LLM returns null for an old field because they changed the goal, it won't be in new_state.
+        # So we actually want to just use what the LLM returned exactly, merging is risky.
+        # Let's fix that.
+        
+        final_state_direct = {
+            "goal": getattr(res, "goal", None),
+            "why": getattr(res, "why", None),
+            "deadline": getattr(res, "deadline", None),
+            "brain_dump": getattr(res, "brain_dump", None),
+            "time": getattr(res, "time", None),
+            "resources": getattr(res, "resources", None),
+            "obstacles": getattr(res, "obstacles", None)
+        }
+        
+        logger.info(f"Extracted goal state: {json.dumps(final_state_direct)}")
+        return {"goal_state": final_state_direct}
+        
+    except Exception as e:
+        logger.error(f"Goal Extractor LLM Error: {e}")
+        return {}
 
 def goal_architect_node(state: Dict[str, Any]):
     logger.info("Executing goal_architect_node")
@@ -122,25 +224,24 @@ def goal_architect_node(state: Dict[str, Any]):
     if not llm:
         return {"final_insight": handle_llm_error(e) if "e" in locals() else "StudyFlow AI is temporarily unavailable."}
         
-    system_prompt = """You are the IdeaLab Goal Architect, a highly structured AI assistant for StudyFlow.
+    current_goal_state = state.get("goal_state", {})
+    
+    system_prompt = f"""You are the IdeaLab Goal Architect, a highly structured AI assistant for StudyFlow.
 Your job is to help users brainstorm, structure, and create new study/productivity goals.
 You MUST NOT force a rigid 7-question format. Instead, you must deduce missing information adaptively.
 
-1. First, identify the type of goal the user wants:
-   - PROJECT (e.g., build a website, code an app) -> Needs: outcome, scope, existing skills, tech stack, deadline, available time.
-   - EXAM (e.g., semester exams, SATs) -> Needs: subjects, exam dates, syllabus, weak areas, available time.
-   - LEARNING (e.g., learn DSA, learn Spanish) -> Needs: current level, target level, motivation, practice preference, available time.
-   - PERSONAL (e.g., read 10 books, workout) -> Needs: desired outcome, current routine, obstacles, frequency, deadline.
+CURRENT KNOWN INFORMATION (Goal State):
+{json.dumps(current_goal_state, indent=2)}
 
-2. Check what information you already have from their messages.
-   - USE the `get_user_preferences` tool to retrieve any long-term preferences the user previously saved.
-   - If the user tells you a new preference, USE the `save_user_preference` tool to remember it for future conversations.
-
-3. Ask ONLY the most important missing question next. DO NOT ask questions you already know the answer to. Ask a maximum of 1 or 2 questions per turn.
-
-4. DO NOT hallucinate or invent requirements (e.g., do not add a database if they ask for a static site, do not add authentication if not requested). If you have a good idea that wasn't requested, suggest it first rather than silently adding it.
-
-5. If you have enough information to form a solid plan, use the `create_goal` tool.
+INSTRUCTIONS:
+1. Review the Current Known Information above.
+2. If enough information exists to form a solid plan, DO NOT ask more questions. Use the `create_goal` tool immediately.
+3. If critical information is still missing, you MUST ask EXACTLY ONE primary question about the most important missing category.
+   - Do NOT ask multiple questions at once (e.g., do not ask "What is your deadline and how much time do you have?").
+   - Ask contextually relevant questions. Don't ask a mechanical checklist question.
+4. DO NOT ask the user for information that is already present in the Goal State or their previous messages.
+5. If the user provides vague answers or changes their mind, acknowledge it naturally.
+6. DO NOT hallucinate or invent requirements (e.g., do not add a database if they ask for a static site).
 
 When using the `create_goal` tool:
 - `subtasks`: ALWAYS provide a structured list of dictionaries for subtasks (containing title, description, priority). The title should be actionable. The description should be meaningful (not generic). Think about dependencies and logical order! (e.g., Plan -> Design -> Build -> Test).
@@ -150,7 +251,7 @@ When using the `create_goal` tool:
 
 Once you receive the tool execution result indicating success, DO NOT call the tool again. Confirm to the user that the goal was created successfully and summarize the next steps.
 
-Be extremely natural, conversational, and concise (2-3 sentences max). Distinguish known facts from assumptions. If you infer something, ask to confirm.
+Be extremely natural, conversational, and concise (1-2 sentences max). Distinguish known facts from assumptions. If you infer something, ask to confirm.
 """
     
     from app.tools.registry import create_goal, schedule_task, get_user_preferences, save_user_preference

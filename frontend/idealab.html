@@ -197,25 +197,38 @@
       document.getElementById('stepSub').textContent = newSub;
     }
 
-    function updateVisualStep(step) {
-      currentStep = Math.min(step, 7);
+    function updateVisualStepState(extractedState) {
+      if (!extractedState) return;
+      
+      const mapping = {
+        1: 'goal', 2: 'why', 3: 'deadline', 4: 'brain_dump', 
+        5: 'time', 6: 'resources', 7: 'obstacles'
+      };
+      
+      let nextUnfilled = null;
       for (let i = 1; i <= 7; i++) {
+        if (!extractedState[mapping[i]] && nextUnfilled === null) {
+          nextUnfilled = i;
+        }
+      }
+      
+      for (let i = 1; i <= 7; i++) {
+        const key = mapping[i];
+        const isFilled = !!extractedState[key];
+        
         const icon = document.getElementById(`stepIcon-${i}`);
         const label = document.getElementById(`stepLabel-${i}`);
         if (!icon || !label) continue;
         
-        if (i < currentStep) {
-          // Completed
+        if (isFilled) {
           icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-[#A855F7] text-white border-2 border-[#A855F7]";
           icon.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
           label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white";
-        } else if (i === currentStep) {
-          // Active
+        } else if (i === nextUnfilled) {
           icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-[#A855F7] text-white border-2 border-[#A855F7]";
           icon.innerHTML = i;
           label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white";
         } else {
-          // Upcoming
           icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]";
           icon.innerHTML = i;
           label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]";
@@ -297,6 +310,10 @@
         if (res && res.message) {
           appendAssistantMessage(res.message, 'ai');
           
+          if (res.extracted_state) {
+            updateVisualStepState(res.extracted_state);
+          }
+          
           if (res.pending_action) {
             handlePendingAction(res.pending_action);
           } else {
@@ -323,11 +340,11 @@
       if (!text) return;
       inputEl.value = '';
       sendToAI(text);
-      updateVisualStep(currentStep + 1);
     }
 
     function prevStep() {
-      if (currentStep > 1) updateVisualStep(currentStep - 1);
+      // Prev step is largely irrelevant now since the AI controls the flow based on context.
+      console.log("prevStep clicked but flow is AI-controlled now");
     }
 
     function appendAssistantMessage(msg, sender) {
