@@ -210,22 +210,28 @@
     /**
      * Marks each step as complete/incomplete based on actual extracted goal_state.
      * Supports out-of-order completion (e.g. step 5 done before step 2).
-     * Does NOT reset steps already marked complete.
      */
     function syncTrackerFromGoalState(goalState) {
       if (!goalState) return;
+      
+      const isNullish = (val) => {
+        if (val === null || val === undefined) return true;
+        const s = String(val).trim().toLowerCase();
+        return s === '' || s === 'null' || s === 'none' || s === 'n/a';
+      };
+
       for (let i = 1; i <= 7; i++) {
         const field = STEP_TO_FIELD[i];
-        const hasValue = goalState[field] !== null && goalState[field] !== undefined && goalState[field] !== '';
-        if (hasValue) {
+        if (!isNullish(goalState[field])) {
           markStepComplete(i);
+        } else {
+          markStepIncomplete(i);
         }
       }
     }
 
     /**
      * Marks a single step as visually complete (checkmark, purple, lit).
-     * Called by syncTrackerFromGoalState. Does not change 'currentStep'.
      */
     function markStepComplete(step) {
       const icon = document.getElementById(`stepIcon-${step}`);
@@ -236,36 +242,24 @@
       label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white";
     }
 
+    /**
+     * Marks a single step as incomplete (greyed out).
+     */
+    function markStepIncomplete(step) {
+      const icon = document.getElementById(`stepIcon-${step}`);
+      const label = document.getElementById(`stepLabel-${step}`);
+      if (!icon || !label) return;
+      icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]";
+      icon.innerHTML = step;
+      label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]";
+    }
+
     function updateAdaptiveTitle(newTitle, newSub) {
       document.getElementById('stepTitle').innerHTML = newTitle;
       document.getElementById('stepSub').textContent = newSub;
     }
 
-    function updateVisualStep(step) {
-      currentStep = Math.min(step, 7);
-      for (let i = 1; i <= 7; i++) {
-        const icon = document.getElementById(`stepIcon-${i}`);
-        const label = document.getElementById(`stepLabel-${i}`);
-        if (!icon || !label) continue;
-        
-        if (i < currentStep) {
-          // Completed
-          icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-[#A855F7] text-white border-2 border-[#A855F7]";
-          icon.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
-          label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white";
-        } else if (i === currentStep) {
-          // Active
-          icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-[#A855F7] text-white border-2 border-[#A855F7]";
-          icon.innerHTML = i;
-          label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white";
-        } else {
-          // Upcoming
-          icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]";
-          icon.innerHTML = i;
-          label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]";
-        }
-      }
-    }
+    // Function removed because tracker is display only
     
     async function sendToAI(text) {
       appendAssistantMessage(text, 'user');
@@ -382,7 +376,7 @@
     }
 
     function prevStep() {
-      if (currentStep > 1) updateVisualStep(currentStep - 1);
+      // Button disabled; tracker is display only
     }
 
     function appendAssistantMessage(msg, sender) {
