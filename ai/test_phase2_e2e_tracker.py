@@ -6,7 +6,7 @@ os.environ["MOCK_LLM"] = "false"
 def test_tracker_logic():
     base_url = "http://127.0.0.1:8000/api/v1/agent/insight"
     headers = {"Authorization": "Bearer MOCK_TOKEN"}
-    thread_id = "tracker_test_004"
+    thread_id = "tracker_test_005"
     
     # Message 1
     resp1 = requests.post(
@@ -19,6 +19,9 @@ def test_tracker_logic():
     assert gs1.get("goal") is not None
     assert gs1.get("why") in (None, "", "null", "None")
     
+    import time
+    time.sleep(5)
+    
     # Message 2
     resp2 = requests.post(
         base_url, 
@@ -30,6 +33,7 @@ def test_tracker_logic():
     assert gs2.get("goal") is not None
     assert gs2.get("brain_dump") is not None
     
+    time.sleep(5)
     # Message 3
     resp3 = requests.post(
         base_url, 
@@ -41,7 +45,8 @@ def test_tracker_logic():
     assert "1 hour" in gs3.get("time", "")
     assert "3 weeks" in gs3.get("deadline", "")
     
-    # Message 4
+    time.sleep(5)
+    # Message 4 - test goal change reset
     resp4 = requests.post(
         base_url, 
         json={"prompt": "Actually, forget the portfolio. I want to build a personal finance tracker.", "thread_id": thread_id},
