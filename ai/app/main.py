@@ -39,6 +39,10 @@ async def generate_insight(request: Request):
     Receives request from Node.js backend or frontend.
     Extracts JWT and executes the LangGraph graph.
     """
+    import time
+    t_start = time.time()
+    logger.info(f"BACKEND_REQUEST_START: {t_start}")
+    
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
@@ -93,6 +97,8 @@ async def generate_insight(request: Request):
                 center_question = match.group(1).strip()
                 insight = re.sub(r'<center>.*?</center>', '', insight, flags=re.DOTALL | re.IGNORECASE).strip()
                 
+            logger.info(f"BACKEND_REQUEST_END: {time.time()}")
+            logger.info(f"BACKEND_TOTAL_DURATION_MS: {(time.time() - t_start) * 1000:.2f}ms")
             return {
                 "success": True, 
                 "message": insight, 
@@ -118,13 +124,18 @@ async def generate_insight(request: Request):
             k: raw_goal_state.get(k)
             for k in ["goal", "why", "deadline", "brain_dump", "time", "resources", "obstacles"]
         }
+        
+        logger.info(f"BACKEND_REQUEST_END: {time.time()}")
+        logger.info(f"BACKEND_TOTAL_DURATION_MS: {(time.time() - t_start) * 1000:.2f}ms")
         return {"success": True, "message": insight, "center_question": center_question, "goal_state": safe_goal_state}
     except Exception as e:
         if "recursion" in str(e).lower() or type(e).__name__ == "GraphRecursionError":
             logger.error(f"Graph recursion limit reached: {e}")
+            logger.info(f"BACKEND_TOTAL_DURATION_MS: {(time.time() - t_start) * 1000:.2f}ms")
             return {"success": False, "message": "I'm having trouble analyzing this right now (too many steps). Please try simplifying your request."}
             
         logger.error(f"Graph execution failed: {e}")
+        logger.info(f"BACKEND_TOTAL_DURATION_MS: {(time.time() - t_start) * 1000:.2f}ms")
         return {"success": False, "message": "StudyFlow AI is currently unavailable. Your study data is safe."}
 
 class ActionResumeRequest(BaseModel):

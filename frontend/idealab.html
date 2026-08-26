@@ -218,11 +218,14 @@
 
       try {
         console.log("[DEBUG] Calling SF_HTTP.post with prompt:", text);
+        const tStart = performance.now();
         const res = await SF_HTTP.post('/agent/chat', {
           prompt: text,
           thread_id: idealabThreadId,
           agent_type: 'idealab'
         });
+        const tEnd = performance.now();
+        console.log(`[LATENCY] FRONTEND_ROUNDTRIP_MS: ${(tEnd - tStart).toFixed(2)}ms`);
         console.log("[DEBUG] SF_HTTP.post returned:", res);
         
         clearTimeout(failSafeTimer);
