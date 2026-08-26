@@ -147,7 +147,7 @@
 
       <!-- Right Column: StudyFlow AI Guided Assistant -->
       <div class="xl:col-span-1 h-full">
-        <div class="bg-[#0A0A0E] border border-[#20202A] rounded-2xl p-5 flex flex-col h-full min-h-[580px] shadow-[0_0_30px_rgba(0,0,0,0.6)] sticky top-24">
+        <div class="bg-[#0A0A0E] border border-[#20202A] rounded-2xl p-5 flex flex-col h-[580px] max-h-[calc(100vh-6rem)] shadow-[0_0_30px_rgba(0,0,0,0.6)] sticky top-24">
           <!-- Assistant Header -->
           <div class="flex items-center justify-between pb-4 border-b border-[#1C1C24] shrink-0">
             <div class="flex items-center space-x-3">
@@ -163,7 +163,7 @@
           </div>
 
           <!-- Assistant Message Bubble -->
-          <div id="aiChatFeed" class="mt-4 space-y-4 flex-1 overflow-y-auto pr-2 pb-4">
+          <div id="aiChatFeed" class="mt-4 space-y-4 flex-1 overflow-y-auto min-h-0 pr-2 pb-4">
             <div class="flex items-start space-x-3 animate-fadeIn">
               <div class="w-7 h-7 rounded-lg bg-[#A855F7]/20 border border-[#A855F7]/40 flex items-center justify-center text-[#A855F7] shrink-0 mt-0.5">
                 <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
@@ -222,13 +222,16 @@
         }
       }
     }
-
+    
     async function sendToAI(text) {
       appendAssistantMessage(text, 'user');
       
       const inputEl = document.getElementById('stepInput');
       const nextBtn = document.getElementById('nextBtn');
-      const nextBtnText = nextBtn ? nextBtn.innerHTML : '';
+      const nextBtnText = nextBtn ? nextBtn.innerHTML : 'Ask AI & Next'; // Fallback text just in case
+      
+      // Prevent double calls
+      if (nextBtn && nextBtn.disabled) return;
       
       // Show loading state
       if (inputEl) inputEl.disabled = true;
@@ -259,12 +262,38 @@
           feed.scrollTop = feed.scrollHeight;
       }
       
+      // Fail-safe cleanup timer to absolutely guarantee UI reset if fetch completely hangs
+      const failSafeTimer = setTimeout(() => {
+        cleanupUI();
+        appendAssistantMessage("Request timed out entirely. Please try again.", 'ai');
+      }, 30000); // 30s max wait for UI
+
+      function cleanupUI() {
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) typingEl.remove();
+        if (inputEl) {
+            inputEl.disabled = false;
+            inputEl.focus();
+        }
+        if (nextBtn) {
+            nextBtn.disabled = false;
+            // Always restore to something sane
+            nextBtn.innerHTML = nextBtnText === 'Thinking...' ? 'Ask AI & Next' : nextBtnText;
+            nextBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
+      }
+
       try {
+        console.log("[DEBUG] Calling SF_HTTP.post with prompt:", text);
         const res = await SF_HTTP.post('/agent/chat', {
           prompt: text,
           thread_id: idealabThreadId
         });
+        console.log("[DEBUG] SF_HTTP.post returned:", res);
         
+        clearTimeout(failSafeTimer);
+        cleanupUI(); // Cleanup immediately on success
+
         if (res && res.message) {
           appendAssistantMessage(res.message, 'ai');
           
@@ -277,23 +306,14 @@
               'Chat with the AI to refine your goal and generate a structured blueprint.'
             );
           }
+        } else if (res && res.error) {
+           appendAssistantMessage("AI Error: " + res.error, 'ai');
         }
       } catch (err) {
-        console.error("AI Chat Error:", err);
+        clearTimeout(failSafeTimer);
+        cleanupUI();
+        console.error("AI Chat Error (Caught in sendToAI):", err);
         appendAssistantMessage("Sorry, I encountered an error. Please try again.", 'ai');
-      } finally {
-        // Hide loading state
-        const typingEl = document.getElementById(typingId);
-        if (typingEl) typingEl.remove();
-        if (inputEl) {
-            inputEl.disabled = false;
-            inputEl.focus();
-        }
-        if (nextBtn) {
-            nextBtn.disabled = false;
-            nextBtn.innerHTML = nextBtnText;
-            nextBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-        }
       }
     }
 
