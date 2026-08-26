@@ -22,7 +22,6 @@ class AgentState(TypedDict):
     tool_calls_history: list[str]
     pending_action: Optional[dict]
     goal_state: Optional[dict]
-    is_goal_ready: Optional[bool]
 
 class RouteDecision(BaseModel):
     """Select the appropriate agent to route the request to."""

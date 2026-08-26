@@ -64,9 +64,6 @@ async def generate_insight(request: Request):
         "error": ""
     }
     
-    if thread_id.startswith("idealab_"):
-        initial_state["route"] = "goal_architect"
-    
     config_dict = {"configurable": {"thread_id": thread_id, "jwt_token": token}, "recursion_limit": 15}
     
     try:

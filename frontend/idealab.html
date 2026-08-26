@@ -205,22 +205,16 @@
         5: 'time', 6: 'resources', 7: 'obstacles'
       };
       
-      const isActuallyFilled = (val) => {
-        if (!val) return false;
-        const strVal = String(val).toLowerCase().trim();
-        return !["null", "none", "n/a", "unknown", "tbd", ""].includes(strVal);
-      };
-
       let nextUnfilled = null;
       for (let i = 1; i <= 7; i++) {
-        if (!isActuallyFilled(extractedState[mapping[i]]) && nextUnfilled === null) {
+        if (!extractedState[mapping[i]] && nextUnfilled === null) {
           nextUnfilled = i;
         }
       }
       
       for (let i = 1; i <= 7; i++) {
         const key = mapping[i];
-        const isFilled = isActuallyFilled(extractedState[key]);
+        const isFilled = !!extractedState[key];
         
         const icon = document.getElementById(`stepIcon-${i}`);
         const label = document.getElementById(`stepLabel-${i}`);
