@@ -147,67 +147,31 @@
 
       <!-- Right Column: StudyFlow AI Guided Assistant -->
       <div class="xl:col-span-1 h-full">
-        <div class="bg-[#0A0A0E] border border-[#20202A] rounded-2xl p-5 flex flex-col justify-between h-full min-h-[580px] shadow-[0_0_30px_rgba(0,0,0,0.6)] sticky top-24">
+        <div class="bg-[#0A0A0E] border border-[#20202A] rounded-2xl p-5 flex flex-col h-full min-h-[580px] shadow-[0_0_30px_rgba(0,0,0,0.6)] sticky top-24">
           <!-- Assistant Header -->
-          <div>
-            <div class="flex items-center justify-between pb-4 border-b border-[#1C1C24]">
-              <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-[#A855F7]/15 border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7] shadow-[0_0_15px_rgba(168,85,247,0.3)]">
-                  <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/><path d="M5 2L5.8 4.2L8 5L5.8 5.8L5 8L4.2 5.8L2 5L4.2 4.2L5 2Z" opacity="0.7"/><path d="M19 16L19.8 18.2L22 19L19.8 19.8L19 22L18.2 19.8L16 19L18.2 18.2L19 16Z" opacity="0.7"/></svg>
-                </div>
-                <div>
-                  <h3 class="text-sm font-bold text-[#FAFAFA]">StudyFlow AI</h3>
-                  <p class="text-[11px] text-[#A1A1AA]">Guided Assistant</p>
-                </div>
+          <div class="flex items-center justify-between pb-4 border-b border-[#1C1C24] shrink-0">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-[#A855F7]/15 border border-[#A855F7]/30 flex items-center justify-center text-[#A855F7] shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/><path d="M5 2L5.8 4.2L8 5L5.8 5.8L5 8L4.2 5.8L2 5L4.2 4.2L5 2Z" opacity="0.7"/><path d="M19 16L19.8 18.2L22 19L19.8 19.8L19 22L18.2 19.8L16 19L18.2 18.2L19 16Z" opacity="0.7"/></svg>
               </div>
-              <button onclick="alert('Assistant Options: Reset Conversation or Export Chat')" class="text-[#6B7280] hover:text-[#FAFAFA] p-1.5 rounded-lg hover:bg-[#151520] transition tracking-widest">•••</button>
-            </div>
-
-            <!-- Assistant Message Bubble -->
-            <div id="aiChatFeed" class="mt-6 space-y-4 max-h-[260px] overflow-y-auto pr-1">
-              <div class="flex items-start space-x-3 animate-fadeIn">
-                <div class="w-7 h-7 rounded-lg bg-[#A855F7]/20 border border-[#A855F7]/40 flex items-center justify-center text-[#A855F7] shrink-0 mt-0.5">
-                  <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
-                </div>
-                <div class="bg-[#151520] border border-[#252535] p-4 rounded-2xl rounded-tl-sm text-xs leading-relaxed text-[#D4D4D8] shadow-sm">
-                  I am your AI goal architect. I'll analyze your inputs and help you build the perfect plan step by step.
-                </div>
+              <div>
+                <h3 class="text-sm font-bold text-[#FAFAFA]">StudyFlow AI</h3>
+                <p class="text-[11px] text-[#A1A1AA]">Guided Assistant</p>
               </div>
             </div>
-
-            <!-- Examples Section -->
-            <div class="mt-8 space-y-3">
-              <h4 class="text-xs font-semibold text-[#A1A1AA] tracking-wide">Examples you can try</h4>
-              <div class="space-y-2.5">
-                <div onclick="selectExample('I want to build a DBMS Mini Project')" class="bg-[#151520] hover:bg-[#202030] border border-[#252535] hover:border-[#A855F7]/50 p-2.5 px-3.5 rounded-lg text-xs font-medium text-[#FAFAFA] flex items-center justify-between cursor-pointer group transition duration-200">
-                  <span>I want to build a DBMS Mini Project</span>
-                  <span class="text-[#6B7280] group-hover:text-[#A855F7] group-hover:translate-x-1 transition transform">→</span>
-                </div>
-                <div onclick="selectExample('Prepare for Semester Exams')" class="bg-[#151520] hover:bg-[#202030] border border-[#252535] hover:border-[#A855F7]/50 p-2.5 px-3.5 rounded-lg text-xs font-medium text-[#FAFAFA] flex items-center justify-between cursor-pointer group transition duration-200">
-                  <span>Prepare for Semester Exams</span>
-                  <span class="text-[#6B7280] group-hover:text-[#A855F7] group-hover:translate-x-1 transition transform">→</span>
-                </div>
-                <div onclick="selectExample('Learn DSA and become consistent')" class="bg-[#151520] hover:bg-[#202030] border border-[#252535] hover:border-[#A855F7]/50 p-2.5 px-3.5 rounded-lg text-xs font-medium text-[#FAFAFA] flex items-center justify-between cursor-pointer group transition duration-200">
-                  <span>Learn DSA and become consistent</span>
-                  <span class="text-[#6B7280] group-hover:text-[#A855F7] group-hover:translate-x-1 transition transform">→</span>
-                </div>
-                <div onclick="selectExample('Build a personal finance tracker')" class="bg-[#151520] hover:bg-[#202030] border border-[#252535] hover:border-[#A855F7]/50 p-2.5 px-3.5 rounded-lg text-xs font-medium text-[#FAFAFA] flex items-center justify-between cursor-pointer group transition duration-200">
-                  <span>Build a personal finance tracker</span>
-                  <span class="text-[#6B7280] group-hover:text-[#A855F7] group-hover:translate-x-1 transition transform">→</span>
-                </div>
-              </div>
-            </div>
+            <button onclick="alert('Assistant Options: Reset Conversation or Export Chat')" class="text-[#6B7280] hover:text-[#FAFAFA] p-1.5 rounded-lg hover:bg-[#151520] transition tracking-widest">•••</button>
           </div>
 
-          <!-- Bottom Input Bar & Disclaimer -->
-          <div class="mt-6 pt-4 border-t border-[#1C1C24]">
-            <form onsubmit="event.preventDefault(); handleAIChatSubmit();" class="relative flex items-center">
-              <input id="aiAssistantInput" type="text" placeholder="Ask AI anything..." class="w-full bg-[#151520] border border-[#252535] focus:border-[#A855F7] text-xs text-[#FAFAFA] placeholder:text-[#6B7280] rounded-xl py-3 pl-4 pr-11 focus:outline-none transition shadow-inner" />
-              <button type="submit" class="absolute right-2 p-2 rounded-lg bg-[#A855F7]/20 hover:bg-[#A855F7] text-[#A855F7] hover:text-white transition duration-200 flex items-center justify-center">
-                <svg class="w-4 h-4 fill-current transform rotate-45" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-              </button>
-            </form>
-            <p class="text-[10px] text-[#6B7280] text-center mt-3">AI can make mistakes. Verify important info.</p>
+          <!-- Assistant Message Bubble -->
+          <div id="aiChatFeed" class="mt-4 space-y-4 flex-1 overflow-y-auto pr-2 pb-4">
+            <div class="flex items-start space-x-3 animate-fadeIn">
+              <div class="w-7 h-7 rounded-lg bg-[#A855F7]/20 border border-[#A855F7]/40 flex items-center justify-center text-[#A855F7] shrink-0 mt-0.5">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg>
+              </div>
+              <div class="bg-[#151520] border border-[#252535] p-4 rounded-2xl rounded-tl-sm text-xs leading-relaxed text-[#D4D4D8] shadow-sm">
+                I am your AI goal architect. I'll analyze your inputs and help you build the perfect plan step by step.
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -263,13 +227,11 @@
       appendAssistantMessage(text, 'user');
       
       const inputEl = document.getElementById('stepInput');
-      const aiInputEl = document.getElementById('aiAssistantInput');
       const nextBtn = document.getElementById('nextBtn');
       const nextBtnText = nextBtn ? nextBtn.innerHTML : '';
       
       // Show loading state
       if (inputEl) inputEl.disabled = true;
-      if (aiInputEl) aiInputEl.disabled = true;
       if (nextBtn) {
           nextBtn.disabled = true;
           nextBtn.innerHTML = 'Thinking...';
@@ -327,7 +289,6 @@
             inputEl.disabled = false;
             inputEl.focus();
         }
-        if (aiInputEl) aiInputEl.disabled = false;
         if (nextBtn) {
             nextBtn.disabled = false;
             nextBtn.innerHTML = nextBtnText;
@@ -343,19 +304,6 @@
       inputEl.value = '';
       sendToAI(text);
       updateVisualStep(currentStep + 1);
-    }
-
-    function handleAIChatSubmit() {
-      const inputEl = document.getElementById('aiAssistantInput');
-      const text = inputEl.value.trim();
-      if (!text) return;
-      inputEl.value = '';
-      sendToAI(text);
-    }
-
-    function selectExample(text) {
-      document.getElementById('stepInput').value = text;
-      handleStepAdvance();
     }
 
     function prevStep() {
