@@ -192,6 +192,50 @@
       }
     });
 
+    // ---------------------------------------------------------------------------
+    // Phase 2F: Sync step tracker from real AI-extracted goal_state
+    // ---------------------------------------------------------------------------
+
+    // Maps each of the 7 step positions to its goal_state field name
+    const STEP_TO_FIELD = {
+      1: 'goal',
+      2: 'why',
+      3: 'deadline',
+      4: 'brain_dump',
+      5: 'time',
+      6: 'resources',
+      7: 'obstacles'
+    };
+
+    /**
+     * Marks each step as complete/incomplete based on actual extracted goal_state.
+     * Supports out-of-order completion (e.g. step 5 done before step 2).
+     * Does NOT reset steps already marked complete.
+     */
+    function syncTrackerFromGoalState(goalState) {
+      if (!goalState) return;
+      for (let i = 1; i <= 7; i++) {
+        const field = STEP_TO_FIELD[i];
+        const hasValue = goalState[field] !== null && goalState[field] !== undefined && goalState[field] !== '';
+        if (hasValue) {
+          markStepComplete(i);
+        }
+      }
+    }
+
+    /**
+     * Marks a single step as visually complete (checkmark, purple, lit).
+     * Called by syncTrackerFromGoalState. Does not change 'currentStep'.
+     */
+    function markStepComplete(step) {
+      const icon = document.getElementById(`stepIcon-${step}`);
+      const label = document.getElementById(`stepLabel-${step}`);
+      if (!icon || !label) return;
+      icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-[#A855F7] text-white border-2 border-[#A855F7]";
+      icon.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
+      label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white";
+    }
+
     function updateAdaptiveTitle(newTitle, newSub) {
       document.getElementById('stepTitle').innerHTML = newTitle;
       document.getElementById('stepSub').textContent = newSub;
@@ -296,18 +340,28 @@
 
         if (res && res.message) {
           appendAssistantMessage(res.message, 'ai');
-          
+
+          // Phase 2F: Sync the step tracker from the real AI-extracted goal_state
+          if (res.goal_state) {
+            syncTrackerFromGoalState(res.goal_state);
+          }
+
           if (res.pending_action) {
             handlePendingAction(res.pending_action);
           } else {
-            // Keep the title as generic brainstorm or update it based on AI message if desired
             updateAdaptiveTitle(
               'Let\'s build your <span class="text-[#A855F7] drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">plan</span>',
               'Chat with the AI to refine your goal and generate a structured blueprint.'
             );
           }
+        } else if (res && res.success === false) {
+          // Clean user-facing error — never expose raw JSON or stack traces
+          appendAssistantMessage(
+            res.message || "Something went wrong. Please try again.",
+            'ai'
+          );
         } else if (res && res.error) {
-           appendAssistantMessage("AI Error: " + res.error, 'ai');
+          appendAssistantMessage("Something went wrong. Please try again.", 'ai');
         }
       } catch (err) {
         clearTimeout(failSafeTimer);
@@ -323,7 +377,8 @@
       if (!text) return;
       inputEl.value = '';
       sendToAI(text);
-      updateVisualStep(currentStep + 1);
+      // NOTE: We no longer advance the stepper here.
+      // The stepper is driven by the AI's extracted goal_state returned from the backend.
     }
 
     function prevStep() {

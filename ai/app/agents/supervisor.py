@@ -21,6 +21,10 @@ class AgentState(TypedDict):
     tool_call_count: int
     tool_calls_history: list[str]
     pending_action: Optional[dict]
+    # Phase 2: Structured goal information extracted from the conversation.
+    # Persisted across turns by the LangGraph checkpointer (PostgreSQL).
+    # Keys: goal, why, deadline, brain_dump, time, resources, obstacles
+    goal_state: Optional[dict]
 
 class RouteDecision(BaseModel):
     """Select the appropriate agent to route the request to."""

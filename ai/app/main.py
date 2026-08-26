@@ -80,7 +80,14 @@ async def generate_insight(request: Request):
             }
             
         insight = final_state.get("final_insight", "StudyFlow AI is currently offline.")
-        return {"success": True, "message": insight}
+        # Phase 2: return structured goal_state so frontend can sync the step tracker.
+        # Only expose the 7 user-facing fields — not raw LangGraph internals.
+        raw_goal_state = final_state.get("goal_state") or {}
+        safe_goal_state = {
+            k: raw_goal_state.get(k)
+            for k in ["goal", "why", "deadline", "brain_dump", "time", "resources", "obstacles"]
+        }
+        return {"success": True, "message": insight, "goal_state": safe_goal_state}
     except Exception as e:
         if "recursion" in str(e).lower() or type(e).__name__ == "GraphRecursionError":
             logger.error(f"Graph recursion limit reached: {e}")
