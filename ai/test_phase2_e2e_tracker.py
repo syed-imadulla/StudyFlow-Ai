@@ -6,7 +6,7 @@ os.environ["MOCK_LLM"] = "false"
 def test_tracker_logic():
     base_url = "http://127.0.0.1:8000/api/v1/agent/insight"
     headers = {"Authorization": "Bearer MOCK_TOKEN"}
-    thread_id = "tracker_test_001"
+    thread_id = "tracker_test_004"
     
     # Message 1
     resp1 = requests.post(

@@ -16,7 +16,7 @@ def get_llm():
             api_key=config.OMNIROUTE_API_KEY,
             base_url=config.OMNIROUTE_BASE_URL,
             temperature=0.2, # Low temperature for more deterministic insights
-            max_tokens=1024,
+            max_tokens=8192,
             timeout=60.0,    # Increased timeout for real LLM reasoning through OmniRoute
             max_retries=1
         )
