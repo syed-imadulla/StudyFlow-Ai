@@ -1,12 +1,7 @@
 import asyncio
-import os
-import sys
-
-# Setup environment for testing
-os.environ["MOCK_LLM"] = "false"  # Ensure we actually test the LLM
-
-from app.agents.goal_architect import goal_extraction_node
-from langchain_core.messages import HumanMessage
+from app.agents.goal_architect import goal_extraction_node, goal_architect_node
+from app.agents.supervisor import AgentState
+from langchain_core.messages import HumanMessage, AIMessage
 
 def test_extraction():
     # Test 1: Multiple fields extracted from one message

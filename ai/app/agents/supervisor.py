@@ -21,7 +21,6 @@ class AgentState(TypedDict):
     tool_call_count: int
     tool_calls_history: list[str]
     pending_action: Optional[dict]
-    goal_state: Optional[dict]
 
 class RouteDecision(BaseModel):
     """Select the appropriate agent to route the request to."""
@@ -30,7 +29,6 @@ class RouteDecision(BaseModel):
 def supervisor_node(state: AgentState):
     logger.info("Executing supervisor_node")
     messages = state.get("messages", [])
-    current_route = state.get("route")
     
     # Get last user message
     last_msg = ""
@@ -38,20 +36,6 @@ def supervisor_node(state: AgentState):
         if isinstance(m, HumanMessage):
             last_msg = m.content
             break
-            
-    # Optimization to prevent timeout: Bypass supervisor LLM if we are mid-conversation
-    if current_route and current_route != "unsupported" and len(messages) > 1:
-        last_ai_msg = None
-        for m in reversed(messages[:-1]):
-            if isinstance(m, AIMessage):
-                last_ai_msg = m
-                break
-        
-        # If there's a recent AI message (like a question) and the user responded,
-        # we stick to the current route to avoid unnecessary 15-second LLM calls.
-        if last_ai_msg:
-            logger.info(f"Bypassing supervisor, sticking to active route: {current_route}")
-            return {"route": current_route, "tool_call_count": 0, "tool_calls_history": []}
             
     # Check if we should mock the LLM for tests
     if os.getenv("MOCK_LLM") == "true":
@@ -71,8 +55,8 @@ def supervisor_node(state: AgentState):
         return {"error": "StudyFlow AI is temporarily unavailable (Provider config error).", "route": "unsupported"}
         
     system_prompt = """You are a routing supervisor for StudyFlow AI.
-    Based on the conversation history, classify the user's latest intent into exactly one of the following routes:
-    - "goal_architect": The user is asking about creating, brainstorming, or modifying a study/project goal, OR answering a follow-up question about an ongoing goal brainstorm (e.g., "Create a goal for learning DSA", "I want to build a React portfolio", or replying with deadlines/milestones to an active brainstorm).
+Based on the conversation history, classify the user's latest intent into exactly one of the following routes:
+- "goal_architect": The user is asking about creating, brainstorming, or modifying a study/project goal, OR answering a follow-up question about an ongoing goal brainstorm (e.g., "Create a goal for learning DSA", "I want to build a React portfolio", or replying with deadlines/milestones to an active brainstorm).
 - "planner_agent": The user is asking about scheduling, what to study today, moving tasks, or managing their workload (e.g., "What should I study today?", "Move this task to tomorrow").
 - "study_coach": The user is asking for explanations, doubts, learning guidance, or study strategies (e.g., "Explain normalization", "I don't understand X").
 - "resource_agent": The user is asking for external resources, tutorials, or study materials (e.g., "Find free resources for graphs").
