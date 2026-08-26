@@ -97,14 +97,21 @@ INSTRUCTIONS:
         # So we actually want to just use what the LLM returned exactly, merging is risky.
         # Let's fix that.
         
+        def _clean_val(val):
+            if val is None:
+                return None
+            if str(val).lower().strip() in ["null", "none", "", "n/a"]:
+                return None
+            return val
+            
         final_state_direct = {
-            "goal": getattr(res, "goal", None),
-            "why": getattr(res, "why", None),
-            "deadline": getattr(res, "deadline", None),
-            "brain_dump": getattr(res, "brain_dump", None),
-            "time": getattr(res, "time", None),
-            "resources": getattr(res, "resources", None),
-            "obstacles": getattr(res, "obstacles", None)
+            "goal": _clean_val(getattr(res, "goal", None)),
+            "why": _clean_val(getattr(res, "why", None)),
+            "deadline": _clean_val(getattr(res, "deadline", None)),
+            "brain_dump": _clean_val(getattr(res, "brain_dump", None)),
+            "time": _clean_val(getattr(res, "time", None)),
+            "resources": _clean_val(getattr(res, "resources", None)),
+            "obstacles": _clean_val(getattr(res, "obstacles", None))
         }
         
         logger.info(f"Extracted goal state: {json.dumps(final_state_direct)}")
