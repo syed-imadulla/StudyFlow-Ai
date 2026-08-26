@@ -194,10 +194,17 @@ def _merge_goal_state(existing: dict, extraction: GoalFieldExtraction) -> dict:
             continue  # Already handled above
 
         val = getattr(extraction, field, None)
+        
+        # Normalize val: if it's the string 'null', 'none', 'n/a', '', treat as None
+        if isinstance(val, str) and val.strip().lower() in ["null", "none", "n/a", ""]:
+            val = None
+
         if val is None:
             continue  # Not mentioned — leave existing alone
 
         existing_val = merged.get(field)
+        if isinstance(existing_val, str) and existing_val.strip().lower() in ["null", "none", "n/a", ""]:
+            existing_val = None
 
         if existing_val is None:
             # Brand-new information
