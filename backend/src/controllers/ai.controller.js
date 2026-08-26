@@ -8,7 +8,7 @@ export class AiController {
    */
   static async chat(req, res) {
     try {
-      const { prompt, thread_id } = req.body;
+      const { prompt, thread_id, agent_type } = req.body;
       const token = req.headers.authorization; // Forward the exact Bearer token
 
       const controller = new AbortController();
@@ -20,7 +20,7 @@ export class AiController {
           'Content-Type': 'application/json',
           'Authorization': token
         },
-        body: JSON.stringify({ prompt, thread_id }),
+        body: JSON.stringify({ prompt, thread_id, agent_type }),
         signal: controller.signal
       });
       clearTimeout(timeout);

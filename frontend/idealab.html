@@ -42,49 +42,7 @@
             <span id="editingGoalBadge" class="hidden px-3 py-1 rounded-full text-xs font-bold bg-[#A855F7]/20 border border-[#A855F7]/40 text-[#A855F7] animate-pulse flex items-center gap-1.5"><svg class="w-3.5 h-3.5 inline shrink-0 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg> <span>Restructuring Goal</span></span>
           </div>
 
-          <!-- Visual 7-Step Stepper -->
-          <div class="relative pt-6 pb-2 w-full max-w-3xl mx-auto">
-            <!-- Connecting Line -->
-            <div class="absolute top-[38px] left-[7%] right-[7%] h-[1px] bg-[#252535] -z-10"></div>
-            <!-- Steps -->
-            <div class="flex justify-between w-full" id="stepperContainer">
-              <!-- Step 1 -->
-              <div class="flex flex-col items-center group cursor-pointer">
-                <div id="stepIcon-1" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-[#A855F7] text-white border-2 border-[#A855F7]">1</div>
-                <span id="stepLabel-1" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white">Goal</span>
-              </div>
-              <!-- Step 2 -->
-              <div class="flex flex-col items-center group cursor-pointer">
-                <div id="stepIcon-2" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">2</div>
-                <span id="stepLabel-2" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Why</span>
-              </div>
-              <!-- Step 3 -->
-              <div class="flex flex-col items-center group cursor-pointer">
-                <div id="stepIcon-3" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">3</div>
-                <span id="stepLabel-3" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Deadline</span>
-              </div>
-              <!-- Step 4 -->
-              <div class="flex flex-col items-center group cursor-pointer">
-                <div id="stepIcon-4" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">4</div>
-                <span id="stepLabel-4" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Brain Dump</span>
-              </div>
-              <!-- Step 5 -->
-              <div class="flex flex-col items-center group cursor-pointer">
-                <div id="stepIcon-5" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">5</div>
-                <span id="stepLabel-5" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Time</span>
-              </div>
-              <!-- Step 6 -->
-              <div class="flex flex-col items-center group cursor-pointer">
-                <div id="stepIcon-6" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">6</div>
-                <span id="stepLabel-6" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Resources</span>
-              </div>
-              <!-- Step 7 -->
-              <div class="flex flex-col items-center group cursor-pointer">
-                <div id="stepIcon-7" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]">7</div>
-                <span id="stepLabel-7" class="mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]">Obstacles</span>
-              </div>
-            </div>
-          </div>
+
         </div>
 
         <!-- Center Stage Content Area -->
@@ -136,8 +94,7 @@
           </div>
 
           <!-- Press Enter helper -->
-          <div class="w-full flex justify-between items-center mt-2 px-2 text-xs font-mono text-[#6B7280]">
-            <button onclick="prevStep()" id="prevBtn" class="hover:text-[#FAFAFA] transition invisible flex items-center gap-1">← Previous Step</button>
+          <div class="w-full flex justify-end items-center mt-2 px-2 text-xs font-mono text-[#6B7280]">
             <span class="flex items-center gap-1.5">Press Enter to continue <kbd class="px-2 py-0.5 rounded bg-[#151520] border border-[#252535] text-[10px] text-[#A1A1AA]">Enter</kbd></span>
           </div>
         </div>
@@ -191,68 +148,6 @@
         // Not supporting editing in real flow yet, redirect or reset for now.
       }
     });
-
-    // ---------------------------------------------------------------------------
-    // Phase 2F: Sync step tracker from real AI-extracted goal_state
-    // ---------------------------------------------------------------------------
-
-    // Maps each of the 7 step positions to its goal_state field name
-    const STEP_TO_FIELD = {
-      1: 'goal',
-      2: 'why',
-      3: 'deadline',
-      4: 'brain_dump',
-      5: 'time',
-      6: 'resources',
-      7: 'obstacles'
-    };
-
-    /**
-     * Marks each step as complete/incomplete based on actual extracted goal_state.
-     * Supports out-of-order completion (e.g. step 5 done before step 2).
-     */
-    function syncTrackerFromGoalState(goalState) {
-      if (!goalState) return;
-      
-      const isNullish = (val) => {
-        if (val === null || val === undefined) return true;
-        const s = String(val).trim().toLowerCase();
-        return s === '' || s === 'null' || s === 'none' || s === 'n/a';
-      };
-
-      for (let i = 1; i <= 7; i++) {
-        const field = STEP_TO_FIELD[i];
-        if (!isNullish(goalState[field])) {
-          markStepComplete(i);
-        } else {
-          markStepIncomplete(i);
-        }
-      }
-    }
-
-    /**
-     * Marks a single step as visually complete (checkmark, purple, lit).
-     */
-    function markStepComplete(step) {
-      const icon = document.getElementById(`stepIcon-${step}`);
-      const label = document.getElementById(`stepLabel-${step}`);
-      if (!icon || !label) return;
-      icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 shadow-[0_0_15px_rgba(168,85,247,0.5)] bg-[#A855F7] text-white border-2 border-[#A855F7]";
-      icon.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>';
-      label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-white";
-    }
-
-    /**
-     * Marks a single step as incomplete (greyed out).
-     */
-    function markStepIncomplete(step) {
-      const icon = document.getElementById(`stepIcon-${step}`);
-      const label = document.getElementById(`stepLabel-${step}`);
-      if (!icon || !label) return;
-      icon.className = "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 bg-[#151520] text-[#6B7280] border-2 border-[#252535]";
-      icon.innerHTML = step;
-      label.className = "mt-2 text-[10px] font-bold tracking-widest uppercase transition-colors duration-300 text-[#6B7280]";
-    }
 
     function updateAdaptiveTitle(newTitle, newSub) {
       document.getElementById('stepTitle').innerHTML = newTitle;
@@ -325,7 +220,8 @@
         console.log("[DEBUG] Calling SF_HTTP.post with prompt:", text);
         const res = await SF_HTTP.post('/agent/chat', {
           prompt: text,
-          thread_id: idealabThreadId
+          thread_id: idealabThreadId,
+          agent_type: 'idealab'
         });
         console.log("[DEBUG] SF_HTTP.post returned:", res);
         
@@ -335,13 +231,13 @@
         if (res && res.message) {
           appendAssistantMessage(res.message, 'ai');
 
-          // Phase 2F: Sync the step tracker from the real AI-extracted goal_state
-          if (res.goal_state) {
-            syncTrackerFromGoalState(res.goal_state);
-          }
-
           if (res.pending_action) {
             handlePendingAction(res.pending_action);
+          } else if (res.center_question) {
+            updateAdaptiveTitle(
+              res.center_question,
+              'Refine your goal with the AI below.'
+            );
           } else {
             updateAdaptiveTitle(
               'Let\'s build your <span class="text-[#A855F7] drop-shadow-[0_0_15px_rgba(168,85,247,0.4)]">plan</span>',
@@ -479,10 +375,32 @@
           appendAssistantMessage("Goal created successfully! Preparing your workspace...", 'ai');
           setTimeout(() => { window.location.href = 'workspace.html'; }, 1000);
         } else if (!approved) {
-          appendAssistantMessage("Goal creation was cancelled. What would you like to change?", 'ai');
+          appendAssistantMessage("Goal creation was paused. What would you like to change?", 'ai');
         }
       } catch(e) {
         appendAssistantMessage("Error confirming goal: " + e.message, 'ai');
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    async function discardProposal() {
+      closeProposalModal();
+      
+      const btn = document.getElementById('nextBtn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = 'Discarding...';
+      btn.disabled = true;
+
+      try {
+        await SF_HTTP.post('/agent/action/resume', {
+          thread_id: idealabThreadId,
+          approved: false
+        });
+        appendAssistantMessage("I've discarded that proposal. Let's start fresh. What would you like to build instead?", 'ai');
+      } catch(e) {
+        appendAssistantMessage("Error discarding goal: " + e.message, 'ai');
       } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
@@ -513,12 +431,15 @@
         <!-- Rendered AI Summary will go here -->
       </div>
       
-      <div class="flex items-center justify-end space-x-4 pt-4 border-t border-[#1C1C24]">
+      <div class="flex items-center justify-end space-x-3 pt-4 border-t border-[#1C1C24]">
+        <button onclick="discardProposal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-[#EF4444] hover:text-white hover:bg-[#EF4444]/20 transition duration-200 mr-auto">
+          Discard
+        </button>
         <button onclick="submitProposal(false)" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-[#A1A1AA] hover:text-white hover:bg-[#151520] transition duration-200">
-          Edit / Cancel
+          Make Changes
         </button>
         <button onclick="submitProposal(true)" class="bg-[#A855F7] hover:bg-[#9333EA] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(168,85,247,0.35)] transition duration-200 transform hover:scale-[1.02]">
-          Approve & Create Goal
+          Proceed & Create Goal
         </button>
       </div>
     </div>

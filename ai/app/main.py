@@ -31,6 +31,7 @@ import uuid
 class AgentRequest(BaseModel):
     prompt: Optional[str] = None
     thread_id: Optional[str] = None
+    agent_type: Optional[str] = None
 
 @app.post("/api/v1/agent/insight")
 async def generate_insight(request: Request):
@@ -56,10 +57,14 @@ async def generate_insight(request: Request):
     # Use provided thread_id, else generate a random one to avoid collision if not specified
     thread_id = req_body.thread_id if req_body.thread_id else str(uuid.uuid4())
     
+    # If agent_type is idealab, we bypass the supervisor entirely by setting the initial route.
+    route = "goal_architect" if req_body.agent_type == "idealab" else "supervisor"
+    
     from langchain_core.messages import HumanMessage
     initial_state = {
         "jwt_token": token,
         "messages": [HumanMessage(content=prompt)],
+        "route": route,
         "final_insight": "",
         "error": ""
     }
@@ -69,7 +74,6 @@ async def generate_insight(request: Request):
     try:
         final_state = graph.invoke(initial_state, config=config_dict)
         
-        # Check if the graph is interrupted
         state_snapshot = graph.get_state(config_dict)
         if state_snapshot.next:
             pending_action = final_state.get("pending_action")
@@ -80,14 +84,33 @@ async def generate_insight(request: Request):
                 for k in ["goal", "why", "deadline", "brain_dump", "time", "resources", "obstacles"]
             }
             
+            insight = final_state.get("final_insight", "Approval required for action.")
+            
+            import re
+            center_question = ""
+            match = re.search(r'<center>(.*?)</center>', insight, flags=re.DOTALL | re.IGNORECASE)
+            if match:
+                center_question = match.group(1).strip()
+                insight = re.sub(r'<center>.*?</center>', '', insight, flags=re.DOTALL | re.IGNORECASE).strip()
+                
             return {
                 "success": True, 
-                "message": "Approval required for action.", 
+                "message": insight, 
+                "center_question": center_question,
                 "pending_action": pending_action,
                 "goal_state": safe_goal_state
             }
             
         insight = final_state.get("final_insight", "StudyFlow AI is currently offline.")
+        
+        # Phase 3: Extract <center> question
+        import re
+        center_question = ""
+        match = re.search(r'<center>(.*?)</center>', insight, flags=re.DOTALL | re.IGNORECASE)
+        if match:
+            center_question = match.group(1).strip()
+            insight = re.sub(r'<center>.*?</center>', '', insight, flags=re.DOTALL | re.IGNORECASE).strip()
+
         # Phase 2: return structured goal_state so frontend can sync the step tracker.
         # Only expose the 7 user-facing fields — not raw LangGraph internals.
         raw_goal_state = final_state.get("goal_state") or {}
@@ -95,7 +118,7 @@ async def generate_insight(request: Request):
             k: raw_goal_state.get(k)
             for k in ["goal", "why", "deadline", "brain_dump", "time", "resources", "obstacles"]
         }
-        return {"success": True, "message": insight, "goal_state": safe_goal_state}
+        return {"success": True, "message": insight, "center_question": center_question, "goal_state": safe_goal_state}
     except Exception as e:
         if "recursion" in str(e).lower() or type(e).__name__ == "GraphRecursionError":
             logger.error(f"Graph recursion limit reached: {e}")

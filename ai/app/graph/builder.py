@@ -2,7 +2,7 @@ import logging
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from app.agents.supervisor import AgentState, supervisor_node
-from app.agents.goal_architect import goal_architect_node, goal_extraction_node
+from app.agents.goal_architect import goal_architect_node
 from app.agents.insight_agent import insight_agent_node
 from app.agents.planner_agent import planner_agent_node
 from app.agents.study_coach import study_coach_node
@@ -78,10 +78,7 @@ def unsupported_node(state: AgentState):
 def route_request(state: AgentState):
     route = state.get("route", "unsupported")
     logger.info(f"Routing to: {route}")
-    # goal_architect is now preceded by goal_extraction — route to that first
-    if route == "goal_architect":
-        return "goal_extraction"
-    if route in ["planner_agent", "study_coach", "resource_agent", "rag_agent", "insight_agent"]:
+    if route in ["goal_architect", "planner_agent", "study_coach", "resource_agent", "rag_agent", "insight_agent"]:
         return route
     return "unsupported"
 
@@ -96,8 +93,6 @@ def build_graph():
     workflow = StateGraph(AgentState)
     
     workflow.add_node("supervisor", supervisor_node)
-    # Phase 2: goal_extraction runs before goal_architect to update goal_state
-    workflow.add_node("goal_extraction", goal_extraction_node)
     workflow.add_node("goal_architect", goal_architect_node)
     workflow.add_node("planner_agent", planner_agent_node)
     workflow.add_node("study_coach", study_coach_node)
@@ -110,14 +105,25 @@ def build_graph():
     workflow.add_node("prepare_action", prepare_action)
     workflow.add_node("action_tools", tool_node)
     
-    workflow.set_entry_point("supervisor")
+    def route_initial(state: AgentState):
+        route = state.get("route")
+        if route == "goal_architect":
+            return "goal_architect"
+        return "supervisor"
+
+    workflow.set_conditional_entry_point(
+        route_initial,
+        {
+            "goal_architect": "goal_architect",
+            "supervisor": "supervisor"
+        }
+    )
     
     workflow.add_conditional_edges(
         "supervisor",
         route_request,
         {
-            # goal_architect route now goes to goal_extraction first
-            "goal_extraction": "goal_extraction",
+            "goal_architect": "goal_architect",
             "planner_agent": "planner_agent",
             "study_coach": "study_coach",
             "resource_agent": "resource_agent",
@@ -126,9 +132,7 @@ def build_graph():
             "unsupported": "unsupported"
         }
     )
-    # goal_extraction always routes to goal_architect
-    workflow.add_edge("goal_extraction", "goal_architect")
-    
+
     workflow.add_conditional_edges("goal_architect", custom_tools_condition)
     workflow.add_conditional_edges("planner_agent", custom_tools_condition)
     workflow.add_conditional_edges("study_coach", custom_tools_condition)
