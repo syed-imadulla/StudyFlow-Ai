@@ -73,10 +73,18 @@ async def generate_insight(request: Request):
         state_snapshot = graph.get_state(config_dict)
         if state_snapshot.next:
             pending_action = final_state.get("pending_action")
+            
+            raw_goal_state = final_state.get("goal_state") or {}
+            safe_goal_state = {
+                k: raw_goal_state.get(k)
+                for k in ["goal", "why", "deadline", "brain_dump", "time", "resources", "obstacles"]
+            }
+            
             return {
                 "success": True, 
                 "message": "Approval required for action.", 
-                "pending_action": pending_action
+                "pending_action": pending_action,
+                "goal_state": safe_goal_state
             }
             
         insight = final_state.get("final_insight", "StudyFlow AI is currently offline.")

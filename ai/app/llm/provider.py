@@ -17,8 +17,8 @@ def get_llm():
             base_url=config.OMNIROUTE_BASE_URL,
             temperature=0.2, # Low temperature for more deterministic insights
             max_tokens=8192,
-            timeout=60.0,    # Increased timeout for real LLM reasoning through OmniRoute
-            max_retries=1
+            timeout=120.0,    # Increased timeout for real LLM reasoning through OmniRoute
+            max_retries=5
         )
     except Exception as e:
         logger.error(f"Failed to initialize OmniRoute LLM: {e}")

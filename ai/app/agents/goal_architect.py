@@ -33,8 +33,9 @@ class GoalFieldExtraction(BaseModel):
     why: Optional[str] = Field(
         default=None,
         description=(
-            "The motivation, reason, or desired outcome. "
-            "Set only if the user mentions WHY they want to achieve this."
+            "The motivation, underlying reason, or life/career desired outcome. "
+            "Set only if the user explicitly mentions WHY they are pursuing the goal (e.g., 'to get a job', 'for personal growth'). "
+            "Do NOT set this for features or project scope."
         )
     )
     deadline: Optional[str] = Field(
@@ -468,7 +469,7 @@ YOUR RULES — FOLLOW EXACTLY:
 
    The READY condition requires ALL of:
    a) goal — what they want to accomplish
-   b) why — their motivation or desired outcome (MANDATORY — without this, the plan cannot be tailored)
+   b) why — their motivation or desired outcome (MANDATORY — must be the underlying reason, not just a list of features)
    c) deadline — when they want to finish
    d) time — daily/weekly commitment
    e) at least one of: brain_dump (scope/features they described) OR resources (skills/tools available)
