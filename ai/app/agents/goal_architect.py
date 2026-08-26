@@ -23,6 +23,7 @@ class GoalStateUpdate(BaseModel):
     time: str | None = Field(None, description="Available time or daily commitment")
     resources: str | None = Field(None, description="Available resources, skills, budget, or materials")
     obstacles: str | None = Field(None, description="Potential obstacles or constraints")
+    is_goal_ready: bool = Field(False, description="Set to True ONLY if enough actionable information exists to create a useful plan right now (e.g., clear goal + scope + timeline)")
 
 def goal_extraction_node(state: Dict[str, Any]):
     logger.info("Executing goal_extraction_node")
@@ -63,12 +64,12 @@ CURRENT GOAL STATE:
 INSTRUCTIONS:
 1. Return the complete updated state across all 7 categories: goal, why, deadline, brain_dump, time, resources, obstacles.
 2. If the user provides new information, ADD it to the state.
-3. If the user provides more specific information or explicitly corrects something (e.g. "Actually I want to do X instead"), REPLACE the old value.
-4. If the user says something ambiguous, DO NOT overwrite existing reliable information.
-5. If the user completely changes their goal, UPDATE the goal and keep only relevant existing context.
-6. Leave fields as null/None if they have not been provided yet.
-7. Do NOT generate questions or conversational responses. ONLY output the structured state.
-8. Be concise. Summarize the user's intent clearly for each field.
+3. If the user provides more specific information or explicitly corrects something, REPLACE the old value (Latest explicit correction wins).
+4. If the user completely changes their goal, UPDATE the goal and DISCARD irrelevant old context. Do not let old assumptions leak into the new goal.
+5. You DO NOT need all 7 fields. Leave fields as null (literally `null`, NOT "To be determined" or "unknown") if they are not explicitly provided.
+6. DO NOT hallucinate or guess fields. If the user did not say it, leave it null.
+7. Evaluate `is_goal_ready`: Set to True if enough information exists to create a useful, actionable goal plan (e.g., a clear goal + scope + timeline). Do not be overly strict—if the user provides a quantified scope like "3 projects" or "5 chapters", that is enough to be ready. HOWEVER, a generic goal like 'build a portfolio' or 'learn Python' without ANY scope or quantifiable constraints is NOT ready (`is_goal_ready` must be False).
+8. Do NOT generate questions. ONLY output the structured state.
 """
     
     window = messages[-5:]
@@ -100,7 +101,7 @@ INSTRUCTIONS:
         def _clean_val(val):
             if val is None:
                 return None
-            if str(val).lower().strip() in ["null", "none", "", "n/a"]:
+            if str(val).lower().strip() in ["null", "none", "", "n/a", "unknown", "tbd", "to be determined", "not specified"]:
                 return None
             return val
             
@@ -114,8 +115,10 @@ INSTRUCTIONS:
             "obstacles": _clean_val(getattr(res, "obstacles", None))
         }
         
-        logger.info(f"Extracted goal state: {json.dumps(final_state_direct)}")
-        return {"goal_state": final_state_direct}
+        is_ready = getattr(res, "is_goal_ready", False)
+        
+        logger.info(f"Extracted goal state: {json.dumps(final_state_direct)} | is_goal_ready: {is_ready}")
+        return {"goal_state": final_state_direct, "is_goal_ready": is_ready}
         
     except Exception as e:
         logger.error(f"Goal Extractor LLM Error: {e}")
@@ -232,33 +235,40 @@ def goal_architect_node(state: Dict[str, Any]):
         return {"final_insight": handle_llm_error(e) if "e" in locals() else "StudyFlow AI is temporarily unavailable."}
         
     current_goal_state = state.get("goal_state", {})
+    is_goal_ready = state.get("is_goal_ready", False)
     
-    system_prompt = f"""You are the IdeaLab Goal Architect, a highly structured AI assistant for StudyFlow.
-Your job is to help users brainstorm, structure, and create new study/productivity goals.
-You MUST NOT force a rigid 7-question format. Instead, you must deduce missing information adaptively.
+    if is_goal_ready:
+        system_prompt = f"""You are the IdeaLab Goal Architect. 
+The user has provided enough information to form a concrete actionable plan.
+
+CURRENT KNOWN INFORMATION (Goal State):
+{json.dumps(current_goal_state, indent=2)}
+
+INSTRUCTION: You MUST immediately use the `create_goal` tool to propose the plan based on the known information. DO NOT ask any more questions.
+
+When using the `create_goal` tool:
+- `subtasks`: Provide a structured list of dictionaries for subtasks (containing title, description, priority). Think about dependencies and logical order! (e.g., Plan -> Design -> Build -> Test).
+- `rawDump`: Keep this as a simple bulleted fallback representation of the tasks.
+- `ai_summary`: Provide a polished, human-friendly markdown proposal. This is the ONLY thing the user sees during confirmation. Start with a header "🎯 [Goal Title]". Include Timeline, Daily commitment, Roadmap, and Recommendations. Do NOT use raw field names. Be professional.
+- Deadline values: Use natural phrasing (e.g. 1 week, NOT 1 weeks).
+- DO NOT hallucinate requirements. Use the context provided.
+"""
+    else:
+        system_prompt = f"""You are the IdeaLab Goal Architect, a highly intelligent AI assistant for StudyFlow.
+Your job is to help users brainstorm, structure, and create new study/productivity goals through a NATURAL conversation.
+You MUST NOT force a rigid 7-question checklist.
 
 CURRENT KNOWN INFORMATION (Goal State):
 {json.dumps(current_goal_state, indent=2)}
 
 INSTRUCTIONS:
 1. Review the Current Known Information above.
-2. If enough information exists to form a solid plan, DO NOT ask more questions. Use the `create_goal` tool immediately.
-3. If critical information is still missing, you MUST ask EXACTLY ONE primary question about the most important missing category.
-   - Do NOT ask multiple questions at once (e.g., do not ask "What is your deadline and how much time do you have?").
-   - Ask contextually relevant questions. Don't ask a mechanical checklist question.
-4. DO NOT ask the user for information that is already present in the Goal State or their previous messages.
-5. If the user provides vague answers or changes their mind, acknowledge it naturally.
-6. DO NOT hallucinate or invent requirements (e.g., do not add a database if they ask for a static site).
-
-When using the `create_goal` tool:
-- `subtasks`: ALWAYS provide a structured list of dictionaries for subtasks (containing title, description, priority). The title should be actionable. The description should be meaningful (not generic). Think about dependencies and logical order! (e.g., Plan -> Design -> Build -> Test).
-- `rawDump`: Keep this as a simple bulleted fallback representation of the tasks.
-- `ai_summary`: Provide a polished, human-friendly markdown proposal. This is the ONLY thing the user sees during confirmation. Start with a header "🎯 [Goal Title]". Then a short explanation of what you understood (Objective, Constraints, Resources). Then human-friendly fields like "Timeline:" (e.g., '30 days', not '30 days left'), "Daily commitment:", "Roadmap:" (list of the subtasks), and "Recommendations:" (if any). Do NOT use raw field names. Be professional.
-- Deadline values: Use natural phrasing (e.g. 1 week, NOT 1 weeks).
-
-Once you receive the tool execution result indicating success, DO NOT call the tool again. Confirm to the user that the goal was created successfully and summarize the next steps.
-
-Be extremely natural, conversational, and concise (1-2 sentences max). Distinguish known facts from assumptions. If you infer something, ask to confirm.
+2. Ask EXACTLY ONE intelligent, contextual question to gather the most valuable missing information.
+3. Choose the most important missing information contextually. (e.g., for an exam, ask about current prep level; for a portfolio, ask about projects to include).
+4. NEVER ask a mechanical question like "Why do you want this?" unless it's genuinely the most critical missing context.
+5. DO NOT ask multiple questions in one turn.
+6. DO NOT ask for information that is already provided in the Goal State.
+7. Be conversational and concise (1-2 sentences). Acknowledge what the user just said naturally before asking your question.
 """
     
     from app.tools.registry import create_goal, schedule_task, get_user_preferences, save_user_preference
