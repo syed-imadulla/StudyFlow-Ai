@@ -2,7 +2,7 @@ import logging
 import json
 import os
 from typing import TypedDict, Optional, Annotated, Literal
-from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage, AIMessage
+from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage
 from langgraph.graph.message import add_messages
 from app.llm.provider import get_llm, handle_llm_error
 from pydantic import BaseModel, Field
