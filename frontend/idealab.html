@@ -36,7 +36,7 @@
             <div class="flex items-center space-x-3 cursor-pointer text-[#A1A1AA] hover:text-white transition group" onclick="window.location.href='workspace.html'">
               <div>
                 <h1 id="ideaLabHeaderTitle" class="text-xl md:text-2xl font-extrabold tracking-tight text-white font-sans">IdeaLab AI Goal Architect</h1>
-                <p class="text-xs text-[#A1A1AA] mt-0.5">Step by step, we'll turn your idea into a clear, actionable plan.</p>
+                <p class="text-xs text-[#A1A1AA] mt-0.5">I'll help you turn your idea into a clear, realistic plan.</p>
               </div>
             </div>
             <span id="editingGoalBadge" class="hidden px-3 py-1 rounded-full text-xs font-bold bg-[#A855F7]/20 border border-[#A855F7]/40 text-[#A855F7] animate-pulse flex items-center gap-1.5"><svg class="w-3.5 h-3.5 inline shrink-0 fill-current" viewBox="0 0 24 24"><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/></svg> <span>Restructuring Goal</span></span>
@@ -163,9 +163,6 @@
       const nextBtn = document.getElementById('nextBtn');
       const nextBtnText = nextBtn ? nextBtn.innerHTML : 'Ask AI & Next'; // Fallback text just in case
       
-      // Prevent double calls
-      if (nextBtn && nextBtn.disabled) return;
-      
       // Show loading state
       if (inputEl) inputEl.disabled = true;
       if (nextBtn) {
@@ -195,12 +192,6 @@
           feed.scrollTop = feed.scrollHeight;
       }
       
-      // Fail-safe cleanup timer to absolutely guarantee UI reset if fetch completely hangs
-      const failSafeTimer = setTimeout(() => {
-        cleanupUI();
-        appendAssistantMessage("Request timed out entirely. Please try again.", 'ai');
-      }, 30000); // 30s max wait for UI
-
       function cleanupUI() {
         const typingEl = document.getElementById(typingId);
         if (typingEl) typingEl.remove();
@@ -228,7 +219,6 @@
         console.log(`[LATENCY] FRONTEND_ROUNDTRIP_MS: ${(tEnd - tStart).toFixed(2)}ms`);
         console.log("[DEBUG] SF_HTTP.post returned:", res);
         
-        clearTimeout(failSafeTimer);
         cleanupUI(); // Cleanup immediately on success
 
         if (res && res.message) {
@@ -257,17 +247,20 @@
           appendAssistantMessage("Something went wrong. Please try again.", 'ai');
         }
       } catch (err) {
-        clearTimeout(failSafeTimer);
         cleanupUI();
         console.error("AI Chat Error (Caught in sendToAI):", err);
-        appendAssistantMessage("Sorry, I encountered an error. Please try again.", 'ai');
+        appendAssistantMessage(err.message || "Sorry, I encountered an error. Please try again.", 'ai');
       }
     }
 
     function handleStepAdvance() {
+      const nextBtn = document.getElementById('nextBtn');
+      if (nextBtn && nextBtn.disabled) return;
+
       const inputEl = document.getElementById('stepInput');
       const text = inputEl.value.trim();
       if (!text) return;
+      
       inputEl.value = '';
       sendToAI(text);
       // NOTE: We no longer advance the stepper here.

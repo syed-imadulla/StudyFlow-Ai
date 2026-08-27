@@ -12,7 +12,7 @@ export class AiController {
       const token = req.headers.authorization; // Forward the exact Bearer token
 
       const controller = new AbortController();
-      const timeout = setTimeout(() => { controller.abort(); }, 60000);
+      const timeout = setTimeout(() => { controller.abort(); }, 35000);
 
       const response = await fetch(`${PYTHON_AI_URL}/api/v1/agent/insight`, {
         method: 'POST',
@@ -54,7 +54,7 @@ export class AiController {
       }
 
       const controller = new AbortController();
-      const timeout = setTimeout(() => { controller.abort(); }, 60000);
+      const timeout = setTimeout(() => { controller.abort(); }, 35000);
 
       const response = await fetch(`${PYTHON_AI_URL}/api/v1/agent/action/resume`, {
         method: 'POST',

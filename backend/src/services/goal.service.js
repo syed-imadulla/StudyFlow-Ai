@@ -43,7 +43,8 @@ const attachDynamicProgress = (goalDoc) => {
  */
 const processDeadline = (data) => {
   if (data.deadline && typeof data.deadline === 'object') {
-    const { mode, date, time, value, unit } = data.deadline;
+    const { mode: rawMode, date, time, value, unit } = data.deadline;
+    const mode = String(rawMode).toUpperCase();
     
     if (mode === 'NONE') {
       data.deadline = null;
@@ -144,7 +145,8 @@ export class GoalService {
       let totalDays = 7;
       if (data.deadline && typeof data.deadline === 'object') {
         const { mode, date, value, unit } = data.deadline;
-        if (mode === 'DURATION') {
+        const uMode = mode ? String(mode).toUpperCase() : '';
+        if (uMode === 'DURATION') {
           totalDays = value || 7;
           if (unit === 'weeks') totalDays *= 7;
           if (unit === 'months') totalDays *= 30;
@@ -165,10 +167,10 @@ export class GoalService {
         return {
           title: task.title || `Task ${idx + 1}`,
           description: task.description || '',
-          estimate: `Sprint ${idx + 1} • 1.5h`,
+          estimate: task.estimate || `Sprint ${idx + 1} • 1.5h`,
           priority: task.priority || 'MEDIUM',
-          deadline: `${yyyy}-${mm}-${dd}`,
-          deadlineTime: null,
+          deadline: task.deadline || `${yyyy}-${mm}-${dd}`,
+          deadlineTime: task.deadlineTime || null,
           completed: false,
           status: 'TODO'
         };
@@ -178,7 +180,8 @@ export class GoalService {
       let totalDays = 7;
       if (data.deadline && typeof data.deadline === 'object') {
         const { mode, date, value, unit } = data.deadline;
-        if (mode === 'DURATION') {
+        const uMode = mode ? String(mode).toUpperCase() : '';
+        if (uMode === 'DURATION') {
           totalDays = value || 7;
           if (unit === 'weeks') totalDays *= 7;
           if (unit === 'months') totalDays *= 30;

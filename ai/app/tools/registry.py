@@ -110,8 +110,29 @@ def get_recent_focus(config: RunnableConfig) -> str:
     """Gets the user's most recent focus sessions (max 10)."""
     return _make_request("/api/v1/tools/focus/recent", config)
 
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+class Subtask(BaseModel):
+    title: str = Field(description="A short, actionable title for this subtask or milestone.")
+    description: str = Field(description="Detailed description of what needs to be done.")
+    estimate: str = Field(description="Time estimate, e.g., '2h', '30m', '1d'.")
+    priority: str = Field(description="Priority: 'LOW', 'MEDIUM', 'HIGH', or 'URGENT'.", default="MEDIUM")
+
 @tool
-def create_goal(title: str, description: str, targetHours: int, rawDump: str, ai_summary: str, deadline_mode: str, subtasks: list = None, deadline_date: str = None, deadline_value: int = None, deadline_unit: str = None, config: RunnableConfig = None) -> str:
+def create_goal(
+    title: str,
+    description: str,
+    targetHours: int,
+    rawDump: str,
+    ai_summary: str,
+    deadline_mode: str,
+    subtasks: List[Subtask] = None,
+    deadline_date: str = None,
+    deadline_value: int = None,
+    deadline_unit: str = None,
+    config: RunnableConfig = None
+) -> str:
     """Creates a new study goal for the user. Requires explicit user approval."""
     payload = {
         "title": title, 
@@ -119,7 +140,7 @@ def create_goal(title: str, description: str, targetHours: int, rawDump: str, ai
         "targetHours": targetHours,
         "rawDump": rawDump,
         "ai_summary": ai_summary,
-        "subtasks": subtasks,
+        "subtasks": [s.dict() for s in subtasks] if subtasks else [],
         "deadline": {
             "mode": deadline_mode,
             "date": deadline_date,

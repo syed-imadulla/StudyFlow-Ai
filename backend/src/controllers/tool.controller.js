@@ -159,6 +159,7 @@ export class ToolController {
 
       res.status(201).json({ success: true, data: { id: goal._id || goal.id, title: goal.title } });
     } catch (error) {
+      console.error('---- ACTUAL ERROR ----', error);
       logger.error('Tool API createGoal Error:', error);
       res.status(500).json({ success: false, message: 'Failed to create goal.' });
     }
